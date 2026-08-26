@@ -212,3 +212,97 @@ func TestRunnerPluginCacheDirCreated(t *testing.T) {
 		t.Fatalf("Expected custom cache dir to exist as a directory: %v", err)
 	}
 }
+
+func TestRunnerWorkingDirectoryIsolation(t *testing.T) {
+	bin, err := detector.DetectBinary("")
+	if err != nil {
+		t.Skip("Neither tofu nor terraform found on system PATH; skipping runner test")
+	}
+
+	srcDir := t.TempDir()
+	validExFile := filepath.Join(srcDir, "valid.tf")
+	validContent := `terraform {
+  required_version = ">= 1.6.0"
+}
+
+resource "terraform_data" "greeting" {
+  input = "isolation test"
+}
+`
+	if err := os.WriteFile(validExFile, []byte(validContent), 0644); err != nil {
+		t.Fatalf("Failed to write valid exercise file: %v", err)
+	}
+
+	// Create a broken sibling file in the same directory
+	siblingBrokenFile := filepath.Join(srcDir, "broken_sibling.tf")
+	brokenContent := `this is completely broken hcl syntax !!!`
+	if err := os.WriteFile(siblingBrokenFile, []byte(brokenContent), 0644); err != nil {
+		t.Fatalf("Failed to write broken sibling file: %v", err)
+	}
+
+	r := runner.NewRunner(bin)
+	ex := models.Exercise{Name: "valid_isolated", Path: validExFile, Mode: models.ModeValidate}
+	res := r.Run(ex)
+
+	if !res.Passed {
+		t.Fatalf("Expected isolated exercise to pass despite broken sibling, but failed: %s\n%s", res.Error, res.Output)
+	}
+
+	// Verify that the source directory was not polluted with .terraform
+	dotTerraform := filepath.Join(srcDir, ".terraform")
+	if _, err := os.Stat(dotTerraform); !os.IsNotExist(err) {
+		t.Fatalf("Expected source directory to remain clean of .terraform, but .terraform exists")
+	}
+}
+
+func TestRunnerDirectoryModuleExecution(t *testing.T) {
+	bin, err := detector.DetectBinary("")
+	if err != nil {
+		t.Skip("Neither tofu nor terraform found on system PATH; skipping runner test")
+	}
+
+	moduleDir := filepath.Join(t.TempDir(), "module01")
+	if err := os.MkdirAll(moduleDir, 0755); err != nil {
+		t.Fatalf("Failed to create module dir: %v", err)
+	}
+
+	mainFile := filepath.Join(moduleDir, "main.tf")
+	mainContent := `terraform {
+  required_version = ">= 1.6.0"
+}
+
+resource "terraform_data" "module_item" {
+  input = "module item"
+}
+`
+	if err := os.WriteFile(mainFile, []byte(mainContent), 0644); err != nil {
+		t.Fatalf("Failed to write main.tf: %v", err)
+	}
+
+	r := runner.NewRunner(bin)
+	ex := models.Exercise{Name: "module01", Path: moduleDir, Mode: models.ModeValidate}
+	res := r.Run(ex)
+
+	if !res.Passed {
+		t.Fatalf("Expected module directory to pass validation, but failed: %s\n%s", res.Error, res.Output)
+	}
+}
+
+func TestCheckMarkerInDirectory(t *testing.T) {
+	dir := t.TempDir()
+	f1 := filepath.Join(dir, "clean.tf")
+	f2 := filepath.Join(dir, "marked.tf")
+
+	_ = os.WriteFile(f1, []byte("terraform {}"), 0644)
+	_ = os.WriteFile(f2, []byte("// I AM NOT DONE\nterraform {}"), 0644)
+
+	if !runner.CheckMarker(dir) {
+		t.Fatal("Expected CheckMarker to return true for directory containing marked file")
+	}
+
+	cleanDir := t.TempDir()
+	_ = os.WriteFile(filepath.Join(cleanDir, "a.tf"), []byte("terraform {}"), 0644)
+	if runner.CheckMarker(cleanDir) {
+		t.Fatal("Expected CheckMarker to return false for directory without marked file")
+	}
+}
