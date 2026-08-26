@@ -39,25 +39,33 @@ Before using `terralings`, ensure you have installed:
 
 ## Installation & Getting Started
 
-### 1. Clone the Repository
+### Option 1: Quick Install (Linux & macOS)
+
+Install the latest pre-built binary directly to `~/.local/bin` or `/usr/local/bin`:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/dnf0/terralings/main/install.sh | bash
+```
+
+### Option 2: Go Toolchain
+
+If you have Go 1.22+ installed:
+
+```bash
+go install github.com/dnf0/terralings/cmd/terralings@latest
+```
+
+### Option 3: GitHub Releases Pre-built Binaries
+
+Download pre-compiled archives for Linux (`amd64`, `arm64`), macOS (Apple Silicon `arm64`, Intel `amd64`), or Windows from [GitHub Releases](https://github.com/dnf0/terralings/releases).
+
+### Option 4: Build from Source
 
 ```bash
 git clone https://github.com/dnf0/terralings.git
 cd terralings
-```
-
-### 2. Build the Binary
-
-Build the executable binary into `./bin/terralings`:
-
-```bash
 make build
-```
-
-Or install directly to `$GOPATH/bin`:
-
-```bash
-go install ./cmd/terralings
+# Binary is located at ./bin/terralings
 ```
 
 ### 3. Verify Installation
