@@ -1,0 +1,26 @@
+# Binaries
+bin/
+dist/
+/terralings
+
+# Terraform & OpenTofu
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+.cache/
+.terralings/
+
+# Agent rules & AI tooling
+.agents/
+.agent-state/
+.superpowers/
+.roborev/
+.claude/
+.gemini/
+.cursor/
+graphify-out/
+.smellcheck-cache/

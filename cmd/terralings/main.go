@@ -1,0 +1,174 @@
+package main
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/dnf0/terralings/internal/detector"
+	"github.com/dnf0/terralings/internal/manifest"
+	"github.com/dnf0/terralings/internal/models"
+	"github.com/dnf0/terralings/internal/runner"
+	"github.com/dnf0/terralings/internal/ui"
+	"github.com/dnf0/terralings/internal/watcher"
+	"github.com/spf13/cobra"
+)
+
+// Version is the current release version of terralings.
+const Version = "v0.1.0"
+
+var (
+	binOverride string
+	hintIndex   int
+)
+
+// NewRootCmd constructs and returns the root Cobra command and its subcommands.
+func NewRootCmd() *cobra.Command {
+	rootCmd := &cobra.Command{
+		Use:          "terralings",
+		Short:        "Terralings - Interactive CLI learning environment for Terraform & OpenTofu",
+		Long:         "Terralings guides you through hands-on exercises to master Terraform & OpenTofu HCL and workflows.",
+		SilenceUsage: true,
+	}
+
+	rootCmd.PersistentFlags().StringVar(&binOverride, "bin", "", "Custom path to tofu or terraform binary")
+
+	// watch command
+	watchCmd := &cobra.Command{
+		Use:   "watch",
+		Short: "Start continuous interactive watch mode",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			bin, err := detector.DetectBinary(binOverride)
+			if err != nil {
+				return err
+			}
+			return watcher.RunWatch(bin, "exercises")
+		},
+	}
+
+	// run command
+	runCmd := &cobra.Command{
+		Use:   "run [exercise_name]",
+		Short: "Run verification on a single exercise",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			bin, err := detector.DetectBinary(binOverride)
+			if err != nil {
+				return err
+			}
+
+			ex := manifest.GetExerciseByName(args[0])
+			if ex == nil {
+				return fmt.Errorf("exercise '%s' not found", args[0])
+			}
+
+			r := runner.NewRunner(bin)
+			res := r.Run(*ex)
+			fmt.Fprint(cmd.OutOrStdout(), ui.FormatResult(res))
+
+			if !res.Passed {
+				return fmt.Errorf("exercise %s did not pass", ex.Name)
+			}
+			return nil
+		},
+	}
+
+	// hint command
+	hintCmd := &cobra.Command{
+		Use:   "hint [exercise_name]",
+		Short: "Show progressive hints for an exercise",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ex := manifest.GetExerciseByName(args[0])
+			if ex == nil {
+				return fmt.Errorf("exercise '%s' not found", args[0])
+			}
+
+			fmt.Fprintln(cmd.OutOrStdout(), ui.FormatHint(ex, hintIndex))
+			return nil
+		},
+	}
+	hintCmd.Flags().IntVarP(&hintIndex, "index", "i", 0, "Zero-based index of the hint to display")
+
+	// list command
+	listCmd := &cobra.Command{
+		Use:   "list",
+		Short: "List all curriculum chapters and exercises",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Fprintln(cmd.OutOrStdout(), ui.FormatBanner())
+			m := manifest.GetManifest()
+			fmt.Fprint(cmd.OutOrStdout(), ui.FormatChapterList(m, nil))
+		},
+	}
+
+	// verify command
+	verifyCmd := &cobra.Command{
+		Use:   "verify",
+		Short: "Verify and evaluate all exercises across the curriculum",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			bin, err := detector.DetectBinary(binOverride)
+			if err != nil {
+				return err
+			}
+
+			m := manifest.GetManifest()
+			all := m.AllExercises()
+			r := runner.NewRunner(bin)
+
+			statuses := make(map[string]models.ExerciseStatus)
+			completedCount := 0
+
+			for _, ex := range all {
+				res := r.Run(ex)
+				if res.Passed {
+					statuses[ex.Name] = models.StatusCompleted
+					completedCount++
+				} else if res.HasNotDoneMarker {
+					statuses[ex.Name] = models.StatusInProgress
+				} else {
+					statuses[ex.Name] = models.StatusFailed
+				}
+			}
+
+			fmt.Fprintln(cmd.OutOrStdout(), ui.FormatBanner())
+			fmt.Fprint(cmd.OutOrStdout(), ui.FormatChapterList(m, statuses))
+			fmt.Fprintln(cmd.OutOrStdout(), ui.FormatProgress(completedCount, len(all)))
+
+			if completedCount == len(all) {
+				fmt.Fprintln(cmd.OutOrStdout(), "\n🎉 Congratulations! You have completed all Terralings exercises! 🎉")
+			}
+
+			return nil
+		},
+	}
+
+	// version command
+	versionCmd := &cobra.Command{
+		Use:   "version",
+		Short: "Print Terralings version and detected binary information",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Fprintf(cmd.OutOrStdout(), "terralings %s\n", Version)
+			bin, err := detector.DetectBinary(binOverride)
+			if err != nil {
+				fmt.Fprintln(cmd.OutOrStdout(), "Detected binary: none found")
+				return
+			}
+
+			ver, err := detector.GetBinaryVersion(bin)
+			if err != nil {
+				fmt.Fprintf(cmd.OutOrStdout(), "Detected binary: %s\n", bin)
+				return
+			}
+			fmt.Fprintf(cmd.OutOrStdout(), "Detected binary: %s (%s)\n", bin, ver)
+		},
+	}
+
+	rootCmd.AddCommand(watchCmd, runCmd, hintCmd, listCmd, verifyCmd, versionCmd)
+	return rootCmd
+}
+
+func main() {
+	cmd := NewRootCmd()
+	if err := cmd.Execute(); err != nil {
+		os.Exit(1)
+	}
+}
