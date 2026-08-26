@@ -9,7 +9,7 @@ override_resource {
 }
 
 run "verify_mocked_gateway" {
-  command = plan
+  command = apply
 
   assert {
     condition     = output.gateway_status == "healthy" && output.latency_ms == 12
