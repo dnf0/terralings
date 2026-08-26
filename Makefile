@@ -1,4 +1,4 @@
-.PHONY: all build build-all run test test-race lint fmt-check verify check clean
+.PHONY: all build build-all run test test-race lint fmt-check fmt-solutions verify check clean
 
 all: check build test-race
 
@@ -28,10 +28,17 @@ fmt-check:
 		exit 1; \
 	fi
 
+fmt-solutions:
+	@if command -v tofu >/dev/null 2>&1; then \
+		tofu fmt -check -recursive solutions/ || exit 1; \
+	elif command -v terraform >/dev/null 2>&1; then \
+		terraform fmt -check -recursive solutions/ || exit 1; \
+	fi
+
 verify:
 	go mod verify
 
-check: verify fmt-check lint
+check: verify fmt-check fmt-solutions lint
 
 clean:
 	rm -rf bin/ .terraform/ .cache/ && rm -f ./terralings

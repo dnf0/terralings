@@ -24,9 +24,10 @@ var (
 // NewRootCmd constructs and returns the root Cobra command and its subcommands.
 func NewRootCmd() *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:   "terralings",
-		Short: "Terralings - Interactive CLI learning environment for Terraform & OpenTofu",
-		Long:  "Terralings guides you through hands-on exercises to master Terraform & OpenTofu HCL and workflows.",
+		Use:          "terralings",
+		Short:        "Terralings - Interactive CLI learning environment for Terraform & OpenTofu",
+		Long:         "Terralings guides you through hands-on exercises to master Terraform & OpenTofu HCL and workflows.",
+		SilenceUsage: true,
 	}
 
 	rootCmd.PersistentFlags().StringVar(&binOverride, "bin", "", "Custom path to tofu or terraform binary")

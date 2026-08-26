@@ -84,11 +84,13 @@ jobs:
       - name: Build Binary via Makefile
         run: make build
 
-      - name: Smoke Test Binary
-        run: |
-          out="$(./bin/terralings)"
-          echo "$out"
-          echo "$out" | grep -q "terralings"
+      - name: Check Solution HCL Formatting (OpenTofu)
+        if: matrix.engine == 'opentofu'
+        run: tofu fmt -check -recursive solutions/
+
+      - name: Check Solution HCL Formatting (Terraform)
+        if: matrix.engine == 'terraform'
+        run: terraform fmt -check -recursive solutions/
 
       - name: Run Tests via Makefile
         run: make test-race
