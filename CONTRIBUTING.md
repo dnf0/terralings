@@ -25,6 +25,7 @@ make all
 # Or run individual targets:
 make check      # Dependency verification, gofmt check, and go vet
 make build      # Build binary to bin/terralings
+make build-all  # Build all packages
 make test       # Run test suite
 make test-race  # Run test suite with race detector
 ```
@@ -58,7 +59,7 @@ When adding a new exercise or updating an existing one:
    - Register the exercise with its ID, title, chapter, file path, mode (`validate`, `test`, `plan`), and progressive hints.
 
 4. **Verify Solutions**:
-   - Run `make test` to ensure all tests pass.
+   - Run `make all` (or `make test`) to ensure all tests pass.
 
 ---
 
@@ -78,5 +79,5 @@ We follow the [Conventional Commits](https://www.conventionalcommits.org/) speci
 ## Pull Request Guidelines
 
 1. Fork the repository and create a descriptive feature branch (`feat/my-feature` or `fix/issue-description`).
-2. Run `make check && make test` (or `make all`) to ensure all linting, formatting, and tests pass cleanly.
+2. Run `make all` to ensure all linting, formatting, builds, and tests pass cleanly.
 3. Submit a pull request with a clear description of the changes and testing evidence.

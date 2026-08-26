@@ -30,8 +30,8 @@ jobs:
           go-version: '1.22'
           cache: true
 
-      - name: Run Quality Checks
-        run: make check
+      - name: Run Quality Checks and Full Build
+        run: make check build-all
 
   test:
     name: Test (${{ matrix.os }} - ${{ matrix.engine }})
@@ -75,17 +75,20 @@ jobs:
 
       - name: Verify OpenTofu Version
         if: matrix.engine == 'opentofu'
-        run: tofu version | head -1 | grep -qx "OpenTofu v${{ matrix.tofu-version }}"
+        run: tofu version | head -1 | tee /dev/stderr | grep -qxF "OpenTofu v${{ matrix.tofu-version }}"
 
       - name: Verify Terraform Version
         if: matrix.engine == 'terraform'
-        run: terraform version | head -1 | grep -qx "Terraform v${{ matrix.tf-version }}"
+        run: terraform version | head -1 | tee /dev/stderr | grep -qxF "Terraform v${{ matrix.tf-version }}"
 
       - name: Build Binary via Makefile
         run: make build
 
       - name: Smoke Test Binary
-        run: ./bin/terralings | grep -q "terralings"
+        run: |
+          out="$(./bin/terralings)"
+          echo "$out"
+          echo "$out" | grep -q "terralings"
 
       - name: Run Tests via Makefile
         run: make test-race
