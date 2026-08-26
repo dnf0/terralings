@@ -1,12 +1,12 @@
 .PHONY: all build build-all run test test-race lint fmt-check verify check clean
 
-all: check build build-all test-race
+all: check build test-race
 
 build:
 	go build -o bin/terralings ./cmd/terralings
 
 build-all:
-	go build -v ./...
+	go build -v -o bin/ ./...
 
 run:
 	go run ./cmd/terralings
@@ -34,4 +34,4 @@ verify:
 check: verify fmt-check lint
 
 clean:
-	rm -rf bin/ terralings .terraform/ .cache/
+	rm -rf bin/ .terraform/ .cache/ && rm -f ./terralings
