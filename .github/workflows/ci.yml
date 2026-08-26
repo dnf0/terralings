@@ -46,9 +46,9 @@ jobs:
         engine: [opentofu, terraform]
         include:
           - engine: opentofu
-            tofu-version: '1.6.2'
+            tofu-version: '1.8.8'
           - engine: terraform
-            tf-version: '1.6.6'
+            tf-version: '1.9.8'
 
     steps:
       - name: Checkout repository
