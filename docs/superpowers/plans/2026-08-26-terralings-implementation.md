@@ -404,7 +404,7 @@ git commit -m "feat: implement curriculum manifest and data models"
 - Test: `test/detector_test.go`
 - Test: `test/runner_test.go`
 
-- [ ] **Step 1: Write detector and runner tests**
+- [x] **Step 1: Write detector and runner tests**
 
 ```go
 // test/detector_test.go
@@ -457,12 +457,12 @@ func TestRunnerDetectsNotDoneMarker(t *testing.T) {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `go test -v ./test/detector_test.go ./test/runner_test.go`  
 Expected: FAIL
 
-- [ ] **Step 3: Implement internal/detector and internal/runner**
+- [x] **Step 3: Implement internal/detector and internal/runner**
 
 ```go
 // internal/detector/detector.go
@@ -594,12 +594,12 @@ func (r *Runner) Run(ex models.Exercise) RunResult {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `go test -v ./test/detector_test.go ./test/runner_test.go`  
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add internal/detector/ internal/runner/ test/detector_test.go test/runner_test.go
