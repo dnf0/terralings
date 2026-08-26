@@ -1,7 +1,10 @@
 .PHONY: build test run clean lint
 
 build:
-	go build -o bin/terralings cmd/terralings/main.go
+	go build -o bin/terralings ./cmd/terralings
+
+run:
+	go run ./cmd/terralings
 
 test:
 	go test -v ./...

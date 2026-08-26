@@ -6,6 +6,7 @@ import (
 )
 
 func testFilesExist(t *testing.T) {
+	t.Helper()
 	requiredFiles := []string{
 		"../go.mod",
 		"../.gitignore",
@@ -17,8 +18,8 @@ func testFilesExist(t *testing.T) {
 		"../.github/workflows/ci.yml",
 	}
 	for _, f := range requiredFiles {
-		if _, err := os.Stat(f); os.IsNotExist(err) {
-			t.Fatalf("Required file does not exist: %s", f)
+		if _, err := os.Stat(f); err != nil {
+			t.Errorf("Required file error: %s: %v", f, err)
 		}
 	}
 }

@@ -4,16 +4,22 @@ on:
   push:
     branches:
       - main
-      - 'feat/**'
-      - 'fix/**'
   pull_request:
     branches:
       - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
     name: Test (${{ matrix.os }} - ${{ matrix.engine }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -48,8 +54,19 @@ jobs:
           terraform_version: ${{ matrix.tf-version }}
           terraform_wrapper: false
 
+      - name: Verify Engine Smoke
+        run: |
+          if [ "${{ matrix.engine }}" = "opentofu" ]; then
+            tofu version
+          else
+            terraform version
+          fi
+
       - name: Verify Dependencies
         run: go mod verify
+
+      - name: Check Formatting
+        run: test -z "$(gofmt -l .)"
 
       - name: Run Vet (Lint)
         run: go vet ./...

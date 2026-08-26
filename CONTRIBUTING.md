@@ -58,7 +58,7 @@ When adding a new exercise or updating an existing one:
    - Register the exercise with its ID, title, chapter, file path, mode (`validate`, `test`, `plan`), and progressive hints.
 
 4. **Verify Solutions**:
-   - Run `go test -v ./test/solutions_test.go` to ensure your solution passes automated grading.
+   - Run `go test -v ./test/...` to ensure all tests pass.
 
 ---
 
