@@ -4,6 +4,7 @@ all: check build test-race
 
 build:
 	go build -o bin/terralings ./cmd/terralings
+	@if [ "$$(uname -s)" = "Darwin" ]; then codesign -s - -f bin/terralings 2>/dev/null || true; fi
 
 build-all:
 	go build -v -o bin/ ./...

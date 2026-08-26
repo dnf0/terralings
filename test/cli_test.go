@@ -25,6 +25,9 @@ func getCLIBinary(t *testing.T) string {
 		prebuilt, err := filepath.Abs("../bin/terralings")
 		if err == nil {
 			if info, err := os.Stat(prebuilt); err == nil && !info.IsDir() {
+				if runtime.GOOS == "darwin" {
+					_ = exec.Command("codesign", "-s", "-", "-f", prebuilt).Run()
+				}
 				cliBinaryPath = prebuilt
 				return
 			}
