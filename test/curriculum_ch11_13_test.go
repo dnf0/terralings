@@ -3,6 +3,7 @@ package test
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/dnf0/terralings/internal/detector"
@@ -99,6 +100,13 @@ func TestSolutionsChapters11To13Pass(t *testing.T) {
 
 			if runner.CheckMarker(fullPath) {
 				t.Fatalf("Solution %s MUST NOT contain '%s' marker", solRelPath, runner.NotDoneMarker)
+			}
+
+			if strings.HasPrefix(ex.Name, "tofu") {
+				versionInfo, _ := detector.GetBinaryVersion(bin)
+				if !strings.Contains(strings.ToLower(versionInfo), "opentofu") {
+					t.Skipf("Skipping %s because it requires OpenTofu (detected binary: %s)", ex.Name, versionInfo)
+				}
 			}
 
 			solEx := models.Exercise{

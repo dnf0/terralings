@@ -65,6 +65,13 @@ func TestE2E_FullCurriculumVerification(t *testing.T) {
 				t.Fatalf("Solution file %s must NOT contain '%s' marker", solRelPath, runner.NotDoneMarker)
 			}
 
+			if strings.HasPrefix(ex.Name, "tofu") {
+				versionInfo, _ := detector.GetBinaryVersion(bin)
+				if !strings.Contains(strings.ToLower(versionInfo), "opentofu") {
+					t.Skipf("Skipping %s because it requires OpenTofu (detected binary: %s)", ex.Name, versionInfo)
+				}
+			}
+
 			// 4. Reference solution execution must pass cleanly
 			solEx := models.Exercise{
 				Name:        ex.Name,

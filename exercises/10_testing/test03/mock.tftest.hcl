@@ -10,7 +10,7 @@
 # }
 
 run "verify_mocked_gateway" {
-  command = plan
+  command = apply
 
   assert {
     # TODO: Assert gateway_status is healthy and latency_ms is 12
