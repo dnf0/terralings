@@ -739,7 +739,7 @@ git commit -m "feat: implement rich terminal UI and formatting"
 - Create: `cmd/terralings/main.go`
 - Test: `test/cli_test.go`
 
-- [ ] **Step 1: Write CLI tests**
+- [x] **Step 1: Write CLI tests**
 
 ```go
 // test/cli_test.go
@@ -761,12 +761,12 @@ func TestListChapters(t *testing.T) {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it passes / fails**
+- [x] **Step 2: Run test to verify it passes / fails**
 
 Run: `go test -v ./test/cli_test.go`  
 Expected: PASS
 
-- [ ] **Step 3: Implement internal/watcher and cmd/terralings/main.go**
+- [x] **Step 3: Implement internal/watcher and cmd/terralings/main.go**
 
 ```go
 // internal/watcher/watcher.go
@@ -948,12 +948,12 @@ func main() {
 }
 ```
 
-- [ ] **Step 4: Build binary and run test**
+- [x] **Step 4: Build binary and run test**
 
 Run: `go build -o bin/terralings cmd/terralings/main.go && ./bin/terralings list`  
 Expected: PASS (prints curriculum table)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add internal/watcher/ cmd/terralings/ test/cli_test.go
