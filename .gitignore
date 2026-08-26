@@ -1,7 +1,7 @@
 # Binaries
 bin/
 dist/
-terralings
+/terralings
 
 # Terraform & OpenTofu
 .terraform/

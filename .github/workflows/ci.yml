@@ -54,22 +54,33 @@ jobs:
           terraform_version: ${{ matrix.tf-version }}
           terraform_wrapper: false
 
-      - name: Verify Engine Smoke
+      - name: Verify OpenTofu Version
+        if: matrix.engine == 'opentofu'
         run: |
-          if [ "${{ matrix.engine }}" = "opentofu" ]; then
-            tofu version
-          else
-            terraform version
-          fi
+          tofu version | grep -E "OpenTofu v1\.[6-9]"
+
+      - name: Verify Terraform Version
+        if: matrix.engine == 'terraform'
+        run: |
+          terraform version | grep -E "Terraform v1\.[6-9]"
 
       - name: Verify Dependencies
         run: go mod verify
 
       - name: Check Formatting
-        run: test -z "$(gofmt -l .)"
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "Unformatted files:"
+            echo "$unformatted"
+            exit 1
+          fi
 
       - name: Run Vet (Lint)
         run: go vet ./...
+
+      - name: Build
+        run: go build -v ./...
 
       - name: Run Tests
         run: go test -v -race ./...

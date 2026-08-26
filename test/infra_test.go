@@ -5,8 +5,7 @@ import (
 	"testing"
 )
 
-func testFilesExist(t *testing.T) {
-	t.Helper()
+func TestInfra(t *testing.T) {
 	requiredFiles := []string{
 		"../go.mod",
 		"../.gitignore",
@@ -16,14 +15,11 @@ func testFilesExist(t *testing.T) {
 		"../CONTRIBUTING.md",
 		"../CHANGELOG.md",
 		"../.github/workflows/ci.yml",
+		"../cmd/terralings/main.go",
 	}
 	for _, f := range requiredFiles {
 		if _, err := os.Stat(f); err != nil {
-			t.Errorf("Required file error: %s: %v", f, err)
+			t.Errorf("required file %s: %v", f, err)
 		}
 	}
-}
-
-func TestInfra(t *testing.T) {
-	testFilesExist(t)
 }
