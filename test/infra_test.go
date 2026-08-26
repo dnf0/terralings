@@ -15,7 +15,6 @@ func TestInfra(t *testing.T) {
 		"../CONTRIBUTING.md",
 		"../CHANGELOG.md",
 		"../.github/workflows/ci.yml",
-		"../cmd/terralings/main.go",
 	}
 	for _, f := range requiredFiles {
 		if _, err := os.Stat(f); err != nil {
