@@ -7,13 +7,12 @@
 # 1. OpenTofu and Terraform allow controlling replacement triggers using
 #    `lifecycle { replace_triggered_by = [...] }`. This forces a resource to be
 #    replaced whenever another resource or attribute changes.
-# 2. Modern OpenTofu and Terraform also support `removed` blocks with
-#    `lifecycle { destroy = false }` to safely unmanage resources from state
-#    without destroying the real-world infrastructure.
+# 2. Modern OpenTofu and Terraform also support `removed` blocks to safely
+#    unmanage resources from state without configuration errors.
 #
 # In this exercise:
 # 1. Add `replace_triggered_by = [terraform_data.app_version]` to `terraform_data.worker_fleet`.
-# 2. Declare a `removed` block for `terraform_data.legacy_queue` with `destroy = false`.
+# 2. Declare a `removed` block for `terraform_data.legacy_queue`.
 #
 # When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
@@ -33,10 +32,7 @@ resource "terraform_data" "worker_fleet" {
   # }
 }
 
-# TODO: Add removed block for legacy_queue with destroy = false
+# TODO: Add removed block for legacy_queue
 # removed {
 #   from = terraform_data.legacy_queue
-#   lifecycle {
-#     destroy = false
-#   }
 # }

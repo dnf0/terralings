@@ -19,7 +19,4 @@ resource "terraform_data" "worker_fleet" {
 
 removed {
   from = terraform_data.legacy_queue
-  lifecycle {
-    destroy = false
-  }
 }
