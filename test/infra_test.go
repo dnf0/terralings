@@ -26,10 +26,11 @@ func TestInfra(t *testing.T) {
 }
 
 func TestEntrypointSmoke(t *testing.T) {
-	cmd := exec.Command("go", "run", "../cmd/terralings")
+	bin := getCLIBinary(t)
+	cmd := exec.Command(bin)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		t.Fatalf("failed to run cmd/terralings: %v\noutput: %s", err, string(out))
+		t.Fatalf("failed to run terralings binary: %v\noutput: %s", err, string(out))
 	}
 	if !strings.Contains(string(out), "terralings") {
 		t.Fatalf("expected output to contain 'terralings', got: %s", string(out))
