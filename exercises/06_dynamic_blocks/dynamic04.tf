@@ -1,0 +1,72 @@
+# I AM NOT DONE
+# ==============================================================================
+# Exercise: dynamic04
+# Chapter: 06_dynamic_blocks (Dynamic Blocks & Advanced HCL)
+#
+# Task:
+# A common idiom in Terraform is using dynamic blocks to conditionally emit
+# nested blocks by passing either a single-element list `[value]` or an empty
+# list `[]` to `for_each`.
+#
+# Complete the configuration below:
+# 1. In `data "archive_file" "package"`, add a standard dynamic "source" for `var.base_files`.
+# 2. Add a second dynamic "source" with label `conditional_debug` (or `source`) that iterates over:
+#    `var.include_debug ? [{ filename = "debug.log", content = var.debug_content }] : []`
+# 3. Inside the content block, set `filename = source.value.filename` and `content = source.value.content`.
+#
+# When done, remove the '# I AM NOT DONE' line at the top.
+# ==============================================================================
+
+terraform {
+  required_version = ">= 1.6.0"
+  required_providers {
+    archive = {
+      source  = "hashicorp/archive"
+      version = "~> 2.0"
+    }
+  }
+}
+
+variable "base_files" {
+  type = map(string)
+  default = {
+    "server.js" = "require('http').createServer().listen(8080);"
+  }
+}
+
+variable "include_debug" {
+  type        = bool
+  description = "Flag to conditionally include debug log artifact"
+  default     = true
+}
+
+variable "debug_content" {
+  type    = string
+  default = "VERBOSE=true; DEBUG_LEVEL=trace"
+}
+
+data "archive_file" "package" {
+  type        = "zip"
+  output_path = "${path.module}/package.zip"
+
+  dynamic "source" {
+    for_each = var.base_files
+    content {
+      filename = source.key
+      content  = source.value
+    }
+  }
+
+  # TODO: Conditionally emit debug source using ternary: var.include_debug ? [...] : []
+  # dynamic "source" {
+  #   for_each = var.include_debug ? [{ filename = "debug.log", content = var.debug_content }] : []
+  #   content {
+  #     filename = ...
+  #     content  = ...
+  #   }
+  # }
+}
+
+output "archive_sha" {
+  value = data.archive_file.package.output_sha
+}

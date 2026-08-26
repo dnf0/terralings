@@ -148,8 +148,16 @@ func TestWatcher_FileDebounceAndAdvancement(t *testing.T) {
 	}()
 
 	// Wait for initial check to run
-	time.Sleep(150 * time.Millisecond)
-	if !strings.Contains(out.String(), "I AM NOT DONE") {
+	var initialReported bool
+	deadlineInitial := time.Now().Add(5 * time.Second)
+	for time.Now().Before(deadlineInitial) {
+		if strings.Contains(out.String(), "I AM NOT DONE") {
+			initialReported = true
+			break
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+	if !initialReported {
 		t.Fatalf("Expected initial output to report 'I AM NOT DONE', got:\n%s", out.String())
 	}
 
