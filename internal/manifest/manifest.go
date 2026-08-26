@@ -442,7 +442,7 @@ func buildManifest() *models.Manifest {
 					{
 						Name:        "module01",
 						Title:       "Building a Clean Child Module",
-						Path:        "exercises/08_modules/module01/main.tf",
+						Path:        "exercises/08_modules/module01",
 						ChapterName: "08_modules",
 						Hints: []string{
 							"Define input variables in variables.tf and outputs in outputs.tf",
@@ -453,7 +453,7 @@ func buildManifest() *models.Manifest {
 					{
 						Name:        "module02",
 						Title:       "Calling Local Child Modules",
-						Path:        "exercises/08_modules/module02/main.tf",
+						Path:        "exercises/08_modules/module02",
 						ChapterName: "08_modules",
 						Hints: []string{
 							"Use module \"<name>\" { source = \"./...\" }",
@@ -464,7 +464,7 @@ func buildManifest() *models.Manifest {
 					{
 						Name:        "module03",
 						Title:       "Multi-Instance Module Deployment",
-						Path:        "exercises/08_modules/module03/main.tf",
+						Path:        "exercises/08_modules/module03",
 						ChapterName: "08_modules",
 						Hints: []string{
 							"Use for_each inside module block to deploy multiple module instances",
@@ -475,7 +475,7 @@ func buildManifest() *models.Manifest {
 					{
 						Name:        "module04",
 						Title:       "Passing Provider Configurations & Aliases",
-						Path:        "exercises/08_modules/module04/main.tf",
+						Path:        "exercises/08_modules/module04",
 						ChapterName: "08_modules",
 						Hints: []string{
 							"Pass providers = { <child_provider> = <parent_provider> }",
@@ -486,7 +486,7 @@ func buildManifest() *models.Manifest {
 					{
 						Name:        "module05",
 						Title:       "Submodule Boundaries & Clean Architecture",
-						Path:        "exercises/08_modules/module05/main.tf",
+						Path:        "exercises/08_modules/module05",
 						ChapterName: "08_modules",
 						Hints: []string{
 							"Avoid deep submodule nesting antipatterns",
@@ -557,7 +557,7 @@ func buildManifest() *models.Manifest {
 					{
 						Name:        "test01",
 						Title:       "Basic Test Assertions with Run Blocks",
-						Path:        "exercises/10_testing/test01.tftest.hcl",
+						Path:        "exercises/10_testing/test01",
 						ChapterName: "10_testing",
 						Hints: []string{
 							"Define run \"<name>\" { command = plan assert { condition = ... error_message = ... } }",
@@ -568,7 +568,7 @@ func buildManifest() *models.Manifest {
 					{
 						Name:        "test02",
 						Title:       "Validating Applied Resources in Tests",
-						Path:        "exercises/10_testing/test02.tftest.hcl",
+						Path:        "exercises/10_testing/test02",
 						ChapterName: "10_testing",
 						Hints: []string{
 							"Use command = apply in run block to test actual provisioned output",
@@ -579,18 +579,18 @@ func buildManifest() *models.Manifest {
 					{
 						Name:        "test03",
 						Title:       "Mocking Providers and Resources",
-						Path:        "exercises/10_testing/test03.tftest.hcl",
+						Path:        "exercises/10_testing/test03",
 						ChapterName: "10_testing",
 						Hints: []string{
-							"Use mock_provider \"aws\" { ... } inside .tftest.hcl",
-							"Mock cloud APIs without real credentials or network calls",
+							"Use mock_provider \"local\" { ... } or override_resource in .tftest.hcl",
+							"Mock providers without real credentials or network calls",
 						},
 						Mode: models.ModeTest,
 					},
 					{
 						Name:        "test04",
 						Title:       "Testing Failure Cases with Expect Failures",
-						Path:        "exercises/10_testing/test04.tftest.hcl",
+						Path:        "exercises/10_testing/test04",
 						ChapterName: "10_testing",
 						Hints: []string{
 							"Use expect_failures = [var.<name>] inside run block",

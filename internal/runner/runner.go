@@ -64,7 +64,7 @@ func CheckMarker(path string) bool {
 	if info.IsDir() {
 		hasMarker := false
 		_ = filepath.Walk(path, func(p string, i os.FileInfo, walkErr error) error {
-			if walkErr == nil && !i.IsDir() && strings.HasSuffix(p, ".tf") {
+			if walkErr == nil && !i.IsDir() && (strings.HasSuffix(p, ".tf") || strings.HasSuffix(p, ".hcl") || strings.HasSuffix(p, ".tftest.hcl")) {
 				if data, readErr := os.ReadFile(p); readErr == nil {
 					if markerRegex.Match(data) {
 						hasMarker = true

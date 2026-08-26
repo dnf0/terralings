@@ -52,9 +52,9 @@ locals {
 
 resource "terraform_data" "safety" {
   input = {
-    port         = local.safe_port
-    timeout      = local.parsed_timeout
-    has_db       = local.has_database
-    valid_json   = local.is_valid_json
+    port       = local.safe_port
+    timeout    = local.parsed_timeout
+    has_db     = local.has_database
+    valid_json = local.is_valid_json
   }
 }

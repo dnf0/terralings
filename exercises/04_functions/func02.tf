@@ -85,10 +85,10 @@ locals {
 
 resource "terraform_data" "collections" {
   input = {
-    tags     = local.merged_tags
-    owner    = local.owner
-    zones    = local.primary_zones
-    subnets  = local.flat_subnets
-    config   = local.config_map
+    tags    = local.merged_tags
+    owner   = local.owner
+    zones   = local.primary_zones
+    subnets = local.flat_subnets
+    config  = local.config_map
   }
 }
