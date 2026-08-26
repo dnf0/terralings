@@ -75,17 +75,17 @@ jobs:
 
       - name: Verify OpenTofu Version
         if: matrix.engine == 'opentofu'
-        run: tofu version | head -1 | grep -F "OpenTofu v${{ matrix.tofu-version }}"
+        run: tofu version | head -1 | grep -qx "OpenTofu v${{ matrix.tofu-version }}"
 
       - name: Verify Terraform Version
         if: matrix.engine == 'terraform'
-        run: terraform version | head -1 | grep -F "Terraform v${{ matrix.tf-version }}"
+        run: terraform version | head -1 | grep -qx "Terraform v${{ matrix.tf-version }}"
 
       - name: Build Binary via Makefile
         run: make build
 
       - name: Smoke Test Binary
-        run: ./bin/terralings
+        run: ./bin/terralings | grep -q "terralings"
 
       - name: Run Tests via Makefile
         run: make test-race

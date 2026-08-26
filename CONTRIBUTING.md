@@ -19,14 +19,14 @@ Thank you for your interest in contributing to Terralings! We welcome contributi
 git clone https://github.com/dnf0/terralings.git
 cd terralings
 
-# Build binary
-make build
+# Run all formatting, verification, build, and race-detector checks
+make all
 
-# Run unit and integration tests
-make test
-
-# Run linter / static analysis
-make lint
+# Or run individual targets:
+make check      # Dependency verification, gofmt check, and go vet
+make build      # Build binary to bin/terralings
+make test       # Run test suite
+make test-race  # Run test suite with race detector
 ```
 
 ---
@@ -58,7 +58,7 @@ When adding a new exercise or updating an existing one:
    - Register the exercise with its ID, title, chapter, file path, mode (`validate`, `test`, `plan`), and progressive hints.
 
 4. **Verify Solutions**:
-   - Run `go test -v ./test/...` to ensure all tests pass.
+   - Run `make test` to ensure all tests pass.
 
 ---
 
@@ -78,6 +78,5 @@ We follow the [Conventional Commits](https://www.conventionalcommits.org/) speci
 ## Pull Request Guidelines
 
 1. Fork the repository and create a descriptive feature branch (`feat/my-feature` or `fix/issue-description`).
-2. Ensure all tests pass locally (`make test`).
-3. Ensure code formatting is clean (`go vet ./...` and `gofmt`).
-4. Submit a pull request with a clear description of the changes and testing evidence.
+2. Run `make check && make test` (or `make all`) to ensure all linting, formatting, and tests pass cleanly.
+3. Submit a pull request with a clear description of the changes and testing evidence.

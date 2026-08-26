@@ -1,6 +1,6 @@
 .PHONY: all build build-all run test test-race lint fmt-check verify check clean
 
-all: check build test
+all: check build-all test-race
 
 build:
 	go build -o bin/terralings ./cmd/terralings
@@ -21,7 +21,7 @@ lint:
 	go vet ./...
 
 fmt-check:
-	@unformatted=$$(gofmt -l .); \
+	@unformatted=$$(gofmt -l .) || exit 1; \
 	if [ -n "$$unformatted" ]; then \
 		echo "Unformatted files:"; \
 		echo "$$unformatted"; \
