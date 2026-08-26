@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - 'feat/**'
+      - 'fix/**'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Test (${{ matrix.os }} - ${{ matrix.engine }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        engine: [opentofu, terraform]
+        include:
+          - engine: opentofu
+            tofu-version: '1.6.2'
+          - engine: terraform
+            tf-version: '1.6.6'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: true
+
+      - name: Set up OpenTofu
+        if: matrix.engine == 'opentofu'
+        uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: ${{ matrix.tofu-version }}
+
+      - name: Set up Terraform
+        if: matrix.engine == 'terraform'
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ matrix.tf-version }}
+          terraform_wrapper: false
+
+      - name: Verify Dependencies
+        run: go mod verify
+
+      - name: Run Vet (Lint)
+        run: go vet ./...
+
+      - name: Run Tests
+        run: go test -v -race ./...
