@@ -30,20 +30,8 @@ jobs:
           go-version: '1.22'
           cache: true
 
-      - name: Verify Dependencies
-        run: go mod verify
-
-      - name: Check Formatting
-        run: |
-          unformatted=$(gofmt -l .)
-          if [ -n "$unformatted" ]; then
-            echo "Unformatted files:"
-            echo "$unformatted"
-            exit 1
-          fi
-
-      - name: Run Vet (Lint)
-        run: make lint
+      - name: Run Quality Checks
+        run: make check
 
   test:
     name: Test (${{ matrix.os }} - ${{ matrix.engine }})
@@ -76,6 +64,7 @@ jobs:
         uses: opentofu/setup-opentofu@v1
         with:
           tofu_version: ${{ matrix.tofu-version }}
+          tofu_wrapper: false
 
       - name: Set up Terraform
         if: matrix.engine == 'terraform'
@@ -86,14 +75,17 @@ jobs:
 
       - name: Verify OpenTofu Version
         if: matrix.engine == 'opentofu'
-        run: tofu version | grep -F "v${{ matrix.tofu-version }}"
+        run: tofu version | head -1 | grep -F "OpenTofu v${{ matrix.tofu-version }}"
 
       - name: Verify Terraform Version
         if: matrix.engine == 'terraform'
-        run: terraform version | grep -F "v${{ matrix.tf-version }}"
+        run: terraform version | head -1 | grep -F "Terraform v${{ matrix.tf-version }}"
 
       - name: Build Binary via Makefile
         run: make build
 
+      - name: Smoke Test Binary
+        run: ./bin/terralings
+
       - name: Run Tests via Makefile
-        run: make test
+        run: make test-race
