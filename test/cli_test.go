@@ -19,6 +19,17 @@ var (
 func getCLIBinary(t *testing.T) string {
 	t.Helper()
 	buildOnce.Do(func() {
+		prebuilt, err := filepath.Abs("../bin/terralings")
+		if err == nil {
+			if info, err := os.Stat(prebuilt); err == nil && !info.IsDir() {
+				if runtime.GOOS == "darwin" {
+					_ = exec.Command("codesign", "-s", "-", "-f", prebuilt).Run()
+				}
+				cliBinaryPath = prebuilt
+				return
+			}
+		}
+
 		tmpDir, err := os.MkdirTemp("", "terralings-cli-build-*")
 		if err != nil {
 			buildErr = err
@@ -31,8 +42,10 @@ func getCLIBinary(t *testing.T) string {
 			buildErr = err
 			return
 		}
+		if runtime.GOOS == "darwin" {
+			_ = exec.Command("codesign", "-s", "-", "-f", binPath).Run()
+		}
 		cliBinaryPath = binPath
-		_ = out
 	})
 
 	if buildErr != nil {
