@@ -614,7 +614,7 @@ git commit -m "feat: implement binary detector and runner engine with plugin cac
 - Create: `internal/ui/ui.go`
 - Test: `test/ui_test.go`
 
-- [ ] **Step 1: Write UI tests**
+- [x] **Step 1: Write UI tests**
 
 ```go
 // test/ui_test.go
@@ -639,12 +639,12 @@ func TestRenderResult(t *testing.T) {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `go test -v ./test/ui_test.go`  
 Expected: FAIL
 
-- [ ] **Step 3: Implement internal/ui/ui.go**
+- [x] **Step 3: Implement internal/ui/ui.go**
 
 ```go
 // internal/ui/ui.go
@@ -718,12 +718,12 @@ func FormatHint(ex *models.Exercise, hintIdx int) string {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `go test -v ./test/ui_test.go`  
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add internal/ui/ test/ui_test.go
