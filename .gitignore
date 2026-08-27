@@ -2,6 +2,7 @@
 bin/
 dist/
 /terralings
+node_modules/
 
 # Terraform & OpenTofu
 .terraform/

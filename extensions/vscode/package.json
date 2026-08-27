@@ -1,0 +1,242 @@
+{
+  "name": "terralings-vscode",
+  "displayName": "Terralings",
+  "description": "Interactive OpenTofu & Terraform learning companion for VS Code",
+  "version": "0.3.0",
+  "publisher": "dnf0",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Education",
+    "Linters",
+    "Snippets"
+  ],
+  "keywords": [
+    "terraform",
+    "opentofu",
+    "terralings",
+    "hcl",
+    "infrastructure-as-code",
+    "iac",
+    "learning"
+  ],
+  "main": "./dist/extension.js",
+  "icon": "icons/terralings.svg",
+  "activationEvents": [
+    "onLanguage:terraform",
+    "onLanguage:hcl",
+    "workspaceContains:exercises",
+    "onView:terralings-tree",
+    "onCommand:terralings.openExercise",
+    "onCommand:terralings.runCurrent",
+    "onCommand:terralings.watch",
+    "onCommand:terralings.tui",
+    "onCommand:terralings.hint",
+    "onCommand:terralings.reset",
+    "onCommand:terralings.doctor",
+    "onCommand:terralings.tour",
+    "onCommand:terralings.refreshTree"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "terralings-exercises",
+          "title": "Terralings",
+          "icon": "icons/terralings.svg"
+        }
+      ]
+    },
+    "views": {
+      "terralings-exercises": [
+        {
+          "id": "terralings-tree",
+          "name": "Curriculum & Exercises"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "terralings.openExercise",
+        "title": "Terralings: Open Exercise"
+      },
+      {
+        "command": "terralings.runCurrent",
+        "title": "Terralings: Verify Current Exercise",
+        "icon": "$(play)"
+      },
+      {
+        "command": "terralings.watch",
+        "title": "Terralings: Start Watch Mode",
+        "icon": "$(eye)"
+      },
+      {
+        "command": "terralings.tui",
+        "title": "Terralings: Open Terminal Dashboard (TUI)",
+        "icon": "$(terminal)"
+      },
+      {
+        "command": "terralings.hint",
+        "title": "Terralings: Show Hint",
+        "icon": "$(lightbulb)"
+      },
+      {
+        "command": "terralings.reset",
+        "title": "Terralings: Reset Exercise Template",
+        "icon": "$(discard)"
+      },
+      {
+        "command": "terralings.doctor",
+        "title": "Terralings: Run Environment Diagnostics (Doctor)",
+        "icon": "$(checklist)"
+      },
+      {
+        "command": "terralings.tour",
+        "title": "Terralings: Open Guided Tour",
+        "icon": "$(info)"
+      },
+      {
+        "command": "terralings.refreshTree",
+        "title": "Terralings: Refresh Exercises",
+        "icon": "$(refresh)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "terralings.watch",
+          "when": "view == terralings-tree",
+          "group": "navigation@1"
+        },
+        {
+          "command": "terralings.tui",
+          "when": "view == terralings-tree",
+          "group": "navigation@2"
+        },
+        {
+          "command": "terralings.refreshTree",
+          "when": "view == terralings-tree",
+          "group": "navigation@3"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "terralings.runCurrent",
+          "when": "view == terralings-tree",
+          "group": "inline@1"
+        },
+        {
+          "command": "terralings.hint",
+          "when": "view == terralings-tree",
+          "group": "inline@2"
+        },
+        {
+          "command": "terralings.reset",
+          "when": "view == terralings-tree",
+          "group": "inline@3"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "terralings.runCurrent",
+          "when": "resourceExtname == .tf || resourceLangId == terraform || resourceLangId == hcl",
+          "group": "navigation@1"
+        },
+        {
+          "command": "terralings.hint",
+          "when": "resourceExtname == .tf || resourceLangId == terraform || resourceLangId == hcl",
+          "group": "navigation@2"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Terralings",
+      "properties": {
+        "terralings.binaryPath": {
+          "type": "string",
+          "default": "terralings",
+          "description": "Path to the terralings executable"
+        },
+        "terralings.enableLsp": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable built-in Terralings Language Server"
+        },
+        "terralings.autoOpenWalkthrough": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show welcome walkthrough on startup if first time"
+        }
+      }
+    },
+    "walkthroughs": [
+      {
+        "id": "terralings.welcome",
+        "title": "Welcome to Terralings",
+        "description": "Master Terraform & OpenTofu through interactive, hands-on practice.",
+        "steps": [
+          {
+            "id": "01-welcome",
+            "title": "Welcome & Philosophy",
+            "description": "Learn how Terralings approaches Infrastructure-as-Code education from first principles.\n[Open Guided Tour](command:terralings.tour)",
+            "media": {
+              "markdown": "walkthrough/01_welcome.md"
+            }
+          },
+          {
+            "id": "02-anatomy",
+            "title": "Anatomy of an Exercise",
+            "description": "Understand how exercises are structured, the role of TODO markers, and reference solutions.\n[Refresh Exercises](command:terralings.refreshTree)",
+            "media": {
+              "markdown": "walkthrough/02_anatomy.md"
+            }
+          },
+          {
+            "id": "03-watch",
+            "title": "Continuous Watch Mode",
+            "description": "Experience rapid iterative feedback with automatic re-evaluation on file save.\n[Start Watch Mode](command:terralings.watch)",
+            "media": {
+              "markdown": "walkthrough/03_watch.md"
+            }
+          },
+          {
+            "id": "04-tui-hints",
+            "title": "TUI Dashboard & Hints",
+            "description": "Use the full-screen terminal dashboard and request progressive hints when stuck.\n[Open Terminal Dashboard](command:terralings.tui)",
+            "media": {
+              "markdown": "walkthrough/04_tui_hints.md"
+            }
+          },
+          {
+            "id": "05-editor-lsp",
+            "title": "Editor LSP & Autocompletion",
+            "description": "Get real-time compiler diagnostics, syntax error markers, and code actions in VS Code.\n[Run Environment Diagnostics](command:terralings.doctor)",
+            "media": {
+              "markdown": "walkthrough/05_editor_lsp.md"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "build": "node esbuild.js",
+    "test": "tsc -p ./ && node ./dist/test/runTest.js || mocha"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.80.0",
+    "esbuild": "^0.20.0",
+    "mocha": "^10.4.0",
+    "typescript": "^5.4.0"
+  }
+}
