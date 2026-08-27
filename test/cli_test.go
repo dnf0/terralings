@@ -192,7 +192,7 @@ func TestCLI_FlagsAndHelp(t *testing.T) {
 		if exitCode != 0 {
 			t.Fatalf("Expected exit code 0 for '--help', got %d", exitCode)
 		}
-		for _, cmdName := range []string{"list", "hint", "run", "watch", "verify", "version"} {
+		for _, cmdName := range []string{"list", "hint", "run", "watch", "verify", "version", "init", "reset"} {
 			if !strings.Contains(stdout, cmdName) {
 				t.Fatalf("Expected command %q to be listed in --help output, got:\n%s", cmdName, stdout)
 			}
@@ -208,4 +208,60 @@ func TestCLI_FlagsAndHelp(t *testing.T) {
 			t.Fatalf("Expected binary not found error in stderr, got:\n%s", stderr)
 		}
 	})
+}
+
+func TestCLI_InitCommand(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "terralings-cli-init-*")
+	if err != nil {
+		t.Fatalf("Failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	stdout, stderr, exitCode := runCLI(t, "init", tmpDir)
+	if exitCode != 0 {
+		t.Fatalf("Expected exit code 0 for 'init', got %d. Stderr: %s", exitCode, stderr)
+	}
+	if !strings.Contains(stdout, "Successfully initialized") {
+		t.Fatalf("Expected success message in 'init' output, got:\n%s", stdout)
+	}
+
+	// Verify an exercise file was created
+	checkFile := filepath.Join(tmpDir, "01_primitives", "primitives01.tf")
+	if _, err := os.Stat(checkFile); err != nil {
+		t.Fatalf("Expected %s to exist after 'init', got error: %v", checkFile, err)
+	}
+}
+
+func TestCLI_ResetCommand(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "terralings-cli-reset-*")
+	if err != nil {
+		t.Fatalf("Failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	// First init into tmpDir
+	if _, _, code := runCLI(t, "init", tmpDir); code != 0 {
+		t.Fatalf("Failed to init in tmpDir: %d", code)
+	}
+
+	targetFile := filepath.Join(tmpDir, "01_primitives", "primitives01.tf")
+	if err := os.WriteFile(targetFile, []byte("// tampered"), 0644); err != nil {
+		t.Fatalf("Failed to tamper file: %v", err)
+	}
+
+	stdout, stderr, exitCode := runCLI(t, "reset", "primitives01", "--dir", tmpDir)
+	if exitCode != 0 {
+		t.Fatalf("Expected exit code 0 for 'reset', got %d. Stderr: %s", exitCode, stderr)
+	}
+	if !strings.Contains(stdout, "Reset exercise 'primitives01'") {
+		t.Fatalf("Expected reset confirmation message, got:\n%s", stdout)
+	}
+
+	restored, err := os.ReadFile(targetFile)
+	if err != nil {
+		t.Fatalf("Failed to read restored file: %v", err)
+	}
+	if !strings.Contains(string(restored), "# I AM NOT DONE") {
+		t.Fatalf("Expected restored file to contain marker, got:\n%s", string(restored))
+	}
 }
