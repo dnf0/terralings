@@ -39,13 +39,18 @@ type Runner struct {
 	CacheDir   string
 }
 
-// NewRunner creates a new Runner with plugin caching configured in ~/.terralings/plugin-cache.
-func NewRunner(binaryPath string) *Runner {
+// PluginCacheDir returns the default plugin cache directory path (~/.terralings/plugin-cache).
+func PluginCacheDir() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		home = "."
 	}
-	cacheDir := filepath.Join(home, ".terralings", "plugin-cache")
+	return filepath.Join(home, ".terralings", "plugin-cache")
+}
+
+// NewRunner creates a new Runner with plugin caching configured in ~/.terralings/plugin-cache.
+func NewRunner(binaryPath string) *Runner {
+	cacheDir := PluginCacheDir()
 	_ = os.MkdirAll(cacheDir, 0755)
 
 	return &Runner{
