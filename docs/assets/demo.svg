@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 500" width="840" height="500">
+  <defs>
+    <style>
+      .bg { fill: #1e1e2e; }
+      .header-bg { fill: #181825; }
+      .border { stroke: #313244; stroke-width: 1.5; }
+      .header-line { stroke: #313244; stroke-width: 1; }
+      .btn-red { fill: #f38ba8; }
+      .btn-yellow { fill: #f9e2af; }
+      .btn-green { fill: #a6e3a1; }
+      .term-title { fill: #a6adc8; font-family: 'JetBrains Mono', 'Fira Code', Menlo, Monaco, Consolas, monospace; font-size: 13px; font-weight: 500; }
+      .text-base { font-family: 'JetBrains Mono', 'Fira Code', Menlo, Monaco, Consolas, monospace; font-size: 12.5px; line-height: 1.45; }
+      .cyan { fill: #89dceb; }
+      .teal { fill: #94e2d5; }
+      .purple { fill: #cba6f7; }
+      .blue { fill: #89b4fa; }
+      .green { fill: #a6e3a1; }
+      .red { fill: #f38ba8; }
+      .peach { fill: #fab387; }
+      .yellow { fill: #f9e2af; }
+      .gray { fill: #6c7086; }
+      .gray-light { fill: #a6adc8; }
+      .white { fill: #cdd6f4; }
+      .dim { fill: #585b70; }
+      .bold { font-weight: 700; }
+      .box-error { fill: #181825; stroke: #f38ba8; stroke-width: 1.2; rx: 6px; }
+      .box-highlight { fill: #313244; rx: 4px; }
+      .box-status { fill: #181825; stroke: #313244; stroke-width: 1; rx: 4px; }
+    </style>
+  </defs>
+
+  <!-- Background with border -->
+  <rect class="bg border" x="1" y="1" width="838" height="498" rx="10" ry="10" />
+
+  <!-- macOS Window Header -->
+  <path class="header-bg" d="M 1,11 C 1,5.5 5.5,1 11,1 L 829,1 C 834.5,1 839,5.5 839,11 L 839,38 L 1,38 Z" />
+  <line class="header-line" x1="1" y1="38" x2="839" y2="38" />
+
+  <!-- Window Control Buttons -->
+  <circle class="btn-red" cx="24" cy="19.5" r="6" />
+  <circle class="btn-yellow" cx="44" cy="19.5" r="6" />
+  <circle class="btn-green" cx="64" cy="19.5" r="6" />
+
+  <!-- Window Title -->
+  <text class="term-title" x="420" y="24" text-anchor="middle">terralings watch — 80x24</text>
+
+  <!-- Terminal Content -->
+  <!-- Terralings ASCII Logo / Banner -->
+  <g class="text-base purple bold" xml:space="preserve">
+    <text x="28" y="60">  _____ _____ ____  ____     _    _     ___ _   _  ____ ____  </text>
+    <text x="28" y="74"> |_   _| ____|  _ \|  _ \   / \  | |   |_ _| \ | |/ ___/ ___| </text>
+    <text x="28" y="88">   | | |  _| | |_) | |_) | / _ \ | |    | ||  \| | |  _\___ \ </text>
+    <text x="28" y="102">   | | | |___|  _ &lt;|  _ &lt; / ___ \| |___ | || |\  | |_| |___) |</text>
+    <text x="28" y="116">   |_| |_____|_| \_\_| \_/_/   \_\_____|___|_| \_|\____|____/ </text>
+  </g>
+  <text class="text-base cyan bold" x="28" y="136">⚡ TERRALINGS: Master Terraform &amp; OpenTofu from Scratch ⚡</text>
+
+  <!-- Execution Status Line -->
+  <text class="text-base blue" x="28" y="162">Evaluating exercises/01_primitives/primitives01.tf...</text>
+
+  <!-- Diagnostic Error Box -->
+  <rect class="box-error" x="28" y="174" width="784" height="114" />
+  <g class="text-base">
+    <text class="red bold" x="42" y="194">Error: Reference to undeclared input variable</text>
+    <text class="gray-light" x="42" y="212">  on exercises/01_primitives/primitives01.tf line 12:</text>
+    
+    <!-- Code Highlight line -->
+    <rect class="box-highlight" x="40" y="221" width="760" height="22" />
+    <text x="46" y="237">
+      <tspan class="dim">  12:   </tspan>
+      <tspan class="white">content = </tspan>
+      <tspan class="red bold">var.greeting</tspan>
+    </text>
+
+    <text class="peach" x="42" y="260">An input variable with the name "greeting" has not been declared.</text>
+    <text class="cyan" x="42" y="278">💡 Hint: Declare 'variable "greeting" { ... }' or run 'terralings hint'</text>
+  </g>
+
+  <!-- Immediate Resolution Simulation -->
+  <g class="text-base">
+    <text class="yellow" x="28" y="312">[File modified: primitives01.tf]</text>
+    <text class="blue" x="28" y="330">Evaluating exercises/01_primitives/primitives01.tf...</text>
+    <text class="green bold" x="28" y="350">✓ primitives01 passed! Next exercise: primitives02</text>
+  </g>
+
+  <!-- Divider line -->
+  <line class="header-line" x1="28" y1="370" x2="812" y2="370" />
+
+  <!-- Status Bar Footer -->
+  <g class="text-base">
+    <!-- Progress Bar -->
+    <text x="28" y="394">
+      <tspan class="white bold">Progress: </tspan>
+      <tspan class="green bold">[======&gt;</tspan>
+      <tspan class="dim">---------------------------------]</tspan>
+      <tspan class="cyan bold"> 1/56 (1.8%)</tspan>
+    </text>
+
+    <!-- Controls -->
+    <text x="28" y="418">
+      <tspan class="white bold">Controls: </tspan>
+      <tspan class="cyan bold">[Enter/n]</tspan><tspan class="gray"> Next  |  </tspan>
+      <tspan class="cyan bold">[p]</tspan><tspan class="gray"> Prev  |  </tspan>
+      <tspan class="cyan bold">[h]</tspan><tspan class="gray"> Hint  |  </tspan>
+      <tspan class="cyan bold">[r]</tspan><tspan class="gray"> Rerun  |  </tspan>
+      <tspan class="cyan bold">[q]</tspan><tspan class="gray"> Quit</tspan>
+    </text>
+  </g>
+
+  <!-- Info Bar Box -->
+  <rect class="box-status" x="28" y="440" width="784" height="34" />
+  <g class="text-base" text-anchor="middle">
+    <text x="420" y="462">
+      <tspan class="gray">Engine: </tspan><tspan class="green bold">OpenTofu v1.8.1</tspan>
+      <tspan class="dim">   │   </tspan>
+      <tspan class="gray">LSP: </tspan><tspan class="cyan bold">Ready (port 9257)</tspan>
+      <tspan class="dim">   │   </tspan>
+      <tspan class="gray">Chapter: </tspan><tspan class="purple bold">01_primitives (1/4)</tspan>
+      <tspan class="dim">   │   </tspan>
+      <tspan class="gray">Mode: </tspan><tspan class="yellow bold">Interactive Watch</tspan>
+    </text>
+  </g>
+</svg>
