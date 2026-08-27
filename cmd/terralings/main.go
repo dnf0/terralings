@@ -225,12 +225,31 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 
+	completeSearchQueries := func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args) != 0 {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		var completions []string
+		m := manifest.GetManifest()
+		for _, ex := range m.AllExercises() {
+			if strings.HasPrefix(ex.Name, toComplete) {
+				completions = append(completions, fmt.Sprintf("%s\t%s", ex.Name, ex.Title))
+			}
+		}
+		for _, ch := range m.Chapters {
+			if strings.HasPrefix(ch.Name, toComplete) {
+				completions = append(completions, fmt.Sprintf("%s\tChapter: %s", ch.Name, ch.Title))
+			}
+		}
+		return completions, cobra.ShellCompDirectiveNoFileComp
+	}
+
 	// search command
 	searchCmd := &cobra.Command{
 		Use:               "search [query]",
 		Short:             "Search curriculum exercises by concept, keyword, or chapter",
 		Args:              cobra.ExactArgs(1),
-		ValidArgsFunction: completeExerciseNames,
+		ValidArgsFunction: completeSearchQueries,
 		Run: func(cmd *cobra.Command, args []string) {
 			m := manifest.GetManifest()
 			results := search.SearchExercises(m, args[0])
@@ -249,7 +268,7 @@ func NewRootCmd() *cobra.Command {
 			shell := args[0]
 			switch shell {
 			case "bash":
-				return rootCmd.GenBashCompletion(cmd.OutOrStdout())
+				return rootCmd.GenBashCompletionV2(cmd.OutOrStdout(), true)
 			case "zsh":
 				return rootCmd.GenZshCompletion(cmd.OutOrStdout())
 			case "fish":

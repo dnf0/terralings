@@ -629,16 +629,16 @@ Terralings supports automatic shell autocompletion for Bash, Zsh, Fish, and Powe
 
 ```bash
 # Zsh (macOS / Linux)
-terralings completions zsh > "${fpath[1]}/_terralings"
+terralings completion zsh > "${fpath[1]}/_terralings"
 
 # Bash (Linux)
-terralings completions bash > /etc/bash_completion.d/terralings
+terralings completion bash > /etc/bash_completion.d/terralings
 
 # Fish
-terralings completions fish > ~/.config/fish/completions/terralings.fish
+terralings completion fish > ~/.config/fish/completions/terralings.fish
 
 # PowerShell
-terralings completions powershell | Out-String | Invoke-Expression
+terralings completion powershell | Out-String | Invoke-Expression
 ```
 
 ---

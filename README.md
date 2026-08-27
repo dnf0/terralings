@@ -20,7 +20,7 @@ Inspired by [`rustlings`](https://github.com/rust-lang/rustlings), [`ziglings`](
 - **Interactive Watch Mode (`terralings watch`)**: Automatically monitors your exercise files via `fsnotify` and re-evaluates and validates in real time on every file save.
 - **Exercise Reset (`terralings reset <name>`)**: Instantly restore any exercise back to its clean starter template if you want to redo it or fix a mistake.
 - **Curriculum Search (`terralings search <term>`)**: Fast full-text search across all chapters, topics, hints, and exercises with relevance scoring.
-- **Shell Autocompletions (`terralings completions`)**: Rich tab completion for Bash, Zsh, Fish, and PowerShell, including interactive exercise name completion.
+- **Shell Autocompletions (`terralings completion`)**: Rich tab completion for Bash, Zsh, Fish, and PowerShell, including interactive exercise name completion.
 - **Dual Engine Support**: Seamlessly detects and runs against either **OpenTofu** (`tofu`) or **Terraform** (`terraform`) (version >= 1.6.0).
 - **Sub-100ms Evaluation**: Shared provider plugin caching eliminates redundant network downloads during provider initialization.
 - **Comprehensive 13-Chapter Curriculum**: 56 progressive exercises covering primitives, variables, collections, functions, meta-arguments, dynamic blocks, data sources, modules, state refactoring, native testing, production patterns, OpenTofu extensions, and policy governance.
@@ -121,7 +121,7 @@ terralings watch -i
 | `terralings search <term>` | Search exercises by keyword, concept, or chapter |
 | `terralings list` | List all chapters and exercises with status indicators |
 | `terralings verify` | Run sequential evaluation across the entire curriculum and display progress |
-| `terralings completions <shell>` | Generate autocompletion scripts for `bash`, `zsh`, `fish`, or `powershell` |
+| `terralings completion <shell>` | Generate autocompletion scripts for `bash`, `zsh`, `fish`, or `powershell` (alias: `completions`) |
 | `terralings version` | Print the Terralings CLI version and detected IaC binary |
 
 ### Global Flags
@@ -465,16 +465,16 @@ Enable shell autocompletions for quick tab navigation and exercise autocompletio
 
 ```bash
 # Bash (Linux)
-terralings completions bash > /etc/bash_completion.d/terralings
+terralings completion bash > /etc/bash_completion.d/terralings
 
 # Zsh (macOS / Linux)
-terralings completions zsh > "${fpath[1]}/_terralings"
+terralings completion zsh > "${fpath[1]}/_terralings"
 
 # Fish
-terralings completions fish > ~/.config/fish/completions/terralings.fish
+terralings completion fish > ~/.config/fish/completions/terralings.fish
 
 # PowerShell
-terralings completions powershell | Out-String | Invoke-Expression
+terralings completion powershell | Out-String | Invoke-Expression
 ```
 
 #### 9. Progress Verification
