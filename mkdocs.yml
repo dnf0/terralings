@@ -1,0 +1,60 @@
+site_name: Terralings
+site_description: An interactive, hands-on CLI learning environment for Terraform and OpenTofu.
+site_url: https://dnf0.github.io/terralings/
+site_author: Terralings Contributors
+repo_name: dnf0/terralings
+repo_url: https://github.com/dnf0/terralings
+
+theme:
+  name: material
+  palette:
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+    # Palette toggle for light mode
+    - scheme: default
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - attr_list
+
+nav:
+  - Overview: index.md
+  - Getting Started: getting-started.md
+  - Onboarding Guide: onboarding-guide.md
+  - Curriculum Syllabus: syllabus.md
+  - CLI Reference: cli-reference.md
+  - VS Code Companion: vscode-extension.md
+  - Contributing: contributing.md
+
+not_in_nav: |
+  superpowers/**
+  plans/**
