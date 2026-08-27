@@ -3,6 +3,7 @@ package diagnostics
 import (
 	"bufio"
 	"encoding/json"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -34,10 +35,12 @@ type Diagnostic struct {
 }
 
 var (
-	ansiRegex     = regexp.MustCompile(`\x1b\[[0-9;]*[a-zA-Z]`)
-	markerRegex   = regexp.MustCompile(`(?i)i\s+am\s+not\s+done`)
-	headerRegex   = regexp.MustCompile(`(?i)^(?:[│|]\s*)?(Error|Warning|Info):\s*(.*)$`)
-	locationRegex = regexp.MustCompile(`(?i)\bon\s+([^\s:,]+)\s+line\s+(\d+)(?:,\s*(?:col(?:umn)?\s*(\d+)|in\s+([^:\n]+)))?`)
+	ansiRegex       = regexp.MustCompile(`\x1b\[[0-9;]*[a-zA-Z]`)
+	markerRegex     = regexp.MustCompile(`(?i)i\s+am\s+not\s+done`)
+	headerRegex     = regexp.MustCompile(`(?i)^(?:[│|]\s*)?(Error|Warning|Info):\s*(.*)$`)
+	locationRegex   = regexp.MustCompile(`(?i)\bon\s+([^\s:,]+)\s+line\s+(\d+)(?:,\s*(?:col(?:umn)?\s*(\d+)|in\s+([^:\n]+)))?`)
+	pipePrefixRegex = regexp.MustCompile(`^[│|]\s?`)
+	zeroErrorsRegex = regexp.MustCompile(`(?i)(?:(?:\b0\s+(?:errors?|failed|failures?|errored)\b)|(?:\bno\s+(?:errors?|failures?)\b)|(?:\b(?:error_count|errors?|failed|failures?)\s*[:=]\s*0\b)|(?:"error_count"\s*:\s*0))`)
 )
 
 type rawTFDiagnostic struct {
@@ -62,6 +65,8 @@ type rawTFDiagnostic struct {
 type rawTFValidateOutput struct {
 	FormatVersion string            `json:"format_version"`
 	Valid         bool              `json:"valid"`
+	ErrorCount    int               `json:"error_count"`
+	WarningCount  int               `json:"warning_count"`
 	Diagnostics   []rawTFDiagnostic `json:"diagnostics"`
 }
 
@@ -135,10 +140,19 @@ func findMarkerDiagnostics(ex models.Exercise) []Diagnostic {
 
 	var diags []Diagnostic
 	if info.IsDir() {
-		_ = filepath.Walk(ex.Path, func(p string, i os.FileInfo, walkErr error) error {
-			if walkErr == nil && !i.IsDir() && (strings.HasSuffix(p, ".tf") || strings.HasSuffix(p, ".hcl") || strings.HasSuffix(p, ".tftest.hcl")) {
-				if d, found := findMarkerInFile(p); found {
-					diags = append(diags, d)
+		_ = filepath.WalkDir(ex.Path, func(p string, d fs.DirEntry, walkErr error) error {
+			if walkErr != nil {
+				return nil
+			}
+			if d.IsDir() {
+				if p != ex.Path && strings.HasPrefix(d.Name(), ".") {
+					return filepath.SkipDir
+				}
+				return nil
+			}
+			if strings.HasSuffix(p, ".tf") || strings.HasSuffix(p, ".hcl") || strings.HasSuffix(p, ".tftest.hcl") {
+				if diag, found := findMarkerInFile(p); found {
+					diags = append(diags, diag)
 				}
 			}
 			return nil
@@ -161,12 +175,17 @@ func parseJSONDiagnostics(raw string) ([]Diagnostic, bool) {
 	// 1. Try Terraform validate JSON output format
 	if strings.HasPrefix(trimmed, "{") {
 		var valOut rawTFValidateOutput
-		if err := json.Unmarshal([]byte(trimmed), &valOut); err == nil && len(valOut.Diagnostics) > 0 {
-			var result []Diagnostic
-			for _, td := range valOut.Diagnostics {
-				result = append(result, convertTFDiagnostic(td))
+		if err := json.Unmarshal([]byte(trimmed), &valOut); err == nil {
+			if valOut.FormatVersion != "" || valOut.Valid || (valOut.ErrorCount == 0 && valOut.Diagnostics != nil) {
+				var result []Diagnostic
+				for _, td := range valOut.Diagnostics {
+					result = append(result, convertTFDiagnostic(td))
+				}
+				if result == nil {
+					result = []Diagnostic{}
+				}
+				return result, true
 			}
-			return result, true
 		}
 
 		// Try single rawTFLogEntry
@@ -291,19 +310,22 @@ func parseTextDiagnostics(raw string) []Diagnostic {
 			}
 
 			if locMatch := locationRegex.FindStringSubmatch(cleanLine); locMatch != nil {
-				curDiag.File = locMatch[1]
-				if lineNum, err := strconv.Atoi(locMatch[2]); err == nil {
-					curDiag.Line = lineNum
-				}
-				if len(locMatch) > 3 && locMatch[3] != "" {
-					if colNum, err := strconv.Atoi(locMatch[3]); err == nil {
-						curDiag.Column = colNum
+				if curDiag.File == "" {
+					curDiag.File = locMatch[1]
+					if lineNum, err := strconv.Atoi(locMatch[2]); err == nil {
+						curDiag.Line = lineNum
 					}
+					if len(locMatch) > 3 && locMatch[3] != "" {
+						if colNum, err := strconv.Atoi(locMatch[3]); err == nil {
+							curDiag.Column = colNum
+						}
+					}
+					continue
 				}
-				continue
 			}
 
-			detailLines = append(detailLines, line)
+			cleanedDetailLine := pipePrefixRegex.ReplaceAllString(line, "")
+			detailLines = append(detailLines, cleanedDetailLine)
 		}
 	}
 
@@ -312,7 +334,11 @@ func parseTextDiagnostics(raw string) []Diagnostic {
 	// Fallback: If no structured diagnostics were extracted but raw output clearly indicates an error/failure
 	if len(diags) == 0 {
 		lower := strings.ToLower(cleaned)
-		if strings.Contains(lower, "error") || strings.Contains(lower, "failed") {
+		lowerWithoutZeros := zeroErrorsRegex.ReplaceAllString(lower, "")
+		if strings.Contains(lowerWithoutZeros, "error") ||
+			strings.Contains(lowerWithoutZeros, "failed") ||
+			strings.Contains(lowerWithoutZeros, "failure") ||
+			strings.Contains(lowerWithoutZeros, "fatal") {
 			nonEmpty := []string{}
 			for _, l := range lines {
 				tl := strings.TrimSpace(l)

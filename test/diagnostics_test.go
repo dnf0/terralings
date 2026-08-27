@@ -297,3 +297,165 @@ func TestParseDiagnostics_AnsiEscapeCodes(t *testing.T) {
 		t.Errorf("Expected line 5, got %d", diags[0].Line)
 	}
 }
+
+func TestParseDiagnostics_ValidValidateJSON_NoFalsePositive(t *testing.T) {
+	validJSON := `{
+  "format_version": "1.0",
+  "valid": true,
+  "error_count": 0,
+  "warning_count": 0,
+  "diagnostics": []
+}`
+
+	ex := models.Exercise{
+		Name: "valid_json_test",
+		Path: "exercises/01_primitives/valid.tf",
+	}
+
+	diags := diagnostics.ParseDiagnostics(validJSON, ex)
+	if len(diags) != 0 {
+		t.Fatalf("Expected 0 diagnostics for valid validate JSON, got %d (%+v)", len(diags), diags)
+	}
+}
+
+func TestParseDiagnostics_SecondaryLocations(t *testing.T) {
+	rawOutput := `Error: Error in function call
+
+  on main.tf line 14, in locals:
+  14:   config = templatefile("config.tpl", {})
+    ├────────────────
+    │ while calling templatefile(path, vars)
+    │ on config.tpl line 4:
+    │  4: ${nonexistent_var}
+    ├────────────────
+
+Invalid variable reference.`
+
+	ex := models.Exercise{
+		Name: "secondary_loc_test",
+		Path: "exercises/01_primitives/secondary.tf",
+	}
+
+	diags := diagnostics.ParseDiagnostics(rawOutput, ex)
+	if len(diags) != 1 {
+		t.Fatalf("Expected 1 diagnostic, got %d", len(diags))
+	}
+
+	d := diags[0]
+	if d.File != "main.tf" {
+		t.Errorf("Expected primary file main.tf, got %q", d.File)
+	}
+	if d.Line != 14 {
+		t.Errorf("Expected primary line 14, got %d", d.Line)
+	}
+	if !strings.Contains(d.Detail, "config.tpl") {
+		t.Errorf("Expected secondary location to be preserved in detail, got %q", d.Detail)
+	}
+}
+
+func TestParseDiagnostics_MarkerInDirectory_SkipsHidden(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	// Root exercise file without marker
+	mainFile := filepath.Join(tmpDir, "main.tf")
+	_ = os.WriteFile(mainFile, []byte("terraform {}\n"), 0644)
+
+	// Hidden directories (.terraform, .git, .terralings) with marker
+	tfDir := filepath.Join(tmpDir, ".terraform", "modules", "child")
+	_ = os.MkdirAll(tfDir, 0755)
+	_ = os.WriteFile(filepath.Join(tfDir, "sub.tf"), []byte("// I AM NOT DONE\n"), 0644)
+
+	gitDir := filepath.Join(tmpDir, ".git")
+	_ = os.MkdirAll(gitDir, 0755)
+	_ = os.WriteFile(filepath.Join(gitDir, "hook.tf"), []byte("// I AM NOT DONE\n"), 0644)
+
+	terralingsDir := filepath.Join(tmpDir, ".terralings")
+	_ = os.MkdirAll(terralingsDir, 0755)
+	_ = os.WriteFile(filepath.Join(terralingsDir, "cache.tf"), []byte("// I AM NOT DONE\n"), 0644)
+
+	ex := models.Exercise{
+		Name: "skip_hidden_test",
+		Path: tmpDir,
+	}
+
+	diags := diagnostics.ParseDiagnostics("", ex)
+	if len(diags) != 0 {
+		t.Fatalf("Expected 0 diagnostics because markers are in hidden directories, got %d: %+v", len(diags), diags)
+	}
+}
+
+func TestParseDiagnostics_BoxDrawingDetail(t *testing.T) {
+	rawOutput := `╷
+│ Error: Invalid expression
+│ 
+│   on main.tf line 8:
+│    8: count = var.something
+│ 
+│ A single value is expected.
+╵`
+
+	ex := models.Exercise{
+		Name: "box_drawing_test",
+		Path: "exercises/01_primitives/box.tf",
+	}
+
+	diags := diagnostics.ParseDiagnostics(rawOutput, ex)
+	if len(diags) != 1 {
+		t.Fatalf("Expected 1 diagnostic, got %d", len(diags))
+	}
+
+	d := diags[0]
+	if d.Summary != "Invalid expression" {
+		t.Errorf("Expected summary 'Invalid expression', got %q", d.Summary)
+	}
+	if d.File != "main.tf" {
+		t.Errorf("Expected file 'main.tf', got %q", d.File)
+	}
+	if d.Line != 8 {
+		t.Errorf("Expected line 8, got %d", d.Line)
+	}
+	for _, l := range strings.Split(d.Detail, "\n") {
+		if strings.HasPrefix(l, "│") || strings.HasPrefix(l, "|") {
+			t.Errorf("Detail line still contains leading pipe: %q", l)
+		}
+	}
+	if !strings.Contains(d.Detail, "A single value is expected.") {
+		t.Errorf("Expected detail to contain explanation, got %q", d.Detail)
+	}
+}
+
+func TestParseDiagnostics_StrictFallback(t *testing.T) {
+	ex := models.Exercise{
+		Name: "fallback_test",
+		Path: "exercises/01_primitives/test.tf",
+	}
+
+	// Clean outputs with "0 failed" or "0 errors" or "errors: 0"
+	testCasesClean := []string{
+		"0 failed, 0 errors",
+		"Test suite finished: 10 passed, 0 failed, 0 errors",
+		"Apply complete! Resources: 1 added, 0 changed, 0 destroyed. (errors: 0)",
+		"error_count: 0, warning_count: 0",
+		"no errors found",
+	}
+
+	for _, text := range testCasesClean {
+		diags := diagnostics.ParseDiagnostics(text, ex)
+		if len(diags) != 0 {
+			t.Errorf("Expected 0 diagnostics for clean text %q, got %d (%+v)", text, len(diags), diags)
+		}
+	}
+
+	// Real unstructured error output
+	realErrorText := "fatal: could not connect to registry: connection timed out"
+	diagsErr := diagnostics.ParseDiagnostics(realErrorText, ex)
+	if len(diagsErr) != 1 {
+		t.Fatalf("Expected 1 fallback diagnostic for real error, got %d", len(diagsErr))
+	}
+	if diagsErr[0].Severity != diagnostics.SeverityError {
+		t.Errorf("Expected severity error, got %q", diagsErr[0].Severity)
+	}
+	if diagsErr[0].Summary != realErrorText {
+		t.Errorf("Expected summary %q, got %q", realErrorText, diagsErr[0].Summary)
+	}
+}
