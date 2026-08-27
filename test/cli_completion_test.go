@@ -69,6 +69,27 @@ func TestCLI_Completion_UnsupportedShell(t *testing.T) {
 	}
 }
 
+func assertDirective(t *testing.T, stdout, expectedDirective string) {
+	t.Helper()
+	lines := strings.Split(strings.TrimSpace(stdout), "\n")
+	if len(lines) == 0 {
+		t.Fatalf("expected non-empty output for completion directive check")
+	}
+	lastLine := strings.TrimSpace(lines[len(lines)-1])
+	if lastLine != expectedDirective {
+		t.Errorf("expected trailing completion directive %q, got %q in output:\n%s", expectedDirective, lastLine, stdout)
+	}
+}
+
+func extractDirective(t *testing.T, stdout string) string {
+	t.Helper()
+	lines := strings.Split(strings.TrimSpace(stdout), "\n")
+	if len(lines) == 0 {
+		t.Fatalf("expected non-empty output to extract directive")
+	}
+	return strings.TrimSpace(lines[len(lines)-1])
+}
+
 func TestCLI_DynamicExerciseCompletion(t *testing.T) {
 	commands := []string{"run", "hint", "reset", "search"}
 	for _, subcmd := range commands {
@@ -85,9 +106,7 @@ func TestCLI_DynamicExerciseCompletion(t *testing.T) {
 				t.Errorf("expected dynamic completion to include tab description annotation, got:\n%s", stdout)
 			}
 			// Verify directive is ShellCompDirectiveNoFileComp (:4)
-			if !strings.Contains(stdout, ":4") {
-				t.Errorf("expected dynamic completion directive :4 (ShellCompDirectiveNoFileComp), got:\n%s", stdout)
-			}
+			assertDirective(t, stdout, ":4")
 		})
 	}
 }
@@ -103,7 +122,13 @@ func TestCLI_DynamicSearchCompletion_Chapters(t *testing.T) {
 	if !strings.Contains(stdout, "Chapter:") {
 		t.Errorf("expected dynamic completion description to mention 'Chapter:', got:\n%s", stdout)
 	}
-	if !strings.Contains(stdout, ":4") {
-		t.Errorf("expected dynamic completion directive :4 (ShellCompDirectiveNoFileComp), got:\n%s", stdout)
+	assertDirective(t, stdout, ":4")
+
+	// Verify cross-command directive invariant: search directive matches run directive
+	runOut, _, runExit := runCLI(t, "__complete", "run", "prim")
+	if runExit == 0 {
+		if extractDirective(t, stdout) != extractDirective(t, runOut) {
+			t.Errorf("expected search directive to match run directive (%s vs %s)", extractDirective(t, stdout), extractDirective(t, runOut))
+		}
 	}
 }
