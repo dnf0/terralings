@@ -227,9 +227,10 @@ func NewRootCmd() *cobra.Command {
 
 	// search command
 	searchCmd := &cobra.Command{
-		Use:   "search [query]",
-		Short: "Search curriculum exercises by concept, keyword, or chapter",
-		Args:  cobra.ExactArgs(1),
+		Use:               "search [query]",
+		Short:             "Search curriculum exercises by concept, keyword, or chapter",
+		Args:              cobra.ExactArgs(1),
+		ValidArgsFunction: completeExerciseNames,
 		Run: func(cmd *cobra.Command, args []string) {
 			m := manifest.GetManifest()
 			results := search.SearchExercises(m, args[0])
@@ -237,9 +238,10 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 
-	// completions command
-	completionsCmd := &cobra.Command{
-		Use:       "completions [bash|zsh|fish|powershell]",
+	// completion command
+	completionCmd := &cobra.Command{
+		Use:       "completion [bash|zsh|fish|powershell]",
+		Aliases:   []string{"completions"},
 		Short:     "Generate shell completion scripts",
 		Args:      cobra.ExactArgs(1),
 		ValidArgs: []string{"bash", "zsh", "fish", "powershell"},
@@ -401,7 +403,7 @@ func NewRootCmd() *cobra.Command {
 	}
 	doctorCmd.Flags().BoolVar(&doctorJSON, "json", false, "Emit diagnostic report as JSON")
 
-	rootCmd.AddCommand(watchCmd, runCmd, hintCmd, statsCmd, listCmd, verifyCmd, versionCmd, initCmd, resetCmd, searchCmd, completionsCmd, lspCmd, tuiCmd, tourCmd, doctorCmd)
+	rootCmd.AddCommand(watchCmd, runCmd, hintCmd, statsCmd, listCmd, verifyCmd, versionCmd, initCmd, resetCmd, searchCmd, completionCmd, lspCmd, tuiCmd, tourCmd, doctorCmd)
 	return rootCmd
 }
 
