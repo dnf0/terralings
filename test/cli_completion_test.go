@@ -71,8 +71,9 @@ func TestCLI_Completion_UnsupportedShell(t *testing.T) {
 
 // assertDirective verifies that the trailing line emitted by Cobra's __complete command
 // matches the expected shell completion directive (e.g. ":4" for ShellCompDirectiveNoFileComp).
-// Note: This helper pins the observed directive value. Dynamic propagation of non-NoFileComp
-// directives is internal to NewRootCmd closures and documented above completeSearchQueries in main.go.
+// Note: pins the observed directive value only — no test covers propagation of a non-NoFileComp
+// directive, because both completion funcs are closures inside NewRootCmd; the contract is noted
+// above completeSearchQueries in cmd/terralings/main.go.
 func assertDirective(t *testing.T, stdout, expectedDirective string) {
 	t.Helper()
 	trimmed := strings.TrimSpace(stdout)
