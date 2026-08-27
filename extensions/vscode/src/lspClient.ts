@@ -9,6 +9,7 @@ import {
 } from 'vscode-languageclient/node';
 
 let client: LanguageClient | undefined;
+let fileWatcher: vscode.FileSystemWatcher | undefined;
 
 /**
  * Resolves the path to the terralings executable.
@@ -96,8 +97,9 @@ export async function startLspClient(
     options: workspaceRoot ? { cwd: workspaceRoot } : undefined
   };
 
-  const fileWatcher = vscode.workspace.createFileSystemWatcher('**/*.{tf,hcl,json}');
-  context.subscriptions.push(fileWatcher);
+  if (!fileWatcher) {
+    fileWatcher = vscode.workspace.createFileSystemWatcher('**/*.{tf,hcl,json}');
+  }
 
   const clientOptions: LanguageClientOptions = {
     documentSelector: [
@@ -121,9 +123,7 @@ export async function startLspClient(
     await client.start();
     context.subscriptions.push({
       dispose: () => {
-        if (client) {
-          stopLspClient().catch(console.error);
-        }
+        stopLspClient().catch(console.error);
       }
     });
     return client;
@@ -132,6 +132,10 @@ export async function startLspClient(
       `Failed to start Terralings LSP client: ${err instanceof Error ? err.message : String(err)}`
     );
     client = undefined;
+    if (fileWatcher) {
+      fileWatcher.dispose();
+      fileWatcher = undefined;
+    }
     return undefined;
   }
 }
@@ -140,6 +144,10 @@ export async function startLspClient(
  * Stops the running Terralings LSP client if active.
  */
 export async function stopLspClient(): Promise<void> {
+  if (fileWatcher) {
+    fileWatcher.dispose();
+    fileWatcher = undefined;
+  }
   if (!client) {
     return;
   }

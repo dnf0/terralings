@@ -16,6 +16,16 @@ export function getOutputChannel(): vscode.OutputChannel {
 }
 
 /**
+ * Disposes the shared Terralings output channel.
+ */
+export function disposeOutputChannel(): void {
+  if (outputChannel) {
+    outputChannel.dispose();
+    outputChannel = undefined;
+  }
+}
+
+/**
  * Resolves the path to the terralings executable for CLI commands.
  */
 export function getTerralingsBinary(): string {
@@ -30,13 +40,17 @@ export function normalizeExerciseName(input?: string): string | undefined {
   if (!input) {
     const activeDoc = vscode.window.activeTextEditor?.document;
     if (activeDoc) {
-      input = activeDoc.fileName;
+      const fileName = activeDoc.fileName;
+      if (fileName.endsWith('.tf') || fileName.endsWith('.hcl') || fileName.includes('exercises')) {
+        input = fileName;
+      }
     }
   }
   if (!input) {
     return undefined;
   }
-  const base = path.basename(input);
+  const trimmed = input.trim();
+  const base = path.basename(trimmed);
   const ext = path.extname(base);
   if (ext === '.tf' || ext === '.hcl' || ext === '.json') {
     return base.slice(0, -ext.length);
@@ -59,8 +73,15 @@ export function openTerminalCommand(name: string, args: string[]): vscode.Termin
   }
 
   const bin = getTerralingsBinary();
-  const binQuote = bin.includes(' ') ? `"${bin}"` : bin;
-  const cmd = [binQuote, ...args].join(' ');
+  const isWindows = process.platform === 'win32';
+  let cmd: string;
+  if (isWindows && bin.includes(' ')) {
+    cmd = `& "${bin}" ${args.join(' ')}`;
+  } else if (bin.includes(' ')) {
+    cmd = `"${bin}" ${args.join(' ')}`;
+  } else {
+    cmd = `${bin} ${args.join(' ')}`;
+  }
 
   terminal.show();
   terminal.sendText(cmd);
@@ -89,7 +110,7 @@ export function runCliCommand(args: string[], title: string): Promise<string> {
   const binary = getTerralingsBinary();
   const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
 
-  const timestamp = new Date().toLocaleTimeString();
+  const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19);
   channel.appendLine(`\n=== [${timestamp}] ${title} ===`);
   channel.appendLine(`$ ${binary} ${args.join(' ')}\n`);
 
@@ -143,10 +164,13 @@ export async function runDoctor(): Promise<void> {
 export async function runHint(exerciseName?: string): Promise<void> {
   let target = normalizeExerciseName(exerciseName);
   if (!target) {
-    target = await vscode.window.showInputBox({
+    const input = await vscode.window.showInputBox({
       prompt: 'Enter the exercise name for hints (e.g. syntax01)',
       placeHolder: 'syntax01'
     });
+    if (input) {
+      target = normalizeExerciseName(input.trim());
+    }
   }
   if (!target) {
     return;
@@ -171,10 +195,13 @@ export async function runHint(exerciseName?: string): Promise<void> {
 export async function runReset(exerciseName?: string): Promise<void> {
   let target = normalizeExerciseName(exerciseName);
   if (!target) {
-    target = await vscode.window.showInputBox({
+    const input = await vscode.window.showInputBox({
       prompt: 'Enter the exercise name to reset (e.g. syntax01)',
       placeHolder: 'syntax01'
     });
+    if (input) {
+      target = normalizeExerciseName(input.trim());
+    }
   }
   if (!target) {
     return;
@@ -225,3 +252,4 @@ export async function runCurrentExercise(exercisePathOrName?: string): Promise<v
     );
   }
 }
+
