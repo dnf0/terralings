@@ -69,6 +69,10 @@ func TestCLI_Completion_UnsupportedShell(t *testing.T) {
 	}
 }
 
+// assertDirective verifies that the trailing line emitted by Cobra's __complete command
+// matches the expected shell completion directive (e.g. ":4" for ShellCompDirectiveNoFileComp).
+// Note: This helper pins the observed directive value. Dynamic propagation of non-NoFileComp
+// directives is internal to NewRootCmd closures and documented above completeSearchQueries in main.go.
 func assertDirective(t *testing.T, stdout, expectedDirective string) {
 	t.Helper()
 	trimmed := strings.TrimSpace(stdout)
@@ -97,8 +101,6 @@ func TestCLI_DynamicExerciseCompletion(t *testing.T) {
 			if !strings.Contains(stdout, "primitives01\t") {
 				t.Errorf("expected dynamic completion to include tab description annotation, got:\n%s", stdout)
 			}
-			// Verify directive value is ShellCompDirectiveNoFileComp (:4).
-			// Note: pins the observed value only — propagation of a non-NoFileComp directive from completeExerciseNames is not covered by this test (would require lifting completeSearchQueries out of NewRootCmd with an injectable delegate; contract is noted at cmd/terralings/main.go:228).
 			assertDirective(t, stdout, ":4")
 		})
 	}
@@ -115,7 +117,5 @@ func TestCLI_DynamicSearchCompletion_Chapters(t *testing.T) {
 	if !strings.Contains(stdout, "Chapter:") {
 		t.Errorf("expected dynamic completion description to mention 'Chapter:', got:\n%s", stdout)
 	}
-	// Verify directive value is ShellCompDirectiveNoFileComp (:4).
-	// Note: pins the observed value only — propagation of a non-NoFileComp directive from completeExerciseNames is not covered by this test (would require lifting completeSearchQueries out of NewRootCmd with an injectable delegate; contract is noted at cmd/terralings/main.go:228).
 	assertDirective(t, stdout, ":4")
 }
