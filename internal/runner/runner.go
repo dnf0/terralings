@@ -39,8 +39,12 @@ type Runner struct {
 	CacheDir   string
 }
 
-// PluginCacheDir returns the default plugin cache directory path (~/.terralings/plugin-cache).
+// PluginCacheDir returns the plugin cache directory path.
+// Checks TERRALINGS_PLUGIN_CACHE_DIR environment variable first, falling back to ~/.terralings/plugin-cache.
 func PluginCacheDir() string {
+	if custom := os.Getenv("TERRALINGS_PLUGIN_CACHE_DIR"); custom != "" {
+		return custom
+	}
 	home, err := os.UserHomeDir()
 	if err != nil {
 		home = "."

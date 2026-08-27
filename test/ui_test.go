@@ -265,3 +265,19 @@ func TestFormatAnalytics(t *testing.T) {
 		}
 	})
 }
+
+func TestFormatFirstRunWelcome(t *testing.T) {
+	msg := ui.FormatFirstRunWelcome()
+	if !strings.Contains(msg, "Welcome to Terralings") {
+		t.Errorf("Expected welcome title, got:\n%s", msg)
+	}
+	if !strings.Contains(msg, "terralings tour") {
+		t.Errorf("Expected mention of 'terralings tour', got:\n%s", msg)
+	}
+	if !strings.Contains(msg, "terralings doctor") {
+		t.Errorf("Expected mention of 'terralings doctor', got:\n%s", msg)
+	}
+	if !strings.Contains(msg, "terralings watch") {
+		t.Errorf("Expected mention of 'terralings watch', got:\n%s", msg)
+	}
+}

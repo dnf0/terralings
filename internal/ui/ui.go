@@ -257,3 +257,33 @@ func formatDuration(d time.Duration) string {
 	}
 	return fmt.Sprintf("%ds", int(d.Seconds()))
 }
+
+// FormatFirstRunWelcome renders a styled welcome and getting-started guidance banner.
+func FormatFirstRunWelcome() string {
+	boxStyle := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("#00D7D7")).
+		Padding(1, 2).
+		MarginTop(1).
+		MarginBottom(1)
+
+	titleStyle := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color("#50FA7B"))
+
+	cmdStyle := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color("#00D7D7"))
+
+	dimTxt := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#6272A4"))
+
+	var b strings.Builder
+	b.WriteString(titleStyle.Render("🚀 Welcome to Terralings!") + "\n\n")
+	b.WriteString("New to Terralings or OpenTofu / Terraform? Here is how to get started:\n\n")
+	b.WriteString(fmt.Sprintf("  • %-20s %s\n", cmdStyle.Render("terralings tour"), dimTxt.Render("Interactive 5-step guided walkthrough of concepts & tools")))
+	b.WriteString(fmt.Sprintf("  • %-20s %s\n", cmdStyle.Render("terralings doctor"), dimTxt.Render("Verify your local IaC engine, cache, and workspace setup")))
+	b.WriteString(fmt.Sprintf("  • %-20s %s\n", cmdStyle.Render("terralings watch"), dimTxt.Render("Start continuous interactive exercise watcher")))
+
+	return boxStyle.Render(b.String())
+}

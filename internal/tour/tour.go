@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"strconv"
 	"strings"
 
@@ -110,6 +111,12 @@ type Tour struct {
 }
 
 func NewTour(w io.Writer, r io.Reader) *Tour {
+	if w == nil {
+		w = os.Stdout
+	}
+	if r == nil {
+		r = os.Stdin
+	}
 	return &Tour{
 		Steps:  DefaultSteps(),
 		Writer: w,
@@ -185,8 +192,11 @@ func (t *Tour) Run(ctx context.Context, startStep int) error {
 	}
 
 	if t.NonInteractive {
-		if startStep > 1 && startStep <= len(t.Steps) {
+		if startStep >= 1 && startStep <= len(t.Steps) {
 			return t.RenderStep(startStep)
+		}
+		if startStep > len(t.Steps) || startStep < 0 {
+			return fmt.Errorf("invalid step index %d (must be between 1 and %d)", startStep, len(t.Steps))
 		}
 		for i := 1; i <= len(t.Steps); i++ {
 			if err := t.RenderStep(i); err != nil {

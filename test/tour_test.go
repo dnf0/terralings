@@ -44,7 +44,7 @@ func TestTour_NonInteractiveAllSteps(t *testing.T) {
 	tr := tour.NewTour(&out, in)
 	tr.NonInteractive = true
 
-	err := tr.Run(context.Background(), 1)
+	err := tr.Run(context.Background(), 0)
 	if err != nil {
 		t.Fatalf("unexpected error running non-interactive tour: %v", err)
 	}
@@ -117,5 +117,31 @@ func TestTour_InteractiveNavigation(t *testing.T) {
 	output := out.String()
 	if !strings.Contains(output, "Editor Integration & LSP") {
 		t.Errorf("expected jump to step 5 in output, got: %s", output)
+	}
+}
+
+func TestTour_NilReaderAndWriter(t *testing.T) {
+	tr := tour.NewTour(nil, nil)
+	if tr.Writer == nil || tr.Reader == nil {
+		t.Fatalf("expected NewTour to provide default non-nil Writer and Reader, got Writer=%v, Reader=%v", tr.Writer, tr.Reader)
+	}
+}
+
+func TestTour_NonInteractiveStep1(t *testing.T) {
+	var out bytes.Buffer
+	tr := tour.NewTour(&out, strings.NewReader(""))
+	tr.NonInteractive = true
+
+	err := tr.Run(context.Background(), 1)
+	if err != nil {
+		t.Fatalf("unexpected error rendering step 1: %v", err)
+	}
+
+	output := out.String()
+	if !strings.Contains(output, "Welcome & Core Philosophy") {
+		t.Errorf("expected step 1 in output, got: %s", output)
+	}
+	if strings.Contains(output, "Anatomy of an Exercise") {
+		t.Errorf("step 2 should not be in output when only step 1 is rendered, got: %s", output)
 	}
 }

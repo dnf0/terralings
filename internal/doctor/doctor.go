@@ -1,11 +1,13 @@
 package doctor
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/dnf0/terralings/internal/detector"
@@ -48,7 +50,11 @@ type DiagnosticReport struct {
 // RunDiagnostics executes all pre-flight environment checks against the given workspace.
 func RunDiagnostics(workspaceDir string, binOverride string, stateOverride string) DiagnosticReport {
 	if workspaceDir == "" {
-		workspaceDir, _ = os.Getwd()
+		var wdErr error
+		workspaceDir, wdErr = os.Getwd()
+		if wdErr != nil || workspaceDir == "" {
+			workspaceDir = "."
+		}
 	}
 
 	var checks []CheckResult
@@ -76,7 +82,9 @@ func RunDiagnostics(workspaceDir string, binOverride string, stateOverride strin
 
 		ver, verErr := detector.GetBinaryVersion(binPath)
 		if verErr != nil {
-			cmd := exec.Command(binPath, "version")
+			ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+			defer cancel()
+			cmd := exec.CommandContext(ctx, binPath, "version")
 			if out, cmdErr := cmd.Output(); cmdErr == nil {
 				firstLine := strings.Split(strings.TrimSpace(string(out)), "\n")[0]
 				detectedVersion = firstLine
