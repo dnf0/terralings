@@ -1,33 +1,79 @@
 # Terralings
 
-> An interactive, terminal-driven learning environment for mastering Terraform and OpenTofu through hands-on exercises.
+<p align="center">
+  <a href="https://github.com/dnf0/terralings/actions"><img src="https://github.com/dnf0/terralings/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License: Apache-2.0"></a>
+  <a href="https://go.dev/"><img src="https://img.shields.io/badge/Go-1.22+-00ADD8.svg?logo=go" alt="Go: 1.22+"></a>
+  <a href="https://opentofu.org/"><img src="https://img.shields.io/badge/OpenTofu-%E2%89%A51.6-FFDA63?logo=opentofu" alt="OpenTofu"></a>
+  <a href="https://www.terraform.io/"><img src="https://img.shields.io/badge/Terraform-%E2%89%A51.5-844FBA?logo=terraform" alt="Terraform"></a>
+  <a href="https://github.com/dnf0/terralings/tree/main/extensions/vscode"><img src="https://img.shields.io/badge/VS%20Code-Extension-blue?logo=visualstudiocode" alt="VS Code Extension"></a>
+  <a href="https://dnf0.github.io/terralings/"><img src="https://img.shields.io/badge/Docs-Material%20for%20MkDocs-526cfe?logo=materialformkdocs" alt="Docs"></a>
+</p>
 
-`terralings` guides you through fixing broken configurations, writing declarative Infrastructure as Code (IaC), mastering HCL expressions and built-in functions, refactoring state with `moved` blocks, authoring `.tftest.hcl` unit and integration tests, and configuring OpenTofu advanced features such as state encryption and early variable evaluation.
+<p align="center">
+  <img src="assets/demo.svg" alt="Terralings Terminal Demo" width="800">
+</p>
 
-Inspired by [`rustlings`](https://github.com/rust-lang/rustlings), [`ziglings`](https://github.com/ziglings/exercises), and [`raylings`](https://github.com/ray-project/raylings).
+> **Master Terraform and OpenTofu from scratch through small, interactive, hands-on terminal exercises.**
+
+`terralings` guides you through fixing broken configurations, writing declarative Infrastructure as Code (IaC), mastering HCL expressions and built-in functions, refactoring state with `moved` blocks, authoring `.tftest.hcl` unit and integration tests, configuring OpenTofu state encryption, and applying enterprise architecture governance standards.
+
+Inspired by [`rustlings`](https://github.com/rust-lang/rustlings), [`ziglings`](https://github.com/ziglings/exercises), [`spanglings`](https://github.com/dnf0/spanglings), and [`raylings`](https://github.com/dnf0/raylings).
 
 ---
 
-## Features
+## Pedagogical Philosophy
 
-- **Turnkey Embedded Initialization (`terralings init`)**: The complete 56-exercise curriculum is embedded directly into the binary—run `terralings init` anywhere to start practicing immediately without cloning git repos.
-- **Interactive Guided Tour (`terralings tour`)**: 5-step interactive terminal walkthrough introducing IaC principles, exercise structure, watch/TUI modes, progressive hints, and LSP editor integration.
-- **Pre-Flight Diagnostics (`terralings doctor`)**: Comprehensive environment health check verifying OpenTofu/Terraform binary availability, exercise directory scaffold integrity, plugin cache permissions, and state health.
-- **Interactive Full-Screen TUI Dashboard (`terralings tui` / `terralings watch -i`)**: Two-pane terminal dashboard featuring real-time compilation viewport, grouped chapter navigation, live exercise search modal (`/`), and expandable hints drawer (`h`).
-- **Learning Analytics & Progress Persistence (`terralings stats`)**: Automatically tracks completion state, pass/fail attempt metrics, time invested, and hint usage stored in `.terralings/state.json`.
-- **Language Server Protocol Daemon (`terralings lsp`)**: Built-in JSON-RPC 2.0 LSP server providing instant in-editor validation diagnostics, hover exercise descriptions with hints, and quick-fix actions for VS Code, Neovim, and Helix.
-- **Official VS Code Companion Extension**: Dedicated Activity Bar curriculum explorer with pass/fail status badges, live LSP diagnostics, 5-step interactive walkthroughs, one-click watch/TUI terminal launchers, and status bar progress indicator.
-- **NDJSON Event Streaming (`terralings watch --json`)**: Emits structured newline-delimited JSON events on file changes and evaluations for headless integrations, CI test runners, and custom editor plugins.
-- **Interactive Watch Mode (`terralings watch`)**: Automatically monitors your exercise files via `fsnotify` and re-evaluates and validates in real time on every file save.
-- **Exercise Reset (`terralings reset <name>`)**: Instantly restore any exercise back to its clean starter template if you want to redo it or fix a mistake.
-- **Curriculum Search (`terralings search <term>`)**: Fast full-text search across all chapters, topics, hints, and exercises with relevance scoring.
-- **Shell Autocompletions (`terralings completion`)**: Rich tab completion for Bash, Zsh, Fish, and PowerShell, including interactive exercise name completion.
-- **Dual Engine Support**: Seamlessly detects and runs against either **OpenTofu** (`tofu`) or **Terraform** (`terraform`) (version >= 1.6.0).
-- **Sub-100ms Evaluation**: Shared provider plugin caching eliminates redundant network downloads during provider initialization.
-- **Comprehensive 13-Chapter Curriculum**: 56 progressive exercises covering primitives, variables, collections, functions, meta-arguments, dynamic blocks, data sources, modules, state refactoring, native testing, production patterns, OpenTofu extensions, and policy governance.
-- **Progressive Hints (`terralings hint`)**: Multi-level contextual guidance to nudge you forward when stuck without spoiling the answer.
-- **Built-in Verification (`terralings verify`)**: Complete curriculum progress dashboard tracking your status across all 13 chapters.
-- **Zero Heavy Cloud Dependencies**: All exercises execute purely locally using standard built-in providers (`local`, `random`, `archive`, `terraform_data`, `test_mock`) or fast in-memory execution—no AWS/GCP/Azure credentials required.
+Terralings is built on five core educational pillars:
+
+1. **Active Debugging over Passive Reading**: Each exercise presents realistic broken or incomplete configuration code with clear `# TODO:` instructions. You learn by identifying compilation errors, diagnosing plan discrepancies, and writing working declarative code.
+2. **Sub-30ms Hotkey Watcher Loop**: Powered by an ultra-fast file watcher (`fsnotify`), Terralings re-evaluates your changes immediately upon saving. Single-key interactive controls (`n` next, `p` prev, `h` hint, `r` rerun, `q` quit) ensure you never leave your flow state.
+3. **Dual Engine Support**: Seamlessly detects and runs against either **OpenTofu** (`tofu` &ge; 1.6.0) or **Terraform** (`terraform` &ge; 1.5.0), ensuring universal applicability across open-source and enterprise toolchains.
+4. **Progressive Hinting**: Multi-level contextual hints provide gentle conceptual nudges before revealing concrete syntax patterns, preserving the learning challenge without stalling progress.
+5. **Zero-Friction Validation**: Terralings eliminates cumbersome "magic comments" or manual completion markers. Your code is validated directly against canonical parser checks, execution plans, and native test runners.
+
+---
+
+## Architecture Overview
+
+Terralings is engineered in Go for extreme performance, offline reliability, and zero cloud credential requirements. The complete 56-exercise curriculum is embedded directly in the standalone binary.
+
+```
+                            +-----------------------+
+                            |     User Terminal     |
+                            +-----------+-----------+
+                                        |
+                                        v
+                            +-----------------------+
+                            |  Terralings CLI (Go)  |
+                            +-----------+-----------+
+                                        |
+               +------------------------+------------------------+
+               |                                                 |
+               v                                                 v
+   +-----------------------+                         +-----------------------+
+   |  File Watcher Engine  |                         |  Bubble Tea TUI & UI  |
+   |       (fsnotify)      |                         | (diagnostics / tree)  |
+   +-----------+-----------+                         +-----------------------+
+               |
+               v
+   +-----------------------+
+   |  Curriculum Manifest  |  (13 Chapters / 56 Exercises)
+   +-----------+-----------+
+               |
+               v
+   +-----------------------+
+   |   Exercise Runner     |
+   +-----------+-----------+
+               |
+   +-----------+-----------+
+   |                       |
+   v                       v
++---------------+   +------------------+
+|  OpenTofu CLI |   |  Terraform CLI   |
+| (tofu binary) |   | (terraform bin)  |
++---------------+   +------------------+
+```
 
 ---
 
@@ -35,19 +81,19 @@ Inspired by [`rustlings`](https://github.com/rust-lang/rustlings), [`ziglings`](
 
 Before using `terralings`, ensure you have installed:
 
-1. **OpenTofu** (>= 1.6.0) or **Terraform** (>= 1.6.0):
+1. **OpenTofu** (&ge; 1.6.0) or **Terraform** (&ge; 1.5.0):
    ```bash
    tofu version
    # or
    terraform version
    ```
-2. *(Optional)* **Go** (>= 1.22) if building from source.
+2. *(Optional)* **Go** (&ge; 1.22) if building from source.
 
 ---
 
 ## Installation & Getting Started
 
-### Option 1: Quick Install (Linux & macOS)
+### Option 1: 1-Line Installer (Linux & macOS)
 
 Install the latest pre-built binary directly to `~/.local/bin` or `/usr/local/bin`:
 
@@ -101,91 +147,163 @@ terralings tui
 terralings watch -i
 ```
 
-> 📖 **New to Terralings?** Check out the comprehensive [Onboarding Guide](docs/onboarding-guide.md) for step-by-step instructions, editor configurations, and learning tips.
+> 📖 **New to Terralings?** Check out the comprehensive [Documentation Suite](https://dnf0.github.io/terralings/) and [Onboarding Guide](https://dnf0.github.io/terralings/onboarding-guide/) for step-by-step instructions, editor configurations, and learning tips.
 
 ---
 
-## CLI Commands Reference
+## Interactive Learning Commands
 
-| Command | Description |
-|---|---|
-| `terralings doctor [--json]` | Run pre-flight diagnostics to verify environment and workspace readiness |
-| `terralings tour [--step <n>] [--non-interactive] [--json]` | Start the interactive guided onboarding tour |
-| `terralings init [dir] [-f]` | Extract and initialize embedded curriculum exercises into a directory |
-| `terralings watch [-i] [--json]` | Start continuous watch mode (`-i` for TUI, `--json` for NDJSON stream) |
-| `terralings tui` | Launch the interactive full-screen terminal UI dashboard |
-| `terralings stats` | Display learning analytics, attempt counts, time invested, and progress |
-| `terralings lsp` | Start Language Server Protocol (LSP) daemon over stdio |
-| `terralings run <exercise>` | Run verification against a single exercise (e.g. `terralings run primitives01`) |
-| `terralings hint <exercise> [-i <idx>]` | Display progressive hint(s) for the specified exercise |
-| `terralings reset <exercise> [-d <dir>]` | Reset an exercise back to its initial starting template |
-| `terralings search <term>` | Search exercises by keyword, concept, or chapter |
-| `terralings list` | List all chapters and exercises with status indicators |
-| `terralings verify` | Run sequential evaluation across the entire curriculum and display progress |
-| `terralings completion <shell>` | Generate autocompletion scripts for `bash`, `zsh`, `fish`, or `powershell` (alias: `completions`) |
-| `terralings version` | Print the Terralings CLI version and detected IaC binary |
+Terralings provides 15 dedicated subcommands tailored for learning, diagnostics, and developer productivity:
 
-### Global Flags
+### 1. `terralings watch`
 
-| Flag | Description |
-|---|---|
-| `--bin <path>` | Override binary auto-detection with an explicit path (or `export TERRALINGS_BIN=...`) |
-| `--state <path>` | Custom path to state persistence file (default: `.terralings/state.json`) |
+Start the continuous file watcher. Terralings monitors `exercises/` using `fsnotify` and re-evaluates the active exercise automatically whenever changes are saved to disk.
+
+```bash
+terralings watch [flags]
+```
+
+#### Interactive Single-Key Controls
+When running in standard watch mode, the following interactive hotkeys are available:
+- `n` or `Enter`: Advance to the next exercise
+- `p`: Navigate back to the previous exercise
+- `h`: Reveal the next progressive hint
+- `r`: Manually re-run verification on the current exercise
+- `q` or `Ctrl+C`: Quit watch mode
+
+#### NDJSON Event Streaming (`--json`)
+Stream real-time newline-delimited JSON events for editor plugins, CI pipelines, or headless runners:
+```bash
+terralings watch --json
+```
 
 ---
 
-## Features & Usage Guide
+### 2. `terralings tui` (or `terralings watch -i`)
 
-### 1. Interactive Full-Screen TUI Dashboard
-
-Launch a terminal dashboard with split-pane navigation, real-time evaluation feedback, and searchable curriculum overview:
+Launch the full-screen interactive terminal dashboard powered by Bubble Tea and Lip Gloss.
 
 ```bash
 terralings tui
-# or
-terralings watch -i
 ```
 
-#### TUI Layout & Features
-
-- **Sidebar (Left Pane)**: Visual tree of chapters and exercises with real-time status indicators (`✓` passed, `•` in progress, `·` not started).
-- **Compiler Viewport (Right Pane)**: Formatted validation output, syntax and runtime diagnostics, error callouts, and animated spinner during execution.
-- **Collapsible Hints Drawer**: View progressive hints on demand directly within the dashboard without leaving your terminal.
-- **Interactive Search Modal**: Press `/` to trigger instant search across exercises and jump directly to any topic.
-
-#### Keyboard Shortcuts
-
-| Key | Action |
-|---|---|
-| `↑` / `k` | Move cursor up in exercise list / search results |
-| `↓` / `j` | Move cursor down in exercise list / search results |
-| `Tab` | Switch active focus between Sidebar and Viewport |
-| `Enter` | Run/evaluate selected exercise (or select item in search) |
-| `h` | Toggle hints drawer / cycle through hint levels |
-| `r` | Reset current exercise back to original starter template |
-| `/` | Open exercise search modal |
-| `Esc` | Close search modal or cancel |
-| `q` / `Ctrl+C` | Quit dashboard |
+- **Sidebar Navigation**: Visual tree of chapters and exercises with real-time pass/fail status markers.
+- **Compiler Viewport**: Rich syntax diagnostics, error callouts, and plan execution output.
+- **Collapsible Hints Drawer**: Press `h` to toggle multi-level hints directly inside the dashboard.
+- **Search Modal**: Press `/` to trigger instant fuzzy search across all exercises.
 
 ---
 
-### 2. Learning Analytics & Progress Persistence
+### 3. `terralings tour`
 
-Terralings tracks your learning journey across all sessions and exercises. Progress is automatically persisted to `.terralings/state.json` (and automatically added to your `.gitignore`).
+Launch the 5-step guided onboarding walkthrough. Introduces core IaC concepts, the Terralings feedback loop, watch and TUI modes, progressive hinting, and editor LSP integration.
+
+```bash
+terralings tour [--step <n>] [--non-interactive] [--json]
+```
+
+---
+
+### 4. `terralings doctor`
+
+Execute comprehensive pre-flight diagnostic health checks to verify your system setup before starting exercises.
+
+```bash
+terralings doctor [--json]
+```
+
+```text
+🩺 Terralings Doctor Diagnostic Report
+────────────────────────────────────────────────────────────
+ ✓ IaC Engine Binary       Found opentofu at /usr/local/bin/tofu (OpenTofu v1.8.0)
+ ✓ Curriculum Scaffold     Exercises directory present (56 configuration files found)
+ ✓ Provider Plugin Cache   Plugin cache directory ready at ~/.terralings/plugin-cache
+ ✓ Git Ignore Integration  .terralings directory is properly git-ignored.
+ ✓ Progress Store          State store healthy at .terralings/state.json
+────────────────────────────────────────────────────────────
+ All diagnostics passed! Your environment is 100% ready for Terralings.
+```
+
+---
+
+### 5. `terralings run <exercise>`
+
+Run standalone verification against a single exercise without starting watch mode.
+
+```bash
+terralings run primitives01
+# or with explicit file path:
+terralings run exercises/01_primitives/primitives01.tf
+```
+
+---
+
+### 6. `terralings hint <exercise>`
+
+Display progressive hints for an exercise. Earlier hints provide conceptual guidance, while later hints provide targeted syntax examples.
+
+```bash
+terralings hint primitives01
+# View a specific hint level:
+terralings hint primitives01 --index 1
+```
+
+---
+
+### 7. `terralings reset <exercise>`
+
+Restore an exercise file back to its initial starter template from embedded assets if you want to redo it from scratch.
+
+```bash
+terralings reset primitives01
+```
+
+---
+
+### 8. `terralings search <query>`
+
+Perform fast full-text search across all chapter titles, exercise names, descriptions, and progressive hints with relevance scoring.
+
+```bash
+terralings search dynamic
+terralings search "state encryption"
+```
+
+---
+
+### 9. `terralings list`
+
+List all 13 curriculum chapters and 56 exercises with their current completion status indicators (`✓` passed, `•` in progress, `·` not started).
+
+```bash
+terralings list
+```
+
+---
+
+### 10. `terralings verify`
+
+Run a full evaluation pass across the entire curriculum and display an aggregated progress bar and chapter scorecard.
+
+```bash
+terralings verify
+```
+
+```text
+Progress: [████████████████████████████████████████] 56/56 (100.0%)
+
+🎉 Congratulations! You have completed all Terralings exercises! 🎉
+```
+
+---
+
+### 11. `terralings stats`
+
+Display learning analytics and progress metrics persisted in `.terralings/state.json`:
 
 ```bash
 terralings stats
 ```
-
-#### State Tracking Mechanics
-
-- **Attempt Tracking**: Increments total and failed attempts per exercise each time validation runs.
-- **Time Invested**: Tracks cumulative active time spent solving exercises.
-- **Hint Consultation**: Records the depth of hints consulted.
-- **Atomic & Resilient**: State updates are written atomically (`.tmp` + `sync` + `rename`) with automatic recovery and backup (`state.json.bak`) if corruption is detected.
-- **Custom State Location**: Use `--state <path>` to store state in a custom directory.
-
-#### Sample Output
 
 ```text
 📊 TERRALINGS LEARNING ANALYTICS
@@ -194,304 +312,29 @@ Overall Progress: [████████████░░░░░░░░]
 Time Invested:    1h 45m
 Total Attempts:   82 (avg 1.5 per exercise)
 Hints Consulted:  12
-
-Chapter Breakdown:
-  • 01_primitives        100% (6/6) | Avg Attempts: 1.2 | Hints: 1
-  • 02_variables         100% (5/5) | Avg Attempts: 1.4 | Hints: 2
-  • 03_outputs_locals    100% (4/4) | Avg Attempts: 1.0 | Hints: 0
-  • 04_functions         100% (5/5) | Avg Attempts: 1.8 | Hints: 3
-  • 05_meta_arguments    100% (5/5) | Avg Attempts: 1.6 | Hints: 2
-  • 06_dynamic_blocks     75% (3/4) | Avg Attempts: 2.0 | Hints: 2
-  • 07_data_sources       50% (2/4) | Avg Attempts: 1.5 | Hints: 1
-  • 08_modules             0% (0/5) | Avg Attempts: 0.0 | Hints: 0
 ```
 
 ---
 
-### 3. Language Server Protocol (LSP) Daemon
+### 12. `terralings lsp`
 
-Terralings includes a built-in Language Server Protocol (LSP) daemon communicating over JSON-RPC 2.0 (`stdio`). When configured in your editor, it provides:
-
-- **Live Diagnostics (`publishDiagnostics`)**: Real-time syntax errors, semantic validation issues, and plan diagnostics.
-- **Hover Documentation (`textDocument/hover`)**: Hover over any exercise file to read its objectives, chapter context, and multi-level hints rendered in rich markdown.
-- **Code Actions (`textDocument/codeAction`)**: Quick-fix and source actions to reveal progressive hints.
+Start the built-in Language Server Protocol (LSP) daemon over standard input/output (`stdio`). Implements JSON-RPC 2.0 LSP specifications for code diagnostics (`publishDiagnostics`), hover tooltips (`textDocument/hover`), and hint code actions (`textDocument/codeAction`) in Neovim, Helix, and VS Code.
 
 ```bash
 terralings lsp
 ```
 
-#### Editor Configuration
-
-##### Neovim (`nvim-lspconfig`)
-
-Add the following to your Neovim configuration (e.g. `~/.config/nvim/lua/plugins/lsp.lua` or `init.lua`):
-
-```lua
-local lspconfig = require("lspconfig")
-local configs = require("lspconfig.configs")
-
-if not configs.terralings then
-  configs.terralings = {
-    default_config = {
-      cmd = { "terralings", "lsp" },
-      filetypes = { "terraform", "hcl" },
-      root_dir = lspconfig.util.root_pattern(".terralings", "exercises", ".git"),
-      settings = {},
-    },
-  }
-end
-
-lspconfig.terralings.setup({
-  on_attach = function(client, bufnr)
-    local opts = { buffer = bufnr, silent = true }
-    vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
-    vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
-  end,
-})
-```
-
-##### Helix (`languages.toml`)
-
-Add Terralings as a language server in `~/.config/helix/languages.toml`:
-
-```toml
-[language-server.terralings]
-command = "terralings"
-args = ["lsp"]
-
-[[language]]
-name = "hcl"
-language-servers = [ "terralings" ]
-
-[[language]]
-name = "terraform"
-language-servers = [ "terralings" ]
-```
-
-##### Visual Studio Code
-
-###### 1. Official Companion Extension (Recommended)
-
-Terralings includes an official VS Code companion extension located in [`extensions/vscode`](extensions/vscode):
-
-- **Curriculum & Exercise Explorer**: Dedicated Activity Bar sidebar displaying all 13 chapters and 56 exercises with real-time pass/fail status badges (`Passed`, `Failed`, `In Progress`, `Not Started`), chapter progress counters (`5/5`), and one-click file navigation.
-- **Embedded Language Server (LSP)**: Automatic `stdio` connection to `terralings lsp` for live diagnostics, markdown hover documentation with exercise objectives and progressive hints, and code actions.
-- **Interactive Guided Walkthroughs**: 5-step native onboarding tour introducing IaC philosophy, exercise anatomy, watch mode, TUI dashboard, and LSP capabilities.
-- **Terminal & TUI Integration**: Direct commands to launch continuous watch mode (`terralings watch`) and the full-screen terminal dashboard (`terralings tui`).
-- **Live Status Bar**: Real-time curriculum progress indicator with quick-jump search.
-
-```bash
-# Build and install the companion extension locally
-cd extensions/vscode
-npm install
-npm run build
-
-# Package and install into VS Code
-npx @vscode/vsce package
-code --install-extension terralings-vscode-0.3.0.vsix
-```
-
-###### 2. Generic LSP Client Configuration
-
-Alternatively, you can connect generic VS Code LSP extensions (such as [Generic LSP Client](https://marketplace.visualstudio.com/items?itemName=eyhn.vscode-generic-lsp)) to `terralings lsp`:
-
-```json
-{
-  "generic-lsp.serverConfigurations": [
-    {
-      "name": "terralings",
-      "command": "terralings",
-      "args": ["lsp"],
-      "languages": ["terraform", "hcl", "terraform-vars"]
-    }
-  ]
-}
-```
-
 ---
 
-### 4. NDJSON Event Streaming
+### 13. `terralings completion`
 
-For automated tooling, continuous integration environments, and custom IDE extensions, `terralings watch --json` streams newline-delimited JSON (NDJSON) events directly to `stdout`:
-
-```bash
-terralings watch --json
-```
-
-#### Event Types & Payload Schema
-
-Each line emitted is an atomic JSON object:
-
-1. **`exercise_start`**: Emitted when evaluation begins for an exercise.
-2. **`exercise_result`**: Emitted when evaluation completes with diagnostics, pass/fail status, and raw CLI output.
-3. **`completed`**: Emitted when all curriculum exercises pass.
-
-```json
-{
-  "event": "exercise_result",
-  "timestamp": "2026-08-27T12:00:00Z",
-  "exercise": {
-    "name": "primitives01",
-    "title": "Terraform Configuration Block",
-    "path": "exercises/01_primitives/primitives01.tf",
-    "mode": "validate",
-    "chapter_name": "01_primitives",
-    "hints": [
-      "Use required_version = \">= 1.6.0\"",
-      "Configure required_providers block with local provider"
-    ]
-  },
-  "passed": false,
-  "diagnostics": [
-    {
-      "file": "exercises/01_primitives/primitives01.tf",
-      "line": 4,
-      "column": 1,
-      "severity": "error",
-      "summary": "Missing required argument"
-    }
-  ],
-  "raw_output": "Error: Missing required argument...",
-  "exit_code": 1,
-  "current_index": 0,
-  "total_count": 56
-}
-```
-
----
-
-### 5. Command Examples & Standard Watch Mode
-
-#### 1. Pre-Flight Diagnostics
-```bash
-terralings doctor
-```
-```text
-🩺 Terralings Doctor Diagnostic Report
-────────────────────────────────────────────────────────────
-
- ✓ IaC Engine Binary
-   Found opentofu at /usr/local/bin/tofu (OpenTofu v1.8.0)
-
- ✓ Curriculum Scaffold
-   Exercises directory present (56 configuration files found)
-
- ✓ Provider Plugin Cache
-   Plugin cache directory ready at ~/.terralings/plugin-cache
-
- ✓ Git Ignore Integration
-   .terralings directory is properly git-ignored.
-
- ✓ Progress Persistence Store
-   State store healthy at .terralings/state.json (0 completed, 0 attempts)
-
-────────────────────────────────────────────────────────────
- All diagnostics passed! Your environment is 100% ready for Terralings.
-```
-
-#### 2. Interactive Guided Tour
-```bash
-terralings tour
-```
-```text
- STEP 1 OF 5  Welcome & Core Philosophy
- Master Terraform & OpenTofu through interactive hands-on practice
-
-   Terralings is designed to teach you Infrastructure-as-Code from first principles.
-   All exercises run in isolated, sandboxed environments without requiring real cloud credentials.
-   We follow the Ziglings / Rustlings v6 model: pure deterministic validation with zero magic comment friction.
-
-   Example Command:
-   terralings watch
-
-   Key Takeaways:
-   ✓ 100% local, safe evaluation with OpenTofu / Terraform.
-   ✓ Real compiler errors & plan outputs guide your progress.
-
-[Enter / n] Next | [p] Prev | [1-5] Jump | [q] Quit
->
-```
-
-#### 3. Interactive Watch Mode
-```bash
-terralings watch
-```
-```text
-======================================================================
-  TERRALINGS: Continuous Watch Mode
-  Watching directory: exercises
-  Press Ctrl+C to exit
-======================================================================
-
-✓ primitives01 passed!
-
-[Enter / n] Next exercise (primitives02)  |  [p] Previous  |  [r] Rerun  |  [q] Quit
-```
-
-#### 4. Progressive Hints
-```bash
-terralings hint primitives01
-```
-```text
-╭───────────────────────────────────╮
-│                                   │
-│ 💡 Hint (1/2) for primitives01:   │
-│ Use required_version = ">= 1.6.0" │
-│                                   │
-╰───────────────────────────────────╯
-```
-
-View the next hint level:
-```bash
-terralings hint primitives01 --index 1
-```
-
-#### 5. Curriculum Overview
-```bash
-terralings list
-```
-```text
-⚡ TERRALINGS: Master Terraform & OpenTofu from Scratch ⚡
-
-Chapter 01: HCL Foundations & Core Primitives - Blocks, attributes, provider requirements and first resources
-  · primitives01     : Terraform Configuration Block (exercises/01_primitives/primitives01.tf)
-  · primitives02     : First Resource Declaration (exercises/01_primitives/primitives02.tf)
-  · primitives03     : Resource Dependencies (exercises/01_primitives/primitives03.tf)
-  · primitives04     : String Interpolation & Heredoc (exercises/01_primitives/primitives04.tf)
-  · primitives05     : Syntax & Formatting (exercises/01_primitives/primitives05.tf)
-  · primitives06     : Lifecycle Mechanics (exercises/01_primitives/primitives06.tf)
-...
-```
-
-#### 6. Curriculum Search
-```bash
-terralings search dynamic
-```
-```text
-🔍 Search Results for 'dynamic' (4 matches):
-  • dynamic01        Repeating Nested Blocks with dynamic
-    exercises/06_dynamic_blocks/dynamic01.tf | matched in: name, chapter
-  • dynamic02        Custom Iterator Variable
-    exercises/06_dynamic_blocks/dynamic02.tf | matched in: name, chapter
-...
-```
-
-#### 7. Resetting an Exercise
-```bash
-terralings reset primitives01
-```
-```text
-🔄 Reset exercise 'primitives01' (exercises/01_primitives/primitives01.tf) back to original template.
-```
-
-#### 8. Shell Autocompletions
-Enable shell autocompletions for quick tab navigation and exercise autocompletion:
+Generate shell autocompletion scripts with dynamic exercise name suggestions:
 
 ```bash
-# Bash (Linux)
+# Bash
 terralings completion bash > /etc/bash_completion.d/terralings
 
-# Zsh (macOS / Linux)
+# Zsh
 terralings completion zsh > "${fpath[1]}/_terralings"
 
 # Fish
@@ -501,108 +344,119 @@ terralings completion fish > ~/.config/fish/completions/terralings.fish
 terralings completion powershell | Out-String | Invoke-Expression
 ```
 
-#### 9. Progress Verification
-```bash
-terralings verify
-```
-```text
-Progress: [████████████████████████████████████████] 56/56 (100.0%)
+---
 
-🎉 Congratulations! You have completed all Terralings exercises! 🎉
-```
+### Global Flags & Environment Variables
 
-### Environment Variables & Global Flags
-
-- `--bin <path>`: Override the automatic binary detector with an explicit executable path (e.g. `terralings watch --bin /opt/homebrew/bin/tofu`).
-- `TERRALINGS_BIN`: Set the binary path via environment variable (e.g. `export TERRALINGS_BIN=/usr/local/bin/terraform`).
+| Option / Variable | Description |
+|---|---|
+| `--bin <path>` / `TERRALINGS_BIN` | Explicit path override to `tofu` or `terraform` executable |
+| `--state <path>` / `TERRALINGS_STATE_PATH` | Path override for progress store (default: `.terralings/state.json`) |
+| `TERRALINGS_PLUGIN_CACHE_DIR` | Shared provider plugin cache directory (default: `~/.terralings/plugin-cache`) |
+| `NO_COLOR` | Disables ANSI color escape sequences in terminal output |
 
 ---
 
-## Curriculum Map
+## Official VS Code Companion Extension
+
+Terralings includes an official companion extension located in [`extensions/vscode`](extensions/vscode):
+
+<p align="center">
+  <img src="https://img.shields.io/badge/VS%20Code-Companion%20Extension-007ACC?logo=visualstudiocode&logoColor=white" alt="VS Code Extension">
+</p>
+
+- **Curriculum & Exercise Explorer**: Dedicated Activity Bar sidebar displaying all 13 chapters and 56 exercises with real-time status badges (`Passed`, `Failed`, `In Progress`, `Not Started`), chapter progress counters (`5/5`), and one-click file navigation.
+- **Embedded Language Server (LSP)**: Automatic connection to `terralings lsp` for live diagnostics, markdown hover documentation with exercise objectives and progressive hints, and code actions.
+- **Interactive Guided Walkthroughs**: 5-step native onboarding tour introducing IaC philosophy, exercise anatomy, watch mode, TUI dashboard, and LSP capabilities.
+- **Terminal & TUI Integration**: Direct command palette launchers for continuous watch mode (`terralings watch`) and the full-screen terminal dashboard (`terralings tui`).
+- **Live Status Bar**: Real-time curriculum progress indicator with quick-jump search.
+
+### Local Installation
+
+```bash
+cd extensions/vscode
+npm install
+npm run build
+
+# Package and install into VS Code
+npx @vscode/vsce package
+code --install-extension terralings-vscode-0.3.0.vsix
+```
+
+---
+
+## Curriculum Matrix
 
 The curriculum spans **13 structured chapters** containing **56 exercises**:
 
-### [Chapter 01: HCL Foundations & Core Primitives](exercises/01_primitives/)
-- `primitives01`: `terraform` configuration block, `required_version`, and `required_providers`.
-- `primitives02`: First resource declaration (`local_file`), block labels, and attributes.
-- `primitives03`: Implicit and explicit resource dependencies.
-- `primitives04`: String interpolation, heredoc syntax (`<<-EOT`), and escaping.
-- `primitives05`: Canonical HCL syntax rules and formatting conventions.
-- `primitives06`: Resource lifecycle mechanics and stateful recreation triggers.
+| Chapter | Exercise ID | Title | Mode | Key Concepts Tested |
+|---|---|---|:---:|---|
+| **01 Primitives** | `primitives01` | Terraform Configuration Block | `validate` | `terraform` block, `required_version`, `required_providers`, provider sources |
+| | `primitives02` | First Resource Declaration | `plan` | `resource` block syntax, resource types, labels, required attributes |
+| | `primitives03` | Resource Dependencies | `plan` | Implicit dependency graphs, attribute referencing (`<type>.<name>.<attr>`) |
+| | `primitives04` | String Interpolation & Heredoc | `plan` | String templates (`${...}`), indented heredocs (`<<-EOT`), escaping |
+| | `primitives05` | Syntax & Formatting | `validate` | Canonical HCL formatting, alignment, valid quotes, syntax validation |
+| | `primitives06` | Lifecycle Mechanics | `plan` | `terraform_data`, `triggers_replace`, forced resource recreation mechanics |
+| **02 Variables** | `variables01` | Primitive Variable Declarations | `validate` | `variable` blocks, `string`, `number`, `bool`, `description` metadata |
+| | `variables02` | Collection Types | `plan` | `list(string)`, `map(string)`, `set(string)`, indexing (`[0]`, `["key"]`) |
+| | `variables03` | Structural Types | `validate` | `object({...})`, `optional(type, default)`, `tuple([...])` constraints |
+| | `variables04` | Defaults and Nullable | `plan` | Default variable values, `nullable = false`, handling null assignments |
+| | `variables05` | Custom Variable Validations | `plan` | `validation` blocks, `condition` expressions, `error_message` formatting |
+| **03 Outputs & Locals** | `outputs01` | Defining Outputs & Sensitive Redaction | `plan` | `output` blocks, `value`, `description`, `sensitive = true` log masking |
+| | `locals01` | Locals for Intermediate Calculations | `plan` | `locals { ... }`, computed values, referencing `local.<name>` |
+| | `expr01` | Ternary Conditional Expressions | `plan` | Ternary operators (`cond ? true_val : false_val`), type unification |
+| | `expr02` | Splat Expressions | `plan` | Splat operators (`[*]`), extracting attribute lists across collections |
+| **04 Functions** | `func01` | String Manipulation Functions | `plan` | `format()`, `join()`, `split()`, `replace()`, `lower()`, `upper()` |
+| | `func02` | Collection Operations | `plan` | `merge()`, `lookup()`, `distinct()`, `slice()`, `flatten()`, `zipmap()` |
+| | `func03` | Data Encodings | `plan` | `jsonencode()`, `jsondecode()`, `yamlencode()`, `base64encode()` |
+| | `func04` | Filesystem Functions | `plan` | `file()`, `templatefile()`, `fileset()`, `fileexists()`, path modules |
+| | `func05` | Safe Evaluation Expressions | `plan` | `try()`, `can()`, dynamic fallback expressions, guarding edge cases |
+| **05 Meta-Arguments** | `meta01` | Scaling Resources with Count | `plan` | `count = <n>`, `count.index`, referencing indexed resource instances |
+| | `meta02` | Idempotent Mapping with For Each | `plan` | `for_each = toset(...)`, `each.key`, `each.value`, avoiding index churn |
+| | `meta03` | Explicit Dependency Ordering | `plan` | `depends_on = [...]`, managing non-attribute execution ordering |
+| | `meta04` | Resource Lifecycle Blocks | `plan` | `lifecycle { create_before_destroy, prevent_destroy }` zero-downtime rules |
+| | `meta05` | Dynamic Drift Handling | `plan` | `lifecycle { ignore_changes = [...] }`, ignoring out-of-band updates |
+| **06 Dynamic Blocks** | `dynamic01` | Basic Dynamic Block Iteration | `plan` | `dynamic "block" { for_each = ... content { ... } }`, `.value` access |
+| | `dynamic02` | Dynamic Blocks with Custom Iterator | `plan` | `iterator = custom_name`, referencing `custom_name.key` and `.value` |
+| | `dynamic03` | Nested Dynamic Blocks | `plan` | Hierarchical dynamic blocks, nesting content blocks within parents |
+| | `dynamic04` | Conditional Dynamic Block Emission | `plan` | Conditionally passing empty collections `[]` to emit zero blocks |
+| **07 Data Sources** | `data01` | Local Filesystem Data Sources | `plan` | `data "local_file"`, reading files into configuration state |
+| | `data02` | Archive File Data Sources | `plan` | `data "archive_file"`, building lambda/deploy packages on the fly |
+| | `data03` | External Data Source Queries | `plan` | `data "external"`, executing local scripts and parsing JSON outputs |
+| | `data04` | Custom Preconditions and Postconditions | `plan` | `lifecycle { precondition { ... } postcondition { ... } }` |
+| **08 Modules** | `module01` | Building a Clean Child Module | `validate` | Module structure (`main.tf`, `variables.tf`, `outputs.tf`), encapsulation |
+| | `module02` | Calling Local Child Modules | `plan` | `module "<name>" { source = "./..." }`, passing arguments, referencing outputs |
+| | `module03` | Multi-Instance Module Deployment | `plan` | `for_each` inside module blocks, addressing multi-instance outputs |
+| | `module04` | Passing Provider Configurations & Aliases | `plan` | `providers = { ... }`, `configuration_aliases` in `required_providers` |
+| | `module05` | Submodule Boundaries & Clean Architecture | `validate` | Decoupled module hierarchy, flat interfaces, antipattern prevention |
+| **09 State Refactoring** | `state01` | Declarative Refactoring with Moved Blocks | `plan` | `moved { from = ... to = ... }`, non-destructive resource renaming |
+| | `state02` | Migrating Count to For-Each with Moved Blocks | `plan` | Converting `resource[0]` to `resource["key"]` without recreation |
+| | `state03` | Declarative Import Blocks | `plan` | `import { to = ... id = "..." }`, onboarding unmanaged cloud resources |
+| | `state04` | Controlled Resource Replacement | `plan` | `lifecycle { replace_triggered_by = [...] }`, dependency-driven teardowns |
+| **10 Native Testing** | `test01` | Basic Test Assertions with Run Blocks | `test` | `.tftest.hcl`, `run { command = plan }`, `assert { condition, error_message }` |
+| | `test02` | Validating Applied Resources in Tests | `test` | `run { command = apply }`, testing provisioned outputs and contract values |
+| | `test03` | Mocking Providers and Resources | `test` | `mock_provider`, `override_resource`, zero-cloud unit testing suites |
+| | `test04` | Testing Failure Cases with Expect Failures | `test` | `expect_failures = [var.<name>]`, validating defensive validation blocks |
+| **11 Patterns** | `pattern01` | Multi-Environment Configuration Mapping | `plan` | Environment dictionaries in `locals`, dynamic sizing & tiered config |
+| | `pattern02` | Feature Flags & Conditional Resource Creation | `plan` | `count = var.flag ? 1 : 0`, `one()`, `try()`, optional resource patterns |
+| | `pattern03` | Tagging Factory Pattern | `plan` | Merging base tags, environment tags, and custom metadata via `merge()` |
+| | `pattern04` | Self-Service Input Contracts | `plan` | Structured variable contracts, comprehensions with filter predicates |
+| **12 OpenTofu** | `tofu01` | State Encryption at Rest | `plan` | `terraform { encryption { key_provider, method, state } }` |
+| | `tofu02` | Early Variable Evaluation | `plan` | Referencing `var.<name>` in early-evaluated provider and backend blocks |
+| | `tofu03` | OpenTofu Public Registry Integration | `validate` | Open registry provider sources, interoperability, required versions |
+| **13 Governance** | `gov01` | Root Module Encapsulation | `plan` | Zero loose resources in root environments, modular workload encapsulation |
+| | `gov02` | Policy Encapsulation (ADR-0005) | `plan` | Resource-owned policy ARNs, eliminating inline IAM wildcard grants |
+| | `gov03` | Ephemeral Workload Isolation | `plan` | Encapsulating batch/tooling compute to prevent root state pollution |
 
-### [Chapter 02: Input Variables, Types & Validations](exercises/02_variables/)
-- `variables01`: Primitive variable types (`string`, `number`, `bool`).
-- `variables02`: Collection types (`list(string)`, `map(string)`, `set(string)`).
-- `variables03`: Structural types (`object({...})`, `tuple([...])`).
-- `variables04`: Default values and nullable handling.
-- `variables05`: Custom `validation` blocks with condition expressions and error messages.
+---
 
-### [Chapter 03: Outputs, Locals & Expressions](exercises/03_outputs_locals/)
-- `outputs01`: Defining output values and `sensitive = true` redaction.
-- `locals01`: Intermediate local calculations for DRY configurations.
-- `expr01`: Ternary conditional expressions (`condition ? true_val : false_val`).
-- `expr02`: Splat expressions (`[*]`) and list transformations.
+## The `*lings` Ecosystem
 
-### [Chapter 04: Built-in Functions & Collections](exercises/04_functions/)
-- `func01`: String manipulation functions (`format`, `join`, `lower`, `trimspace`).
-- `func02`: Collection functions (`merge`, `concat`, `distinct`, `slice`).
-- `func03`: Data serialization functions (`jsonencode`, `yamlencode`, `jsondecode`).
-- `func04`: Filesystem and hashing functions (`file`, `fileexists`, `sha256`, `abspath`).
-- `func05`: Safe evaluation functions (`can()`, `try()`).
+Terralings is part of the `*lings` family of interactive, developer-grade terminal learning tools:
 
-### [Chapter 05: Meta-Arguments & Resource Scaling](exercises/05_meta_arguments/)
-- `meta01`: Scaling resources with `count` and `count.index`.
-- `meta02`: Idempotent resource mapping with `for_each` and `each.key`/`each.value`.
-- `meta03`: Explicit dependency ordering with `depends_on`.
-- `meta04`: Lifecycle control (`create_before_destroy`, `prevent_destroy`, `ignore_changes`).
-- `meta05`: Chained dependencies across maps and resources.
-
-### [Chapter 06: Dynamic Blocks & Advanced HCL](exercises/06_dynamic_blocks/)
-- `dynamic01`: Repeating nested blocks using `dynamic "block_name"`.
-- `dynamic02`: Custom block iterators with `iterator`.
-- `dynamic03`: Hierarchical and multi-level nested dynamic blocks.
-- `dynamic04`: Conditional block generation using empty collections.
-
-### [Chapter 07: Data Sources & State Querying](exercises/07_data_sources/)
-- `data01`: Reading local filesystem artifacts with `data "local_file"`.
-- `data02`: Bundling archive files with `data "archive_file"`.
-- `data03`: Querying external processes and JSON structures with `data "external"`.
-- `data04`: Adding custom `precondition` and `postcondition` lifecycle validations.
-
-### [Chapter 08: Modular Infrastructure Architecture](exercises/08_modules/)
-- `module01`: Child module instantiation, input passing, and directory layout.
-- `module02`: Consuming and bubbling child module outputs to root caller.
-- `module03`: Composing multiple interdependent modules.
-- `module04`: Multi-instance module provisioning with `for_each`.
-- `module05`: Passing explicit provider configurations via `providers = { ... }` aliases.
-
-### [Chapter 09: State Refactoring & Surgery](exercises/09_state_refactoring/)
-- `state01`: Renaming resources without destruction using declarative `moved` blocks.
-- `state02`: Migrating monolithic resources into encapsulated child modules via `moved` blocks.
-- `state03`: Declarative resource adoption using `import` blocks.
-- `state04`: Managing forced recreation triggers using `replace_triggered_by`.
-
-### [Chapter 10: Native Unit & Integration Testing](exercises/10_testing/)
-- `test01`: Writing native `.tftest.hcl` test suites with `command = plan` run blocks.
-- `test02`: Asserting against execution side-effects with `command = apply`.
-- `test03`: Mocking third-party providers with `mock_provider` blocks.
-- `test04`: Testing negative validation scenarios using `expect_failures`.
-
-### [Chapter 11: Production Infrastructure Patterns](exercises/11_patterns/)
-- `pattern01`: Multi-tier infrastructure composition (networking -> compute -> storage).
-- `pattern02`: Zero-downtime blue/green deployment switching with `terraform_data`.
-- `pattern03`: Centralized tag and metadata inheritance across resources.
-- `pattern04`: Idempotent resource cleanup and canary rollout patterns.
-
-### [Chapter 12: OpenTofu Advanced Features](exercises/12_opentofu/)
-- `tofu01`: Configuring OpenTofu state file encryption with `encryption` and `key_provider` blocks.
-- `tofu02`: Early variable and local evaluation in provider and backend configurations.
-- `tofu03`: Configuring custom registry mirrors and decentralized OpenTofu registries.
-
-### [Chapter 13: Governance & Security Policies](exercises/13_governance/)
-- `gov01`: Enforcing strict resource naming conventions and regex constraints.
-- `gov02`: Validating mandatory security compliance guardrails (TLS, encryption at rest).
-- `gov03`: Cost and quota governance guardrails restricting over-provisioning.
+- ☸️ [**Kubelings**](https://github.com/dnf0/kubelings) – Master Kubernetes through hands-on terminal exercises.
+- 🇪🇸 [**Spanglings**](https://github.com/dnf0/spanglings) – Developer-grade CLI & interactive TUI for learning intermediate-to-advanced Spanish (B1–C1).
+- ⚡ [**Raylings**](https://github.com/dnf0/raylings) – Learn distributed AI, Ray Core actors, and scalable clusters through hands-on Python exercises.
 
 ---
 
@@ -611,7 +465,7 @@ The curriculum spans **13 structured chapters** containing **56 exercises**:
 For contributors looking to build, test, or extend Terralings:
 
 ```bash
-# Run all format checks, linters, and tests
+# Run all format checks, linters, tests, and extension builds
 make all
 
 # Run unit and curriculum tests with race detection
@@ -635,3 +489,4 @@ Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for de
 ## License
 
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+

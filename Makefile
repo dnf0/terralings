@@ -1,4 +1,4 @@
-.PHONY: all build build-all run test test-race lint fmt-check fmt-solutions verify check clean extension-install extension-build extension-test extension-check
+.PHONY: all build build-all run test test-race lint fmt-check fmt-solutions verify check clean extension-install extension-build extension-test extension-check docs-install docs-serve docs-build
 
 all: check build test-race extension-check
 
@@ -53,5 +53,14 @@ extension-test:
 extension-check:
 	cd extensions/vscode && npm run check-types && npm test
 
+docs-install:
+	uv pip install mkdocs-material || pip install mkdocs-material
+
+docs-serve:
+	mkdocs serve
+
+docs-build:
+	mkdocs build --strict
+
 clean:
-	rm -rf bin/ .terraform/ .cache/ && rm -f ./terralings
+	rm -rf bin/ dist/ site/ .terraform/ .cache/ && rm -f ./terralings

@@ -8,25 +8,25 @@ Welcome to **Terralings**! This guide takes you from zero to confidently authori
 
 ## Table of Contents
 
-1. [Welcome & Core Philosophy](#1-welcome--core-philosophy)
+1. [Welcome & Core Philosophy](#1-welcome-core-philosophy)
 2. [Step 0: Environment Health Check (`terralings doctor`)](#2-step-0-environment-health-check-terralings-doctor)
 3. [Step 1: Workspace Initialization (`terralings init`)](#3-step-1-workspace-initialization-terralings-init)
 4. [Step 2: The Interactive Guided Tour (`terralings tour`)](#4-step-2-the-interactive-guided-tour-terralings-tour)
 5. [Step 3: Solving Your First Exercise (`primitives01`)](#5-step-3-solving-your-first-exercise-primitives01)
-6. [Step 4: Choosing Your Learning Modality](#6-step-4-choosing-your-learning-modality)
+6. [Step 4: Choosing Your Learning Modality](#6-choosing-your-learning-modality)
    - [Modal A: Continuous Watch Mode (`terralings watch`)](#modal-a-continuous-watch-mode-terralings-watch)
    - [Modal B: Interactive Full-Screen TUI Dashboard (`terralings tui`)](#modal-b-interactive-full-screen-tui-dashboard-terralings-tui)
-7. [Step 5: Using Progressive Hints, Search & Reset](#7-step-5-using-progressive-hints-search--reset)
+7. [Step 5: Using Progressive Hints, Search & Reset](#7-step-5-using-progressive-hints-search-reset)
    - [Progressive Hints (`terralings hint`)](#progressive-hints-terralings-hint)
    - [Curriculum Search (`terralings search`)](#curriculum-search-terralings-search)
    - [Resetting Exercises (`terralings reset`)](#resetting-exercises-terralings-reset)
-8. [Step 6: Progress Tracking & Analytics (`terralings stats`)](#8-step-6-progress-tracking--analytics-terralings-stats)
-9. [Step 7: Editor Integration & Language Server (`terralings lsp`)](#9-step-7-editor-integration--language-server-terralings-lsp)
+8. [Step 6: Progress Tracking & Analytics (`terralings stats`)](#8-step-6-progress-tracking-analytics-terralings-stats)
+9. [Step 7: Editor Integration & Language Server (`terralings lsp`)](#9-step-7-editor-integration-language-server-terralings-lsp)
    - [Visual Studio Code](#visual-studio-code)
    - [Neovim (`nvim-lspconfig`)](#neovim-nvim-lspconfig)
    - [Helix (`languages.toml`)](#helix-languagestoml)
 10. [Curriculum Roadmap](#10-curriculum-roadmap)
-11. [Troubleshooting & FAQ](#11-troubleshooting--faq)
+11. [Troubleshooting & FAQ](#11-troubleshooting-faq)
 
 ---
 
