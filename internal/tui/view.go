@@ -79,19 +79,25 @@ var (
 			Foreground(lipgloss.Color("#6272A4"))
 )
 
-// View renders the complete Bubble Tea user interface.
-func (m Model) View() string {
-	w := m.width
+// LayoutDimensions stores computed width and height geometries for dashboard layout rendering.
+type LayoutDimensions struct {
+	HeaderWidth    int
+	SidebarWidth   int
+	ContentWidth   int
+	BodyHeight     int
+	ViewportWidth  int
+	ViewportHeight int
+}
+
+func computeLayout(width, height int) LayoutDimensions {
+	w := width
 	if w < 60 {
 		w = 60
 	}
-	h := m.height
+	h := height
 	if h < 20 {
 		h = 20
 	}
-
-	header := m.renderHeader(w)
-	footer := m.renderFooter(w)
 
 	sidebarW := w / 3
 	if sidebarW < 28 {
@@ -111,8 +117,34 @@ func (m Model) View() string {
 		bodyH = 10
 	}
 
-	sidebar := m.renderSidebar(sidebarW, bodyH)
-	mainContent := m.renderMain(contentW, bodyH)
+	vpW := contentW - 2
+	if vpW < 10 {
+		vpW = 10
+	}
+	vpH := bodyH
+	if vpH < 6 {
+		vpH = 6
+	}
+
+	return LayoutDimensions{
+		HeaderWidth:    w,
+		SidebarWidth:   sidebarW,
+		ContentWidth:   contentW,
+		BodyHeight:     bodyH,
+		ViewportWidth:  vpW,
+		ViewportHeight: vpH,
+	}
+}
+
+// View renders the complete Bubble Tea user interface.
+func (m Model) View() string {
+	layout := computeLayout(m.width, m.height)
+
+	header := m.renderHeader(layout.HeaderWidth)
+	footer := m.renderFooter(layout.HeaderWidth)
+
+	sidebar := m.renderSidebar(layout.SidebarWidth, layout.BodyHeight)
+	mainContent := m.renderMain(layout.ContentWidth, layout.BodyHeight)
 
 	body := lipgloss.JoinHorizontal(lipgloss.Top, sidebar, mainContent)
 	return lipgloss.JoinVertical(lipgloss.Left, header, body, footer)
@@ -269,9 +301,15 @@ func (m Model) renderSidebar(width, height int) string {
 	return boxStyle.Width(width).Height(height).Render(content)
 }
 
-func (m Model) renderMain(width, height int) string {
+func (m Model) mainContent() string {
 	ex := m.SelectedExercise()
 	var b strings.Builder
+
+	wrapWidth := m.viewport.Width
+	if wrapWidth < 10 {
+		wrapWidth = 10
+	}
+	wrapStyle := lipgloss.NewStyle().Width(wrapWidth)
 
 	// Header
 	b.WriteString(labelStyle.Render("EXERCISE: ") + headerTitleStyle.Render(ex.Name) + "\n")
@@ -282,10 +320,7 @@ func (m Model) renderMain(width, height int) string {
 	b.WriteString(headerDimStyle.Render("Mode:  ") + string(ex.Mode) + "\n\n")
 
 	// Divider
-	divW := width - 4
-	if divW < 10 {
-		divW = 10
-	}
+	divW := wrapWidth
 	b.WriteString(dividerStyle.Render(strings.Repeat("─", divW)) + "\n")
 
 	// Compiler output
@@ -300,10 +335,14 @@ func (m Model) renderMain(width, height int) string {
 				b.WriteString(inProgressItemStyle.Render(fmt.Sprintf("\n⌛ %s still contains '%s' marker. Keep going!\n", res.Exercise.Name, runner.NotDoneMarker)))
 			}
 			if res.Error != "" {
-				b.WriteString(errorStyle.Render(fmt.Sprintf("Error in %s:\n%s", res.Exercise.Name, res.Error)))
+				boxWrapWidth := wrapWidth - errorStyle.GetHorizontalFrameSize()
+				if boxWrapWidth < 10 {
+					boxWrapWidth = 10
+				}
+				b.WriteString(errorStyle.Width(boxWrapWidth).Render(fmt.Sprintf("Error in %s:\n%s", res.Exercise.Name, res.Error)))
 				b.WriteString("\n")
 			} else if res.Output != "" {
-				b.WriteString(fmt.Sprintf("\n%s\n", res.Output))
+				b.WriteString("\n" + wrapStyle.Render(res.Output) + "\n")
 			}
 		}
 	} else {
@@ -318,16 +357,24 @@ func (m Model) renderMain(width, height int) string {
 		} else if idx >= len(ex.Hints) {
 			idx = len(ex.Hints) - 1
 		}
+		hintWrapWidth := wrapWidth - hintBoxStyle.GetHorizontalFrameSize()
+		if hintWrapWidth < 10 {
+			hintWrapWidth = 10
+		}
 		b.WriteString("\n" + dividerStyle.Render(strings.Repeat("─", divW)) + "\n")
-		b.WriteString(hintBoxStyle.Render(fmt.Sprintf("💡 Hint (%d/%d) for %s:\n%s", idx+1, len(ex.Hints), ex.Name, ex.Hints[idx])))
+		b.WriteString(hintBoxStyle.Width(hintWrapWidth).Render(fmt.Sprintf("💡 Hint (%d/%d) for %s:\n%s", idx+1, len(ex.Hints), ex.Name, ex.Hints[idx])))
 	}
 
+	return b.String()
+}
+
+func (m Model) renderMain(width, height int) string {
 	boxStyle := inactiveBoxStyle
 	if m.activePane == PaneViewport {
 		boxStyle = activeBoxStyle
 	}
 
-	return boxStyle.Width(width).Height(height).Render(b.String())
+	return boxStyle.Width(width).Height(height).Render(m.viewport.View())
 }
 
 func (m Model) renderFooter(width int) string {
@@ -339,7 +386,7 @@ func (m Model) renderFooter(width int) string {
 	}
 
 	if m.statusMessage != "" {
-		return inProgressItemStyle.Render(m.statusMessage)
+		return inProgressItemStyle.MaxWidth(width).Render(m.statusMessage)
 	}
 
 	return fmt.Sprintf("%s %s  %s %s  %s %s  %s %s  %s %s  %s %s  %s %s",

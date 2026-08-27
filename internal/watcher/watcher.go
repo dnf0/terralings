@@ -161,7 +161,7 @@ func RunWatchWithStore(ctx context.Context, r *runner.Runner, exercises []models
 				}
 			}
 
-			if isRelevantFile(event.Name) && (event.Op&(fsnotify.Write|fsnotify.Create|fsnotify.Remove|fsnotify.Rename) != 0) {
+			if IsRelevantFile(event.Name) && (event.Op&(fsnotify.Write|fsnotify.Create|fsnotify.Remove|fsnotify.Rename) != 0) {
 				triggerEvaluation()
 			}
 
@@ -352,7 +352,7 @@ func RunWatchJSON(ctx context.Context, r *runner.Runner, exercises []models.Exer
 					_ = w.Add(event.Name)
 				}
 			}
-			if isRelevantFile(event.Name) && (event.Op&(fsnotify.Write|fsnotify.Create|fsnotify.Remove|fsnotify.Rename) != 0) {
+			if IsRelevantFile(event.Name) && (event.Op&(fsnotify.Write|fsnotify.Create|fsnotify.Remove|fsnotify.Rename) != 0) {
 				triggerEvaluation()
 			}
 
@@ -395,7 +395,8 @@ func RunWatchJSON(ctx context.Context, r *runner.Runner, exercises []models.Exer
 	}
 }
 
-func isRelevantFile(path string) bool {
+// IsRelevantFile returns true if the file extension or suffix matches Terraform/OpenTofu files.
+func IsRelevantFile(path string) bool {
 	ext := filepath.Ext(path)
 	return ext == ".tf" || ext == ".hcl" || strings.HasSuffix(path, ".tftest.hcl") || strings.HasSuffix(path, ".tfvars")
 }
