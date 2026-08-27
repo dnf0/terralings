@@ -84,6 +84,10 @@ func TestCLI_DynamicExerciseCompletion(t *testing.T) {
 			if !strings.Contains(stdout, "primitives01\t") {
 				t.Errorf("expected dynamic completion to include tab description annotation, got:\n%s", stdout)
 			}
+			// Verify directive is ShellCompDirectiveNoFileComp (:4)
+			if !strings.Contains(stdout, ":4") {
+				t.Errorf("expected dynamic completion directive :4 (ShellCompDirectiveNoFileComp), got:\n%s", stdout)
+			}
 		})
 	}
 }
@@ -98,5 +102,8 @@ func TestCLI_DynamicSearchCompletion_Chapters(t *testing.T) {
 	}
 	if !strings.Contains(stdout, "Chapter:") {
 		t.Errorf("expected dynamic completion description to mention 'Chapter:', got:\n%s", stdout)
+	}
+	if !strings.Contains(stdout, ":4") {
+		t.Errorf("expected dynamic completion directive :4 (ShellCompDirectiveNoFileComp), got:\n%s", stdout)
 	}
 }

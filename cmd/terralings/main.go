@@ -227,7 +227,7 @@ func NewRootCmd() *cobra.Command {
 
 	completeSearchQueries := func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		completions, directive := completeExerciseNames(cmd, args, toComplete)
-		if len(args) != 0 {
+		if len(args) != 0 || directive&cobra.ShellCompDirectiveError != 0 {
 			return completions, directive
 		}
 		m := manifest.GetManifest()
