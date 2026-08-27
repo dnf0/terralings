@@ -192,7 +192,7 @@ func TestCLI_FlagsAndHelp(t *testing.T) {
 		if exitCode != 0 {
 			t.Fatalf("Expected exit code 0 for '--help', got %d", exitCode)
 		}
-		for _, cmdName := range []string{"list", "hint", "run", "watch", "verify", "version", "init", "reset", "search", "completions", "stats"} {
+		for _, cmdName := range []string{"list", "hint", "run", "watch", "verify", "version", "init", "reset", "search", "completions", "stats", "lsp", "tui"} {
 			if !strings.Contains(stdout, cmdName) {
 				t.Fatalf("Expected command %q to be listed in --help output, got:\n%s", cmdName, stdout)
 			}
@@ -336,12 +336,24 @@ func TestCLI_LSPAndWatchFlags(t *testing.T) {
 		t.Fatalf("Expected 'Language Server Protocol' in lsp help, got:\n%s", stdout)
 	}
 
-	// 2. Check terralings watch --help includes --json
+	// 2. Check terralings watch --help includes --json and --interactive
 	stdout, stderr, exitCode = runCLI(t, "watch", "--help")
 	if exitCode != 0 {
 		t.Fatalf("Expected exit code 0 for 'watch --help', got %d. Stderr: %s", exitCode, stderr)
 	}
 	if !strings.Contains(stdout, "--json") {
 		t.Fatalf("Expected '--json' flag in watch help, got:\n%s", stdout)
+	}
+	if !strings.Contains(stdout, "--interactive") || !strings.Contains(stdout, "-i") {
+		t.Fatalf("Expected '--interactive' / '-i' flag in watch help, got:\n%s", stdout)
+	}
+
+	// 3. Check terralings tui --help
+	stdout, stderr, exitCode = runCLI(t, "tui", "--help")
+	if exitCode != 0 {
+		t.Fatalf("Expected exit code 0 for 'tui --help', got %d. Stderr: %s", exitCode, stderr)
+	}
+	if !strings.Contains(stdout, "dashboard") && !strings.Contains(stdout, "interactive") {
+		t.Fatalf("Expected description in tui help, got:\n%s", stdout)
 	}
 }

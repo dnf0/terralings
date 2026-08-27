@@ -14,6 +14,7 @@ import (
 	"github.com/dnf0/terralings/internal/runner"
 	"github.com/dnf0/terralings/internal/search"
 	"github.com/dnf0/terralings/internal/state"
+	"github.com/dnf0/terralings/internal/tui"
 	"github.com/dnf0/terralings/internal/ui"
 	"github.com/dnf0/terralings/internal/watcher"
 	"github.com/spf13/cobra"
@@ -23,12 +24,13 @@ import (
 const Version = "v0.1.1"
 
 var (
-	binOverride   string
-	stateOverride string
-	hintIndex     int
-	initForce     bool
-	resetDir      string
-	watchJSON     bool
+	binOverride      string
+	stateOverride    string
+	hintIndex        int
+	initForce        bool
+	resetDir         string
+	watchJSON        bool
+	watchInteractive bool
 )
 
 // NewRootCmd constructs and returns the root Cobra command and its subcommands.
@@ -50,7 +52,16 @@ func NewRootCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			bin, err := detector.DetectBinary(binOverride)
 			if err != nil {
-				return err
+				bin = ""
+			}
+			if watchInteractive {
+				return tui.RunTUI(cmd.Context(), bin, "exercises", stateOverride, os.Stdin, os.Stdout)
+			}
+			if bin == "" {
+				bin, err = detector.DetectBinary(binOverride)
+				if err != nil {
+					return err
+				}
 			}
 			store, err := state.NewStore(stateOverride)
 			if err != nil {
@@ -63,6 +74,7 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 	watchCmd.Flags().BoolVar(&watchJSON, "json", false, "Emit structured NDJSON stream of evaluation events")
+	watchCmd.Flags().BoolVarP(&watchInteractive, "interactive", "i", false, "Start interactive full-screen TUI dashboard")
 
 	completeExerciseNames := func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		if len(args) != 0 {
@@ -327,7 +339,20 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 
-	rootCmd.AddCommand(watchCmd, runCmd, hintCmd, statsCmd, listCmd, verifyCmd, versionCmd, initCmd, resetCmd, searchCmd, completionsCmd, lspCmd)
+	// tui command
+	tuiCmd := &cobra.Command{
+		Use:   "tui",
+		Short: "Start interactive full-screen terminal dashboard",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			bin, err := detector.DetectBinary(binOverride)
+			if err != nil {
+				bin = ""
+			}
+			return tui.RunTUI(cmd.Context(), bin, "exercises", stateOverride, os.Stdin, os.Stdout)
+		},
+	}
+
+	rootCmd.AddCommand(watchCmd, runCmd, hintCmd, statsCmd, listCmd, verifyCmd, versionCmd, initCmd, resetCmd, searchCmd, completionsCmd, lspCmd, tuiCmd)
 	return rootCmd
 }
 
