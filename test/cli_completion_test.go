@@ -97,7 +97,8 @@ func TestCLI_DynamicExerciseCompletion(t *testing.T) {
 			if !strings.Contains(stdout, "primitives01\t") {
 				t.Errorf("expected dynamic completion to include tab description annotation, got:\n%s", stdout)
 			}
-			// Verify directive value is ShellCompDirectiveNoFileComp (:4)
+			// Verify directive value is ShellCompDirectiveNoFileComp (:4).
+			// Note: This pins the observed value; propagation of non-NoFileComp directives is documented in main.go.
 			assertDirective(t, stdout, ":4")
 		})
 	}
@@ -114,6 +115,7 @@ func TestCLI_DynamicSearchCompletion_Chapters(t *testing.T) {
 	if !strings.Contains(stdout, "Chapter:") {
 		t.Errorf("expected dynamic completion description to mention 'Chapter:', got:\n%s", stdout)
 	}
-	// Verify directive value is ShellCompDirectiveNoFileComp (:4)
+	// Verify directive value is ShellCompDirectiveNoFileComp (:4).
+	// Note: This pins the observed value; propagation of non-NoFileComp directives is documented in main.go.
 	assertDirective(t, stdout, ":4")
 }
