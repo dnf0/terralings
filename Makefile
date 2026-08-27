@@ -63,4 +63,4 @@ docs-build:
 	mkdocs build --strict
 
 clean:
-	rm -rf bin/ .terraform/ .cache/ && rm -f ./terralings
+	rm -rf bin/ dist/ site/ .terraform/ .cache/ && rm -f ./terralings
