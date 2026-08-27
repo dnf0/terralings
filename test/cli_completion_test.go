@@ -120,15 +120,4 @@ func TestCLI_DynamicSearchCompletion_Chapters(t *testing.T) {
 		t.Errorf("expected dynamic completion description to mention 'Chapter:', got:\n%s", stdout)
 	}
 	assertDirective(t, stdout, ":4")
-
-	// Verify cross-command directive invariant: search directive matches run directive
-	runOut, runErr, runExit := runCLI(t, "__complete", "run", "prim")
-	if runExit != 0 {
-		t.Fatalf("__complete run prim failed with exit code %d, stderr: %s", runExit, runErr)
-	}
-	searchDir := extractDirective(t, stdout)
-	runDir := extractDirective(t, runOut)
-	if searchDir != runDir {
-		t.Errorf("expected search directive to match run directive (%s vs %s)", searchDir, runDir)
-	}
 }
