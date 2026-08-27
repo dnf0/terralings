@@ -4,6 +4,11 @@
   "description": "Interactive OpenTofu & Terraform learning companion for VS Code",
   "version": "0.3.0",
   "publisher": "dnf0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dnf0/terralings.git",
+    "directory": "extensions/vscode"
+  },
   "engines": {
     "vscode": "^1.80.0"
   },
@@ -23,7 +28,7 @@
     "learning"
   ],
   "main": "./dist/extension.js",
-  "icon": "icons/terralings.svg",
+  "icon": "icons/icon.png",
   "activationEvents": [
     "onLanguage:terraform",
     "onLanguage:hcl",
