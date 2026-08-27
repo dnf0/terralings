@@ -325,3 +325,23 @@ func TestCLI_StatsCommand(t *testing.T) {
 		}
 	})
 }
+
+func TestCLI_LSPAndWatchFlags(t *testing.T) {
+	// 1. Check terralings lsp --help
+	stdout, stderr, exitCode := runCLI(t, "lsp", "--help")
+	if exitCode != 0 {
+		t.Fatalf("Expected exit code 0 for 'lsp --help', got %d. Stderr: %s", exitCode, stderr)
+	}
+	if !strings.Contains(stdout, "Language Server Protocol") {
+		t.Fatalf("Expected 'Language Server Protocol' in lsp help, got:\n%s", stdout)
+	}
+
+	// 2. Check terralings watch --help includes --json
+	stdout, stderr, exitCode = runCLI(t, "watch", "--help")
+	if exitCode != 0 {
+		t.Fatalf("Expected exit code 0 for 'watch --help', got %d. Stderr: %s", exitCode, stderr)
+	}
+	if !strings.Contains(stdout, "--json") {
+		t.Fatalf("Expected '--json' flag in watch help, got:\n%s", stdout)
+	}
+}

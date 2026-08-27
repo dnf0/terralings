@@ -2,6 +2,7 @@ package watcher
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -10,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/dnf0/terralings/internal/diagnostics"
 	"github.com/dnf0/terralings/internal/manifest"
 	"github.com/dnf0/terralings/internal/models"
 	"github.com/dnf0/terralings/internal/runner"
@@ -17,6 +19,20 @@ import (
 	"github.com/dnf0/terralings/internal/ui"
 	"github.com/fsnotify/fsnotify"
 )
+
+// WatchEvent represents a structured NDJSON event emitted during watch --json mode.
+type WatchEvent struct {
+	Event            string                   `json:"event"`
+	Timestamp        string                   `json:"timestamp"`
+	Exercise         *models.Exercise         `json:"exercise,omitempty"`
+	Passed           *bool                    `json:"passed,omitempty"`
+	HasNotDoneMarker *bool                    `json:"has_not_done_marker,omitempty"`
+	Diagnostics      []diagnostics.Diagnostic `json:"diagnostics,omitempty"`
+	RawOutput        string                   `json:"raw_output,omitempty"`
+	ExitCode         int                      `json:"exit_code,omitempty"`
+	CurrentIndex     int                      `json:"current_index,omitempty"`
+	TotalCount       int                      `json:"total_count,omitempty"`
+}
 
 // RunWatch starts the interactive file watcher using stdout.
 func RunWatch(binPath string, watchDir string) error {
@@ -189,6 +205,192 @@ func RunWatchWithStore(ctx context.Context, r *runner.Runner, exercises []models
 				return nil
 			}
 			fmt.Fprintf(out, "Watcher error: %v\n", err)
+		}
+	}
+}
+
+// RunWatchJSON starts the watch loop emitting structured NDJSON events to out.
+func RunWatchJSON(ctx context.Context, r *runner.Runner, exercises []models.Exercise, store *state.Store, watchDir string, out io.Writer) error {
+	if watchDir == "" {
+		watchDir = "exercises"
+	}
+
+	var writeMu sync.Mutex
+	emit := func(evt WatchEvent) {
+		writeMu.Lock()
+		defer writeMu.Unlock()
+		if evt.Timestamp == "" {
+			evt.Timestamp = time.Now().UTC().Format(time.RFC3339)
+		}
+		data, err := json.Marshal(evt)
+		if err == nil {
+			_, _ = fmt.Fprintf(out, "%s\n", string(data))
+		}
+	}
+
+	if len(exercises) == 0 {
+		emit(WatchEvent{
+			Event:      "completed",
+			TotalCount: 0,
+		})
+		return nil
+	}
+
+	w, err := fsnotify.NewWatcher()
+	if err != nil {
+		return fmt.Errorf("failed to initialize fsnotify watcher: %w", err)
+	}
+	defer w.Close()
+
+	if info, err := os.Stat(watchDir); err == nil && info.IsDir() {
+		_ = w.Add(watchDir)
+		_ = filepath.Walk(watchDir, func(path string, info os.FileInfo, err error) error {
+			if err == nil && info.IsDir() {
+				_ = w.Add(path)
+			}
+			return nil
+		})
+	}
+
+	evaluate := func(idx int) runner.RunResult {
+		ex := exercises[idx]
+		emit(WatchEvent{
+			Event:        "exercise_start",
+			Exercise:     &ex,
+			CurrentIndex: idx,
+			TotalCount:   len(exercises),
+		})
+
+		res := r.Run(ex)
+		if store != nil {
+			_ = store.RecordAttempt(ex.Name, ex.ChapterName, res.Passed)
+		}
+
+		rawOut := res.Output
+		if res.Error != "" {
+			rawOut = rawOut + "\n" + res.Error
+		}
+		diags := diagnostics.Parse(rawOut, ex)
+
+		passed := res.Passed
+		hasMarker := res.HasNotDoneMarker
+
+		emit(WatchEvent{
+			Event:            "exercise_result",
+			Exercise:         &ex,
+			Passed:           &passed,
+			HasNotDoneMarker: &hasMarker,
+			Diagnostics:      diags,
+			RawOutput:        rawOut,
+			ExitCode:         res.ExitCode,
+			CurrentIndex:     idx,
+			TotalCount:       len(exercises),
+		})
+
+		return res
+	}
+
+	// Initial evaluation
+	currentIdx := 0
+	allPassed := true
+	for i := range exercises {
+		res := evaluate(i)
+		if !res.Passed {
+			currentIdx = i
+			allPassed = false
+			break
+		}
+	}
+
+	if allPassed {
+		emit(WatchEvent{
+			Event:      "completed",
+			TotalCount: len(exercises),
+		})
+		return nil
+	}
+
+	var (
+		debounceTimer *time.Timer
+		debounceMu    sync.Mutex
+		triggerChan   = make(chan struct{}, 1)
+	)
+
+	triggerEvaluation := func() {
+		debounceMu.Lock()
+		defer debounceMu.Unlock()
+		if debounceTimer != nil {
+			debounceTimer.Stop()
+		}
+		debounceTimer = time.AfterFunc(50*time.Millisecond, func() {
+			select {
+			case triggerChan <- struct{}{}:
+			default:
+			}
+		})
+	}
+
+	defer func() {
+		debounceMu.Lock()
+		if debounceTimer != nil {
+			debounceTimer.Stop()
+		}
+		debounceMu.Unlock()
+	}()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+
+		case event, ok := <-w.Events:
+			if !ok {
+				return nil
+			}
+			if event.Op&fsnotify.Create != 0 {
+				if fi, err := os.Stat(event.Name); err == nil && fi.IsDir() {
+					_ = w.Add(event.Name)
+				}
+			}
+			if isRelevantFile(event.Name) && (event.Op&(fsnotify.Write|fsnotify.Create|fsnotify.Remove|fsnotify.Rename) != 0) {
+				triggerEvaluation()
+			}
+
+		case <-triggerChan:
+			if currentIdx >= len(exercises) {
+				emit(WatchEvent{
+					Event:      "completed",
+					TotalCount: len(exercises),
+				})
+				return nil
+			}
+
+			res := evaluate(currentIdx)
+			if res.Passed {
+				for currentIdx+1 < len(exercises) {
+					currentIdx++
+					nextRes := evaluate(currentIdx)
+					if !nextRes.Passed {
+						break
+					}
+				}
+				if currentIdx == len(exercises)-1 {
+					lastEx := exercises[currentIdx]
+					lastRes := r.Run(lastEx)
+					if lastRes.Passed {
+						emit(WatchEvent{
+							Event:      "completed",
+							TotalCount: len(exercises),
+						})
+						return nil
+					}
+				}
+			}
+
+		case _, ok := <-w.Errors:
+			if !ok {
+				return nil
+			}
 		}
 	}
 }

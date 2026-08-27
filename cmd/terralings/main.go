@@ -8,6 +8,7 @@ import (
 
 	"github.com/dnf0/terralings/exercises"
 	"github.com/dnf0/terralings/internal/detector"
+	"github.com/dnf0/terralings/internal/lsp"
 	"github.com/dnf0/terralings/internal/manifest"
 	"github.com/dnf0/terralings/internal/models"
 	"github.com/dnf0/terralings/internal/runner"
@@ -27,6 +28,7 @@ var (
 	hintIndex     int
 	initForce     bool
 	resetDir      string
+	watchJSON     bool
 )
 
 // NewRootCmd constructs and returns the root Cobra command and its subcommands.
@@ -54,9 +56,13 @@ func NewRootCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
+			if watchJSON {
+				return watcher.RunWatchJSON(context.Background(), runner.NewRunner(bin), manifest.GetManifest().AllExercises(), store, "exercises", os.Stdout)
+			}
 			return watcher.RunWatchWithStore(context.Background(), runner.NewRunner(bin), manifest.GetManifest().AllExercises(), store, "exercises", os.Stdout)
 		},
 	}
+	watchCmd.Flags().BoolVar(&watchJSON, "json", false, "Emit structured NDJSON stream of evaluation events")
 
 	completeExerciseNames := func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		if len(args) != 0 {
@@ -304,7 +310,24 @@ func NewRootCmd() *cobra.Command {
 	}
 	resetCmd.Flags().StringVarP(&resetDir, "dir", "d", "exercises", "Base exercises directory")
 
-	rootCmd.AddCommand(watchCmd, runCmd, hintCmd, statsCmd, listCmd, verifyCmd, versionCmd, initCmd, resetCmd, searchCmd, completionsCmd)
+	// lsp command
+	lspCmd := &cobra.Command{
+		Use:   "lsp",
+		Short: "Start Language Server Protocol (LSP) daemon over stdio",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			bin, err := detector.DetectBinary(binOverride)
+			if err != nil {
+				bin = ""
+			}
+			store, _ := state.NewStore(stateOverride)
+			m := manifest.GetManifest()
+			r := runner.NewRunner(bin)
+			srv := lsp.NewServer(r, m, store)
+			return srv.RunWithContext(cmd.Context(), os.Stdin, os.Stdout)
+		},
+	}
+
+	rootCmd.AddCommand(watchCmd, runCmd, hintCmd, statsCmd, listCmd, verifyCmd, versionCmd, initCmd, resetCmd, searchCmd, completionsCmd, lspCmd)
 	return rootCmd
 }
 
