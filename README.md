@@ -16,6 +16,7 @@ Inspired by [`rustlings`](https://github.com/rust-lang/rustlings), [`ziglings`](
 - **Interactive Full-Screen TUI Dashboard (`terralings tui` / `terralings watch -i`)**: Two-pane terminal dashboard featuring real-time compilation viewport, grouped chapter navigation, live exercise search modal (`/`), and expandable hints drawer (`h`).
 - **Learning Analytics & Progress Persistence (`terralings stats`)**: Automatically tracks completion state, pass/fail attempt metrics, time invested, and hint usage stored in `.terralings/state.json`.
 - **Language Server Protocol Daemon (`terralings lsp`)**: Built-in JSON-RPC 2.0 LSP server providing instant in-editor validation diagnostics, hover exercise descriptions with hints, and quick-fix actions for VS Code, Neovim, and Helix.
+- **Official VS Code Companion Extension**: Dedicated Activity Bar curriculum explorer with pass/fail status badges, live LSP diagnostics, 5-step interactive walkthroughs, one-click watch/TUI terminal launchers, and status bar progress indicator.
 - **NDJSON Event Streaming (`terralings watch --json`)**: Emits structured newline-delimited JSON events on file changes and evaluations for headless integrations, CI test runners, and custom editor plugins.
 - **Interactive Watch Mode (`terralings watch`)**: Automatically monitors your exercise files via `fsnotify` and re-evaluates and validates in real time on every file save.
 - **Exercise Reset (`terralings reset <name>`)**: Instantly restore any exercise back to its clean starter template if you want to redo it or fix a mistake.
@@ -269,7 +270,30 @@ language-servers = [ "terralings" ]
 
 ##### Visual Studio Code
 
-You can use `terralings lsp` in VS Code with any generic LSP extension (such as [Generic LSP Client](https://marketplace.visualstudio.com/items?itemName=eyhn.vscode-generic-lsp) or custom extension settings in `.vscode/settings.json`):
+###### 1. Official Companion Extension (Recommended)
+
+Terralings includes an official VS Code companion extension located in [`extensions/vscode`](extensions/vscode):
+
+- **Curriculum & Exercise Explorer**: Dedicated Activity Bar sidebar displaying all 13 chapters and 56 exercises with real-time pass/fail status badges (`Passed`, `Failed`, `In Progress`, `Not Started`), chapter progress counters (`5/5`), and one-click file navigation.
+- **Embedded Language Server (LSP)**: Automatic `stdio` connection to `terralings lsp` for live diagnostics, markdown hover documentation with exercise objectives and progressive hints, and code actions.
+- **Interactive Guided Walkthroughs**: 5-step native onboarding tour introducing IaC philosophy, exercise anatomy, watch mode, TUI dashboard, and LSP capabilities.
+- **Terminal & TUI Integration**: Direct commands to launch continuous watch mode (`terralings watch`) and the full-screen terminal dashboard (`terralings tui`).
+- **Live Status Bar**: Real-time curriculum progress indicator with quick-jump search.
+
+```bash
+# Build and install the companion extension locally
+cd extensions/vscode
+npm install
+npm run build
+
+# Package and install into VS Code
+npx @vscode/vsce package
+code --install-extension terralings-vscode-0.3.0.vsix
+```
+
+###### 2. Generic LSP Client Configuration
+
+Alternatively, you can connect generic VS Code LSP extensions (such as [Generic LSP Client](https://marketplace.visualstudio.com/items?itemName=eyhn.vscode-generic-lsp)) to `terralings lsp`:
 
 ```json
 {
