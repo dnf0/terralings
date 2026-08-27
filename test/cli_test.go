@@ -192,7 +192,7 @@ func TestCLI_FlagsAndHelp(t *testing.T) {
 		if exitCode != 0 {
 			t.Fatalf("Expected exit code 0 for '--help', got %d", exitCode)
 		}
-		for _, cmdName := range []string{"list", "hint", "run", "watch", "verify", "version", "init", "reset"} {
+		for _, cmdName := range []string{"list", "hint", "run", "watch", "verify", "version", "init", "reset", "search", "completions"} {
 			if !strings.Contains(stdout, cmdName) {
 				t.Fatalf("Expected command %q to be listed in --help output, got:\n%s", cmdName, stdout)
 			}

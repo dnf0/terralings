@@ -10,6 +10,10 @@ Inspired by [`rustlings`](https://github.com/rust-lang/rustlings), [`ziglings`](
 
 ## Features
 
+- **Turnkey Embedded Initialization (`terralings init`)**: The complete 56-exercise curriculum is embedded directly into the binary—run `terralings init` anywhere to start practicing immediately without cloning git repos.
+- **Exercise Reset (`terralings reset <name>`)**: Instantly restore any exercise back to its clean starter template if you want to redo it or fix a mistake.
+- **Curriculum Search (`terralings search <term>`)**: Fast full-text search across all chapters, topics, hints, and exercises with relevance scoring.
+- **Shell Autocompletions (`terralings completions`)**: Rich tab completion for Bash, Zsh, Fish, and PowerShell, including interactive exercise name completion.
 - **Interactive Watch Mode (`terralings watch`)**: Automatically monitors your exercise files via `fsnotify` and re-evaluates and validates in real time on every file save.
 - **Dual Engine Support**: Seamlessly detects and runs against either **OpenTofu** (`tofu`) or **Terraform** (`terraform`) (version >= 1.6.0).
 - **Sub-100ms Evaluation**: Shared provider plugin caching eliminates redundant network downloads during provider initialization.
@@ -24,16 +28,13 @@ Inspired by [`rustlings`](https://github.com/rust-lang/rustlings), [`ziglings`](
 
 Before using `terralings`, ensure you have installed:
 
-1. **Go** (version 1.22 or higher) — required for compiling `terralings` from source:
-   ```bash
-   go version
-   ```
-2. **OpenTofu** (>= 1.6.0) or **Terraform** (>= 1.6.0):
+1. **OpenTofu** (>= 1.6.0) or **Terraform** (>= 1.6.0):
    ```bash
    tofu version
    # or
    terraform version
    ```
+2. *(Optional)* **Go** (>= 1.22) if building from source.
 
 ---
 
@@ -68,39 +69,19 @@ make build
 # Binary is located at ./bin/terralings
 ```
 
-### 3. Verify Installation
-
-Check that `terralings` successfully discovers your OpenTofu or Terraform binary:
-
-```bash
-./bin/terralings version
-```
-
-Example output:
-```text
-terralings v0.1.0
-Detected binary: /usr/local/bin/tofu (OpenTofu v1.6.2)
-```
-
 ---
 
-## How It Works
+## Quickstart
 
-Each exercise file contains a deliberate syntax, type, expression, or logic error, marked with a comment header:
+Once installed, scaffold the exercises into any folder and start watch mode:
 
-```hcl
-// I AM NOT DONE
-// Exercise: primitives01
-// Fix the configuration below so that 'tofu validate' succeeds.
+```bash
+# 1. Initialize exercises in current directory (creates exercises/ folder)
+terralings init
+
+# 2. Start interactive learning loop
+terralings watch
 ```
-
-### The Learning Loop
-
-1. **Start Watch Mode**: Run `./bin/terralings watch`.
-2. **Read the Error Output**: `terralings` compiles the current exercise in an isolated workspace and prints the compiler / runtime diagnostic error.
-3. **Edit the File**: Open the file in your preferred text editor (e.g., `exercises/01_primitives/primitives01.tf`), fix the broken configuration or implement the missing resources.
-4. **Remove the Marker**: Delete the `// I AM NOT DONE` or `# I AM NOT DONE` line at the top of the file.
-5. **Save and Advance**: As soon as you save the file, `terralings` detects the change, verifies the solution, displays a success notification, and immediately transitions to the next exercise.
 
 ---
 
@@ -108,11 +89,15 @@ Each exercise file contains a deliberate syntax, type, expression, or logic erro
 
 | Command | Description |
 |---|---|
+| `terralings init [dir]` | Extract and initialize embedded curriculum exercises into a directory |
 | `terralings watch` | Start interactive watch mode (automatically evaluates on file save) |
 | `terralings run <exercise>` | Run verification against a single exercise (e.g. `terralings run primitives01`) |
 | `terralings hint <exercise>` | Display progressive hint(s) for the specified exercise |
+| `terralings reset <exercise>` | Reset an exercise back to its initial starting template |
+| `terralings search <term>` | Search exercises by keyword, concept, or chapter |
 | `terralings list` | List all chapters and exercises with status indicators |
 | `terralings verify` | Run sequential evaluation across the entire curriculum and display progress |
+| `terralings completions <shell>` | Generate autocompletion scripts for `bash`, `zsh`, `fish`, or `powershell` |
 | `terralings version` | Print the Terralings CLI version and detected IaC binary |
 
 ### Command Examples & Sample Outputs
@@ -168,7 +153,45 @@ Chapter 01: HCL Foundations & Core Primitives - Blocks, attributes, provider req
 ...
 ```
 
-#### 4. Progress Verification
+#### 4. Curriculum Search
+```bash
+terralings search dynamic
+```
+```text
+🔍 Search Results for 'dynamic' (4 matches):
+  • dynamic01        Repeating Nested Blocks with dynamic
+    exercises/06_dynamic_blocks/dynamic01.tf | matched in: name, chapter
+  • dynamic02        Custom Iterator Variable
+    exercises/06_dynamic_blocks/dynamic02.tf | matched in: name, chapter
+...
+```
+
+#### 5. Resetting an Exercise
+```bash
+terralings reset primitives01
+```
+```text
+🔄 Reset exercise 'primitives01' (exercises/01_primitives/primitives01.tf) back to original template.
+```
+
+#### 6. Shell Autocompletions
+Enable shell autocompletions for quick tab navigation and exercise autocompletion:
+
+```bash
+# Bash (Linux)
+terralings completions bash > /etc/bash_completion.d/terralings
+
+# Zsh (macOS / Linux)
+terralings completions zsh > "${fpath[1]}/_terralings"
+
+# Fish
+terralings completions fish > ~/.config/fish/completions/terralings.fish
+
+# PowerShell
+terralings completions powershell | Out-String | Invoke-Expression
+```
+
+#### 7. Progress Verification
 ```bash
 terralings verify
 ```

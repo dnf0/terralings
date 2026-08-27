@@ -3,12 +3,14 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/dnf0/terralings/exercises"
 	"github.com/dnf0/terralings/internal/detector"
 	"github.com/dnf0/terralings/internal/manifest"
 	"github.com/dnf0/terralings/internal/models"
 	"github.com/dnf0/terralings/internal/runner"
+	"github.com/dnf0/terralings/internal/search"
 	"github.com/dnf0/terralings/internal/ui"
 	"github.com/dnf0/terralings/internal/watcher"
 	"github.com/spf13/cobra"
@@ -48,11 +50,25 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 
+	completeExerciseNames := func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args) != 0 {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		var completions []string
+		for _, ex := range manifest.GetManifest().AllExercises() {
+			if strings.HasPrefix(ex.Name, toComplete) {
+				completions = append(completions, fmt.Sprintf("%s\t%s", ex.Name, ex.Title))
+			}
+		}
+		return completions, cobra.ShellCompDirectiveNoFileComp
+	}
+
 	// run command
 	runCmd := &cobra.Command{
-		Use:   "run [exercise_name]",
-		Short: "Run verification on a single exercise",
-		Args:  cobra.ExactArgs(1),
+		Use:               "run [exercise_name]",
+		Short:             "Run verification on a single exercise",
+		Args:              cobra.ExactArgs(1),
+		ValidArgsFunction: completeExerciseNames,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			bin, err := detector.DetectBinary(binOverride)
 			if err != nil {
@@ -77,9 +93,10 @@ func NewRootCmd() *cobra.Command {
 
 	// hint command
 	hintCmd := &cobra.Command{
-		Use:   "hint [exercise_name]",
-		Short: "Show progressive hints for an exercise",
-		Args:  cobra.ExactArgs(1),
+		Use:               "hint [exercise_name]",
+		Short:             "Show progressive hints for an exercise",
+		Args:              cobra.ExactArgs(1),
+		ValidArgsFunction: completeExerciseNames,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ex := manifest.GetExerciseByName(args[0])
 			if ex == nil {
@@ -144,6 +161,41 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 
+	// search command
+	searchCmd := &cobra.Command{
+		Use:   "search [query]",
+		Short: "Search curriculum exercises by concept, keyword, or chapter",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			m := manifest.GetManifest()
+			results := search.SearchExercises(m, args[0])
+			fmt.Fprint(cmd.OutOrStdout(), ui.FormatSearchResults(args[0], results))
+		},
+	}
+
+	// completions command
+	completionsCmd := &cobra.Command{
+		Use:       "completions [bash|zsh|fish|powershell]",
+		Short:     "Generate shell completion scripts",
+		Args:      cobra.ExactArgs(1),
+		ValidArgs: []string{"bash", "zsh", "fish", "powershell"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			shell := args[0]
+			switch shell {
+			case "bash":
+				return rootCmd.GenBashCompletion(cmd.OutOrStdout())
+			case "zsh":
+				return rootCmd.GenZshCompletion(cmd.OutOrStdout())
+			case "fish":
+				return rootCmd.GenFishCompletion(cmd.OutOrStdout(), true)
+			case "powershell":
+				return rootCmd.GenPowerShellCompletionWithDesc(cmd.OutOrStdout())
+			default:
+				return fmt.Errorf("unsupported shell '%s', choose from bash, zsh, fish, powershell", shell)
+			}
+		},
+	}
+
 	// version command
 	versionCmd := &cobra.Command{
 		Use:   "version",
@@ -192,9 +244,10 @@ func NewRootCmd() *cobra.Command {
 
 	// reset command
 	resetCmd := &cobra.Command{
-		Use:   "reset [exercise_name]",
-		Short: "Reset an exercise back to its initial starting code",
-		Args:  cobra.ExactArgs(1),
+		Use:               "reset [exercise_name]",
+		Short:             "Reset an exercise back to its initial starting code",
+		Args:              cobra.ExactArgs(1),
+		ValidArgsFunction: completeExerciseNames,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			exerciseName := args[0]
 			ex := manifest.GetExerciseByName(exerciseName)
@@ -217,7 +270,7 @@ func NewRootCmd() *cobra.Command {
 	}
 	resetCmd.Flags().StringVarP(&resetDir, "dir", "d", "exercises", "Base exercises directory")
 
-	rootCmd.AddCommand(watchCmd, runCmd, hintCmd, listCmd, verifyCmd, versionCmd, initCmd, resetCmd)
+	rootCmd.AddCommand(watchCmd, runCmd, hintCmd, listCmd, verifyCmd, versionCmd, initCmd, resetCmd, searchCmd, completionsCmd)
 	return rootCmd
 }
 
