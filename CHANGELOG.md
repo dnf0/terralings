@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-08-27
+
+### Added
+- **Interactive Full-Screen TUI Dashboard (`terralings tui` / `watch -i`)**: Split-pane Bubble Tea terminal dashboard with responsive exercise sidebar, live compiler output viewport, search modal (`/`), and expandable hint drawer (`h`).
+- **Learning Analytics & Progress Persistence (`terralings stats`)**: Thread-safe persistent progress store (`internal/state`) tracking attempts, time invested, and per-chapter completion metrics with atomic `.tmp` + `fsync` + rename updates and automatic `.gitignore`.
+- **Language Server Protocol (LSP) Daemon (`terralings lsp`)**: Built-in JSON-RPC 2.0 stdio LSP server providing live compiler diagnostics (`publishDiagnostics`), rich markdown hover documentation (`textDocument/hover`), and hint code actions (`textDocument/codeAction`) for Neovim, Helix, and VS Code.
+- **NDJSON Event Streaming (`terralings watch --json`)**: Machine-readable newline-delimited JSON stream for tooling, CI pipelines, and IDE extensions.
+- **Curriculum & Scaffolding Commands**: Embedded curriculum scaffolding (`terralings init`, `terralings reset`), fuzzy curriculum search (`terralings search`), and shell completion generation (`terralings completions`).
+
+### Changed
+- **Modernized to Ziglings / Rustlings v6 Hybrid Learning Model**: Removed legacy `# I AM NOT DONE` magic comments across all 56 exercises in favor of realistic `# TODO:` instructions and pure deterministic validation.
+- **Interactive Watcher Controls**: When an exercise passes, `terralings watch` displays an interactive prompt (`[Enter / n] Next | [p] Prev | [r] Rerun | [q] Quit`) preventing unintended auto-skipping.
+
+## [0.1.1] - 2026-08-27
+
+### Changed
+- Bumped E2E test verification to dynamically assert valid semantic versioning.
+
 ## [0.1.0] - 2026-08-26
 
 ### Added
