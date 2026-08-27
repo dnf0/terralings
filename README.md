@@ -355,11 +355,11 @@ terralings doctor
  ✓ Provider Plugin Cache
    Plugin cache directory ready at ~/.terralings/plugin-cache
 
- ✓ Progress Persistence Store
-   State store healthy at .terralings/state.json (0 completed, 0 attempts)
-
  ✓ Git Ignore Integration
    .terralings directory is properly git-ignored.
+
+ ✓ Progress Persistence Store
+   State store healthy at .terralings/state.json (0 completed, 0 attempts)
 
 ────────────────────────────────────────────────────────────
  All diagnostics passed! Your environment is 100% ready for Terralings.

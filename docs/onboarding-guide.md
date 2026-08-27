@@ -96,11 +96,11 @@ terralings doctor
  ✓ Provider Plugin Cache
    Plugin cache directory ready at /Users/username/.terralings/plugin-cache
 
- ✓ Progress Persistence Store
-   State store healthy at .terralings/state.json (0 completed, 0 attempts)
-
  ✓ Git Ignore Integration
    .terralings directory is properly git-ignored.
+
+ ✓ Progress Persistence Store
+   State store healthy at .terralings/state.json (0 completed, 0 attempts)
 
 ────────────────────────────────────────────────────────────
  All diagnostics passed! Your environment is 100% ready for Terralings.
@@ -221,26 +221,28 @@ Let's walk through solving the very first exercise: `exercises/01_primitives/pri
 
 Open `exercises/01_primitives/primitives01.tf` in your editor. You will see:
 
-```hcl
+```terraform
 # ==============================================================================
-# Chapter 01: HCL Foundations & Core Primitives
-# Exercise: primitives01 - Terraform Configuration Block
-# ==============================================================================
+# Exercise: primitives01
+# Chapter: 01_primitives (HCL Foundations & Core Primitives)
 #
-# # TODO:
-# Configure the terraform block below:
-# 1. Set required_version to ">= 1.6.0".
-# 2. Add the "local" provider in required_providers with source "hashicorp/local"
-#    and version ">= 2.4.0".
+# Task:
+# Every Terraform / OpenTofu project begins with a `terraform` configuration
+# block. This block specifies the minimum required engine version and declares
+# the providers needed by your configuration.
 #
+# In this exercise, complete the `terraform` block to require version ">= 1.6.0"
+# and declare the `local` provider from "hashicorp/local" with version "~> 2.0".
 # ==============================================================================
 
 terraform {
-  # Fix the version requirement below
-  required_version = "INVALID_VERSION"
+  required_version = ">= 1.6.0"
 
   required_providers {
-    # Add local provider requirement here
+    # TODO: Specify provider source "hashicorp/local" and version "~> 2.0"
+    local = {
+      source = ""
+    }
   }
 }
 ```
