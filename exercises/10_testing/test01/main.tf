@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: test01
 # Chapter: 10_testing (Native Unit & Integration Testing)
@@ -19,7 +18,6 @@
 # 3. Add a second `run "verify_prod_naming"` testing `environment = "prod"` and
 #    asserting `output.service_id == "prod-order-service"`.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 variable "environment" {

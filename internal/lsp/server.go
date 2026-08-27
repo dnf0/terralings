@@ -426,26 +426,6 @@ func (s *Server) handleCodeAction(params CodeActionParams) []CodeAction {
 
 	var actions []CodeAction
 
-	for _, d := range params.Context.Diagnostics {
-		if strings.Contains(strings.ToLower(d.Message), "not done") || strings.Contains(strings.ToLower(d.Message), "not finished") {
-			actions = append(actions, CodeAction{
-				Title:       "Remove '# I AM NOT DONE' marker",
-				Kind:        "quickfix",
-				IsPreferred: true,
-				Edit: &WorkspaceEdit{
-					Changes: map[string][]TextEdit{
-						params.TextDocument.URI: {
-							{
-								Range:   d.Range,
-								NewText: "",
-							},
-						},
-					},
-				},
-			})
-		}
-	}
-
 	if len(ex.Hints) > 0 {
 		actions = append(actions, CodeAction{
 			Title: "Show next hint",

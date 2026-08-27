@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: data02
 # Chapter: 07_data_sources (Data Sources & State Querying)
@@ -17,7 +16,6 @@
 #      - `filename = "index.js"`
 # 2. In output "archive_info", expose `output_sha` and `output_size`.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {
@@ -42,5 +40,8 @@ terraform {
 
 output "archive_info" {
   # TODO: Output object with sha = data.archive_file.package.output_sha and size = data.archive_file.package.output_size
-  value = {}
+  value = {
+    sha  = data.archive_file.package.output_sha
+    size = data.archive_file.package.output_size
+  }
 }

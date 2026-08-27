@@ -1,53 +1,12 @@
 package test
 
 import (
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/dnf0/terralings/internal/diagnostics"
 	"github.com/dnf0/terralings/internal/models"
 )
-
-func TestParseDiagnostics_MarkerPresent(t *testing.T) {
-	tmpDir := t.TempDir()
-	filePath := filepath.Join(tmpDir, "exercise01.tf")
-	content := `# First line comment
-# I AM NOT DONE
-terraform {
-  required_version = ">= 1.6.0"
-}
-`
-	if err := os.WriteFile(filePath, []byte(content), 0644); err != nil {
-		t.Fatalf("Failed to write test exercise file: %v", err)
-	}
-
-	ex := models.Exercise{
-		Name: "exercise01",
-		Path: filePath,
-		Mode: models.ModeValidate,
-	}
-
-	diags := diagnostics.ParseDiagnostics("", ex)
-	if len(diags) != 1 {
-		t.Fatalf("Expected 1 diagnostic for marker, got %d", len(diags))
-	}
-
-	d := diags[0]
-	if d.Severity != diagnostics.SeverityWarning {
-		t.Errorf("Expected severity %q, got %q", diagnostics.SeverityWarning, d.Severity)
-	}
-	if d.File != filePath {
-		t.Errorf("Expected file %q, got %q", filePath, d.File)
-	}
-	if d.Line != 2 {
-		t.Errorf("Expected line 2, got %d", d.Line)
-	}
-	if !strings.Contains(d.Summary, "I AM NOT DONE") && !strings.Contains(d.Summary, "not finished") {
-		t.Errorf("Expected summary to reference I AM NOT DONE, got %q", d.Summary)
-	}
-}
 
 func TestParseDiagnostics_StandardCompilerError(t *testing.T) {
 	rawOutput := `Error: Missing required argument
@@ -250,34 +209,6 @@ func TestParseDiagnostics_TerraformValidateJSON(t *testing.T) {
 	}
 }
 
-func TestParseDiagnostics_MarkerInDirectory(t *testing.T) {
-	tmpDir := t.TempDir()
-	f1 := filepath.Join(tmpDir, "main.tf")
-	f2 := filepath.Join(tmpDir, "variables.tf")
-
-	_ = os.WriteFile(f1, []byte("terraform {}\n"), 0644)
-	_ = os.WriteFile(f2, []byte("// line 1\n// line 2\n// I AM NOT DONE\nvariable \"foo\" {}\n"), 0644)
-
-	ex := models.Exercise{
-		Name: "dir_marker_test",
-		Path: tmpDir,
-	}
-
-	diags := diagnostics.ParseDiagnostics("", ex)
-	if len(diags) != 1 {
-		t.Fatalf("Expected 1 diagnostic for marked directory, got %d", len(diags))
-	}
-	if diags[0].File != f2 {
-		t.Errorf("Expected file %q, got %q", f2, diags[0].File)
-	}
-	if diags[0].Line != 3 {
-		t.Errorf("Expected line 3, got %d", diags[0].Line)
-	}
-	if diags[0].Severity != diagnostics.SeverityWarning {
-		t.Errorf("Expected severity warning, got %q", diags[0].Severity)
-	}
-}
-
 func TestParseDiagnostics_AnsiEscapeCodes(t *testing.T) {
 	ansiOutput := "\x1b[31mError:\x1b[0m \x1b[1mMissing required argument\x1b[0m\n\n  on main.tf line 5, in resource \"foo\" \"bar\":\n   5: content = \"test\"\n\nMissing filename argument."
 
@@ -350,37 +281,6 @@ Invalid variable reference.`
 	}
 	if !strings.Contains(d.Detail, "config.tpl") {
 		t.Errorf("Expected secondary location to be preserved in detail, got %q", d.Detail)
-	}
-}
-
-func TestParseDiagnostics_MarkerInDirectory_SkipsHidden(t *testing.T) {
-	tmpDir := t.TempDir()
-
-	// Root exercise file without marker
-	mainFile := filepath.Join(tmpDir, "main.tf")
-	_ = os.WriteFile(mainFile, []byte("terraform {}\n"), 0644)
-
-	// Hidden directories (.terraform, .git, .terralings) with marker
-	tfDir := filepath.Join(tmpDir, ".terraform", "modules", "child")
-	_ = os.MkdirAll(tfDir, 0755)
-	_ = os.WriteFile(filepath.Join(tfDir, "sub.tf"), []byte("// I AM NOT DONE\n"), 0644)
-
-	gitDir := filepath.Join(tmpDir, ".git")
-	_ = os.MkdirAll(gitDir, 0755)
-	_ = os.WriteFile(filepath.Join(gitDir, "hook.tf"), []byte("// I AM NOT DONE\n"), 0644)
-
-	terralingsDir := filepath.Join(tmpDir, ".terralings")
-	_ = os.MkdirAll(terralingsDir, 0755)
-	_ = os.WriteFile(filepath.Join(terralingsDir, "cache.tf"), []byte("// I AM NOT DONE\n"), 0644)
-
-	ex := models.Exercise{
-		Name: "skip_hidden_test",
-		Path: tmpDir,
-	}
-
-	diags := diagnostics.ParseDiagnostics("", ex)
-	if len(diags) != 0 {
-		t.Fatalf("Expected 0 diagnostics because markers are in hidden directories, got %d: %+v", len(diags), diags)
 	}
 }
 

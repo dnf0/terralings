@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: state02
 # Chapter: 09_state_refactoring (State Management & Refactoring Surgery)
@@ -21,7 +20,6 @@
 # 1. Add `moved` blocks migrating index `0` to `"primary"` and index `1` to `"replica"`.
 # 2. Convert the resource from `count = 2` to `for_each = toset(["primary", "replica"])`.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 # TODO: Add moved blocks for [0] -> ["primary"] and [1] -> ["replica"]
@@ -31,7 +29,8 @@ resource "terraform_data" "db_cluster" {
   count = 2
 
   input = {
-    role = "node-${count.index}"
+    # TODO: Convert to for_each = toset(["primary", "replica"]) and use each.key
+    role = each.key
   }
 }
 

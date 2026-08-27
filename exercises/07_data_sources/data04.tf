@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: data04
 # Chapter: 07_data_sources (Data Sources & State Querying)
@@ -18,7 +17,6 @@
 # 3. Add a `postcondition` ensuring `self.output != null` with an error message:
 #    "Cluster output must not be null."
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {
@@ -37,17 +35,17 @@ resource "terraform_data" "cluster" {
     role  = "consensus"
   }
 
-  # TODO: Declare lifecycle block with precondition and postcondition
-  # lifecycle {
-  #   precondition {
-  #     condition     = var.cluster_size >= 3
-  #     error_message = "Cluster size must be at least 3 for quorum."
-  #   }
-  #   postcondition {
-  #     condition     = self.output != null
-  #     error_message = "Cluster output must not be null."
-  #   }
-  # }
+  lifecycle {
+    precondition {
+      # TODO: Fix condition to var.cluster_size >= 3
+      condition     = var.cluster_size >= 10
+      error_message = "Cluster size must be at least 3 for quorum."
+    }
+    postcondition {
+      condition     = self.output != null
+      error_message = "Cluster output must not be null."
+    }
+  }
 }
 
 output "cluster_state" {

@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: primitives05
 # Chapter: 01_primitives (HCL Foundations & Core Primitives)
@@ -9,7 +8,6 @@
 #
 # Fix the syntax errors in this configuration so that `validate` succeeds.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {

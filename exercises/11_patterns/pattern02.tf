@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: pattern02
 # Chapter: 11_patterns (Production Patterns & Anti-Patterns)
@@ -26,7 +25,6 @@
 # 3. Update output `dr_vault_region` using `try()` or `one()` to return the DR
 #    vault's target region, or `"disabled"` when the flag is false.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 variable "enable_disaster_recovery" {
@@ -62,5 +60,5 @@ output "primary_id" {
 
 output "dr_vault_region" {
   # TODO: Safely access dr_vault target_region, fallback to "disabled" if count is 0
-  value = null
+  value = terraform_data.dr_vault[0].output.target_region
 }

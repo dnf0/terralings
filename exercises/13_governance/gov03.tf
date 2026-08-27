@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: gov03
 # Chapter: 13_governance (Architecture Governance & Enterprise Standards)
@@ -23,7 +22,6 @@
 #    and bind its lifecycle with `replace_triggered_by = [terraform_data.job_trigger]`.
 # 3. Output `cluster_namespace` referencing the namespace from the resource output.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 variable "job_id" {
@@ -55,14 +53,18 @@ locals {
 
 resource "terraform_data" "ephemeral_cluster" {
   # TODO: Set input to local.ephemeral_workload
-  input = {}
+  input = local.ephemeral_workload
 
   lifecycle {
-    # TODO: Add replace_triggered_by referencing terraform_data.job_trigger
+    replace_triggered_by = [terraform_data.job_trigger]
+    postcondition {
+      condition     = lookup(self.output, "namespace", "") == "ephemeral-${var.job_id}" && lookup(self.output, "workers", 0) == var.worker_nodes && lookup(self.output, "isolated", false) == true
+      error_message = "Ephemeral compute workload must encapsulate namespace, workers, ttl_mins, and isolated flag."
+    }
   }
 }
 
 output "cluster_namespace" {
   # TODO: Reference namespace from terraform_data.ephemeral_cluster.output
-  value = null
+  value = terraform_data.ephemeral_cluster.output.namespace
 }

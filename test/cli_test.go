@@ -261,8 +261,8 @@ func TestCLI_ResetCommand(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to read restored file: %v", err)
 	}
-	if !strings.Contains(string(restored), "# I AM NOT DONE") {
-		t.Fatalf("Expected restored file to contain marker, got:\n%s", string(restored))
+	if !strings.Contains(string(restored), "primitives01") {
+		t.Fatalf("Expected restored file to contain 'primitives01', got:\n%s", string(restored))
 	}
 }
 

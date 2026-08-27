@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: locals01
 # Chapter: 03_outputs_locals (Outputs, Locals & Expressions)
@@ -13,7 +12,6 @@
 # 2. `local.common_tags` map containing Project, Environment, and ManagedBy ("terralings")
 # 3. Reference `local.service_prefix` and `local.common_tags` in the resource below.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {
@@ -38,9 +36,8 @@ locals {
 resource "terraform_data" "service_instance" {
   input = {
     # TODO: Use "${local.service_prefix}-backend"
-    name = "hardcoded-backend"
-    # TODO: Use local.common_tags
-    tags = {}
+    name = "${local.service_prefix}-backend"
+    tags = local.common_tags
   }
 }
 

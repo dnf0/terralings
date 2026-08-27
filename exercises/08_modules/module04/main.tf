@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: module04
 # Chapter: 08_modules (Modular Infrastructure Architecture)
@@ -15,7 +14,6 @@
 # 1. Update `modules/storage/main.tf` to declare `configuration_aliases = [local.target]`.
 # 2. In this root `main.tf`, pass `providers = { local.target = local.backup }` to `module.backup_storage`.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {

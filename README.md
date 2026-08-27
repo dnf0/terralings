@@ -199,9 +199,9 @@ Chapter Breakdown:
 
 Terralings includes a built-in Language Server Protocol (LSP) daemon communicating over JSON-RPC 2.0 (`stdio`). When configured in your editor, it provides:
 
-- **Live Diagnostics (`publishDiagnostics`)**: Real-time syntax errors, semantic validation issues, and notifications when the `# I AM NOT DONE` marker remains.
+- **Live Diagnostics (`publishDiagnostics`)**: Real-time syntax errors, semantic validation issues, and plan diagnostics.
 - **Hover Documentation (`textDocument/hover`)**: Hover over any exercise file to read its objectives, chapter context, and multi-level hints rendered in rich markdown.
-- **Code Actions (`textDocument/codeAction`)**: Quick-fix action to instantly remove the `# I AM NOT DONE` comment; source action to reveal hints.
+- **Code Actions (`textDocument/codeAction`)**: Quick-fix and source actions to reveal progressive hints.
 
 ```bash
 terralings lsp
@@ -306,18 +306,17 @@ Each line emitted is an atomic JSON object:
     ]
   },
   "passed": false,
-  "has_not_done_marker": true,
   "diagnostics": [
     {
       "file": "exercises/01_primitives/primitives01.tf",
-      "line": 1,
+      "line": 4,
       "column": 1,
-      "severity": "warning",
-      "summary": "Exercise contains 'I AM NOT DONE' marker"
+      "severity": "error",
+      "summary": "Missing required argument"
     }
   ],
-  "raw_output": "⌛ primitives01 still contains 'I AM NOT DONE' marker.",
-  "exit_code": 0,
+  "raw_output": "Error: Missing required argument...",
+  "exit_code": 1,
   "current_index": 0,
   "total_count": 56
 }
@@ -338,9 +337,9 @@ terralings watch
   Press Ctrl+C to exit
 ======================================================================
 
-⌛ primitives01 still contains 'I AM NOT DONE' marker. Keep going!
+✓ primitives01 passed!
 
-Success! The configuration is valid.
+[Enter / n] Next exercise (primitives02)  |  [p] Previous  |  [r] Rerun  |  [q] Quit
 ```
 
 #### 2. Progressive Hints

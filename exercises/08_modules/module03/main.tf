@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: module03
 # Chapter: 08_modules (Modular Infrastructure Architecture)
@@ -13,7 +12,6 @@
 # 3. Expose `output "worker_ids"` as a map of `{ worker_name => module.workers[worker_name].worker_id }`
 #    using a `for` expression: `{ for k, w in module.workers : k => w.worker_id }`.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 variable "workers" {

@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: dynamic02
 # Chapter: 06_dynamic_blocks (Dynamic Blocks & Advanced HCL)
@@ -14,7 +13,6 @@
 # 3. Set `for_each = var.documentation_pages`.
 # 4. In `content`, set `filename = doc.value.filename` and `content = doc.value.markdown`.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {

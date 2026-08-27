@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: outputs01
 # Chapter: 03_outputs_locals (Outputs, Locals & Expressions)
@@ -12,7 +11,6 @@
 # 1. `username`: exports terraform_data.credentials.input.username (non-sensitive)
 # 2. `api_key`: exports terraform_data.credentials.input.api_key with sensitive = true
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {

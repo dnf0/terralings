@@ -3,9 +3,6 @@ package diagnostics
 import (
 	"bufio"
 	"encoding/json"
-	"io/fs"
-	"os"
-	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -36,7 +33,6 @@ type Diagnostic struct {
 
 var (
 	ansiRegex       = regexp.MustCompile(`\x1b\[[0-9;]*[a-zA-Z]`)
-	markerRegex     = regexp.MustCompile(`(?i)i\s+am\s+not\s+done`)
 	headerRegex     = regexp.MustCompile(`(?i)^(?:[│|]\s*)?(Error|Warning|Info):\s*(.*)$`)
 	locationRegex   = regexp.MustCompile(`(?i)\bon\s+([^\s:,]+)\s+line\s+(\d+)(?:,\s*(?:col(?:umn)?\s*(\d+)|in\s+([^:\n]+)))?`)
 	pipePrefixRegex = regexp.MustCompile(`^[│|]\s?`)
@@ -104,66 +100,6 @@ func convertTFDiagnostic(rd rawTFDiagnostic) Diagnostic {
 	}
 
 	return d
-}
-
-func findMarkerInFile(path string) (Diagnostic, bool) {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return Diagnostic{}, false
-	}
-
-	lines := strings.Split(string(data), "\n")
-	for idx, line := range lines {
-		if markerRegex.MatchString(line) {
-			return Diagnostic{
-				File:     path,
-				Line:     idx + 1,
-				Column:   1,
-				Severity: SeverityWarning,
-				Summary:  "Exercise is not finished ('I AM NOT DONE' marker present)",
-				Detail:   "Remove the '# I AM NOT DONE' comment when you are ready to test your solution.",
-			}, true
-		}
-	}
-	return Diagnostic{}, false
-}
-
-func findMarkerDiagnostics(ex models.Exercise) []Diagnostic {
-	if ex.Path == "" {
-		return nil
-	}
-
-	info, err := os.Stat(ex.Path)
-	if err != nil {
-		return nil
-	}
-
-	var diags []Diagnostic
-	if info.IsDir() {
-		_ = filepath.WalkDir(ex.Path, func(p string, d fs.DirEntry, walkErr error) error {
-			if walkErr != nil {
-				return nil
-			}
-			if d.IsDir() {
-				if p != ex.Path && strings.HasPrefix(d.Name(), ".") {
-					return filepath.SkipDir
-				}
-				return nil
-			}
-			if strings.HasSuffix(p, ".tf") || strings.HasSuffix(p, ".hcl") || strings.HasSuffix(p, ".tftest.hcl") {
-				if diag, found := findMarkerInFile(p); found {
-					diags = append(diags, diag)
-				}
-			}
-			return nil
-		})
-	} else {
-		if d, found := findMarkerInFile(ex.Path); found {
-			diags = append(diags, d)
-		}
-	}
-
-	return diags
 }
 
 func parseJSONDiagnostics(raw string) ([]Diagnostic, bool) {
@@ -364,15 +300,10 @@ func parseTextDiagnostics(raw string) []Diagnostic {
 	return diags
 }
 
-// ParseDiagnostics parses compiler output (text or JSON) along with exercise marker status into a normalized slice of Diagnostics.
+// ParseDiagnostics parses compiler output (text or JSON) into a normalized slice of Diagnostics.
 func ParseDiagnostics(rawOutput string, ex models.Exercise) []Diagnostic {
 	var results []Diagnostic
 
-	// 1. Check for exercise marker presence
-	markerDiags := findMarkerDiagnostics(ex)
-	results = append(results, markerDiags...)
-
-	// 2. Parse compiler output
 	trimmed := strings.TrimSpace(rawOutput)
 	if trimmed != "" {
 		if jsonDiags, ok := parseJSONDiagnostics(trimmed); ok {

@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: test02
 # Chapter: 10_testing (Native Unit & Integration Testing)
@@ -13,7 +12,6 @@
 # 3. Assert that `terraform_data.cluster.output.tier == "premium"` and
 #    `terraform_data.cluster.output.nodes == 5`.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 variable "cluster_tier" {

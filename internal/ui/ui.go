@@ -50,15 +50,39 @@ func FormatBanner() string {
 	return headerStyle.Render("⚡ TERRALINGS: Master Terraform & OpenTofu from Scratch ⚡\n")
 }
 
+// FormatSuccess renders a celebratory success message.
+func FormatSuccess(msg string) string {
+	return successStyle.Render(msg) + "\n"
+}
+
+// FormatInteractivePrompt renders the interactive watcher key commands.
+func FormatInteractivePrompt() string {
+	promptStyle := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color("#BD93F9"))
+	keyStyle := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color("#00D7D7"))
+	dim := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#6272A4"))
+
+	return fmt.Sprintf("\n%s %s %s %s %s %s %s %s %s %s %s\n",
+		keyStyle.Render("[Enter / n]"), promptStyle.Render("Next exercise"),
+		dim.Render("|"),
+		keyStyle.Render("[p]"), promptStyle.Render("Previous"),
+		dim.Render("|"),
+		keyStyle.Render("[r]"), promptStyle.Render("Rerun"),
+		dim.Render("|"),
+		keyStyle.Render("[q]"), promptStyle.Render("Quit"),
+	)
+}
+
 // FormatResult renders a formatted string describing the outcome of an exercise run.
 func FormatResult(res runner.RunResult) string {
 	var b strings.Builder
 	if res.Passed {
 		b.WriteString(successStyle.Render(fmt.Sprintf("✓ Exercise %s passed!\n", res.Exercise.Name)))
 	} else {
-		if res.HasNotDoneMarker {
-			b.WriteString(warningStyle.Render(fmt.Sprintf("⌛ %s still contains '%s' marker. Keep going!\n", res.Exercise.Name, runner.NotDoneMarker)))
-		}
 		if res.Error != "" {
 			b.WriteString(errorBoxStyle.Render(fmt.Sprintf("Error in %s:\n%s", res.Exercise.Name, res.Error)))
 			b.WriteString("\n")

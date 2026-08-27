@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: state04
 # Chapter: 09_state_refactoring (State Management & Refactoring Surgery)
@@ -14,7 +13,6 @@
 # 1. Add `replace_triggered_by = [terraform_data.app_version]` to `terraform_data.worker_fleet`.
 # 2. Declare a `removed` block for `terraform_data.legacy_queue`.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 resource "terraform_data" "app_version" {
@@ -24,12 +22,12 @@ resource "terraform_data" "app_version" {
 resource "terraform_data" "worker_fleet" {
   input = "fleet-runner"
 
-  # TODO: Add lifecycle with replace_triggered_by app_version
-  # lifecycle {
-  #   replace_triggered_by = [
-  #     terraform_data.app_version
-  #   ]
-  # }
+  lifecycle {
+    # TODO: Set replace_triggered_by = [terraform_data.app_version]
+    replace_triggered_by = [
+      terraform_data.missing_version
+    ]
+  }
 }
 
 # TODO: Add removed block for legacy_queue

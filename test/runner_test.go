@@ -77,16 +77,15 @@ func TestCheckMarker(t *testing.T) {
 	})
 }
 
-func TestRunnerDetectsNotDoneMarker(t *testing.T) {
+func TestRunnerDetectsDeterministicFailures(t *testing.T) {
 	tmpDir := t.TempDir()
 	exFile := filepath.Join(tmpDir, "ex01.tf")
-	content := `# I AM NOT DONE
-terraform {
+	content := `terraform {
   required_version = ">= 1.6.0"
 }
 
 resource "terraform_data" "example" {
-  input = "marker test"
+  input = var.undeclared_variable
 }
 `
 	if err := os.WriteFile(exFile, []byte(content), 0644); err != nil {
@@ -103,10 +102,7 @@ resource "terraform_data" "example" {
 	res := r.Run(ex)
 
 	if res.Passed {
-		t.Fatal("Expected exercise with NOT DONE marker to fail (res.Passed == false)")
-	}
-	if !res.HasNotDoneMarker {
-		t.Fatal("Expected HasNotDoneMarker to be true")
+		t.Fatal("Expected exercise with undeclared variable to fail (res.Passed == false)")
 	}
 }
 

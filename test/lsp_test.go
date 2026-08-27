@@ -191,8 +191,12 @@ func TestLSP_DidOpenAndDidSave_PublishesDiagnostics(t *testing.T) {
 	exFile := filepath.Join(tmpDir, "exercises", "01_primitives", "primitives01.tf")
 	_ = os.MkdirAll(filepath.Dir(exFile), 0755)
 
-	// File has # I AM NOT DONE marker
-	_ = os.WriteFile(exFile, []byte("# I AM NOT DONE\nterraform {\n  required_version = \">= 1.6.0\"\n}\n"), 0644)
+	// File has broken HCL with undeclared variable
+	brokenHCL := `resource "terraform_data" "bad" {
+  input = var.undeclared_var
+}
+`
+	_ = os.WriteFile(exFile, []byte(brokenHCL), 0644)
 
 	customEx := models.Exercise{
 		Name:        "primitives01",
@@ -244,7 +248,7 @@ func TestLSP_DidOpenAndDidSave_PublishesDiagnostics(t *testing.T) {
 				"uri":        fileURI,
 				"languageId": "terraform",
 				"version":    1,
-				"text":       "# I AM NOT DONE\nterraform {\n  required_version = \">= 1.6.0\"\n}\n",
+				"text":       brokenHCL,
 			},
 		},
 	}
@@ -284,21 +288,11 @@ func TestLSP_DidOpenAndDidSave_PublishesDiagnostics(t *testing.T) {
 	}
 
 	if len(diagNotif.Params.Diagnostics) == 0 {
-		t.Fatal("Expected at least 1 diagnostic for '# I AM NOT DONE' marker")
+		t.Fatal("Expected at least 1 diagnostic for missing variable")
 	}
 
-	hasMarkerDiag := false
-	for _, d := range diagNotif.Params.Diagnostics {
-		if strings.Contains(strings.ToLower(d.Message), "not done") || strings.Contains(strings.ToLower(d.Message), "not finished") {
-			hasMarkerDiag = true
-			if d.Range.Start.Line != 0 {
-				t.Errorf("Expected marker diagnostic at line 0 (0-indexed), got %d", d.Range.Start.Line)
-			}
-		}
-	}
-
-	if !hasMarkerDiag {
-		t.Errorf("Expected marker diagnostic message, got %+v", diagNotif.Params.Diagnostics)
+	if len(diagNotif.Params.Diagnostics) == 0 {
+		t.Errorf("Expected diagnostic messages, got 0")
 	}
 
 	// 2. Send didSave notification
@@ -512,14 +506,14 @@ func TestLSP_CodeAction(t *testing.T) {
 		t.Error("Expected code action suggestions, got 0")
 	}
 
-	hasQuickFix := false
+	hasHintAction := false
 	for _, action := range resp.Result {
-		if strings.Contains(strings.ToLower(action.Title), "remove") {
-			hasQuickFix = true
+		if strings.Contains(strings.ToLower(action.Title), "hint") {
+			hasHintAction = true
 		}
 	}
-	if !hasQuickFix {
-		t.Errorf("Expected quickfix action to remove marker, got %+v", resp.Result)
+	if !hasHintAction {
+		t.Errorf("Expected hint action, got %+v", resp.Result)
 	}
 
 	cancel()

@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: primitives02
 # Chapter: 01_primitives (HCL Foundations & Core Primitives)
@@ -13,7 +12,6 @@
 # 2. Sets filename = "${path.module}/welcome.txt"
 # 3. Sets content  = "Welcome to Terralings!"
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {

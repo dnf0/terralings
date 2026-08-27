@@ -38,20 +38,15 @@ func TestFormatResult_Passed(t *testing.T) {
 	}
 }
 
-func TestFormatResult_NotDone(t *testing.T) {
-	ex := models.Exercise{Name: "primitives02", Path: "exercises/01_primitives/primitives02.tf"}
-	res := runner.RunResult{
-		Exercise:         ex,
-		Passed:           false,
-		HasNotDoneMarker: true,
+func TestFormatSuccess_And_Prompt(t *testing.T) {
+	succ := ui.FormatSuccess("✓ primitives01 passed!")
+	if !strings.Contains(succ, "primitives01 passed!") {
+		t.Fatalf("Expected success message to contain 'primitives01 passed!', got:\n%s", succ)
 	}
 
-	rendered := ui.FormatResult(res)
-	if !strings.Contains(rendered, "primitives02") {
-		t.Fatalf("Expected output to contain exercise name 'primitives02', got:\n%s", rendered)
-	}
-	if !strings.Contains(rendered, "I AM NOT DONE") {
-		t.Fatalf("Expected output to contain 'I AM NOT DONE' warning, got:\n%s", rendered)
+	prompt := ui.FormatInteractivePrompt()
+	if !strings.Contains(prompt, "Next exercise") || !strings.Contains(prompt, "Quit") {
+		t.Fatalf("Expected prompt to contain navigation controls, got:\n%s", prompt)
 	}
 }
 

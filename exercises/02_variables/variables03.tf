@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: variables03
 # Chapter: 02_variables (Input Variables, Types & Validations)
@@ -10,8 +9,6 @@
 #
 # Complete the object type constraint with `optional(bool, true)` for the `ssl` attribute
 # and complete the tuple constraint.
-#
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {
@@ -35,8 +32,8 @@ variable "database_config" {
 }
 
 variable "endpoint_pair" {
-  # TODO: Define tuple([string, number])
-  type        = any
+  type        = tuple([string, number])
   description = "Tuple of hostname and port"
-  default     = ["api.internal", 443]
+  # TODO: Fix default tuple to ["api.internal", 443]
+  default     = ["api.internal", "not_a_number"]
 }

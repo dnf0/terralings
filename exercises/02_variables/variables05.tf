@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: variables05
 # Chapter: 02_variables (Input Variables, Types & Validations)
@@ -13,7 +12,6 @@
 # 1. Add validation to `environment` ensuring it is one of: ["dev", "staging", "prod"] using contains().
 # 2. Add validation to `db_password` ensuring length(var.db_password) >= 12.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {
@@ -25,11 +23,11 @@ variable "environment" {
   description = "Target environment: dev, staging, or prod"
   default     = "dev"
 
-  # TODO: Add validation block with contains(["dev", "staging", "prod"], var.environment)
-  # validation {
-  #   condition     = ...
-  #   error_message = "The environment variable must be one of: dev, staging, prod."
-  # }
+  validation {
+    # TODO: Fix validation condition to refer to var.environment
+    condition     = contains(["dev", "staging", "prod"], var.missing_env_var)
+    error_message = "The environment variable must be one of: dev, staging, prod."
+  }
 }
 
 variable "db_password" {

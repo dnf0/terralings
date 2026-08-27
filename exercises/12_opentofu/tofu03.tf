@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: tofu03
 # Chapter: 12_opentofu (OpenTofu Innovations & Enterprise Features)
@@ -13,16 +12,16 @@
 # 2. In `required_providers`, specify provider `local` with `source = "hashicorp/local"`
 #    and `version = "~> 2.0"`.
 # 3. Create a `terraform_data.registry_status` resource with input status `"verified"`.
-#
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {
-  # TODO: Set required_version = ">= 1.6.0"
-  required_version = ""
+  required_version = ">= 1.6.0"
 
   required_providers {
-    # TODO: Add local provider requirement
+    # TODO: Add local provider requirement with source = "hashicorp/local" and version = "~> 2.0"
+    local = {
+      source = ""
+    }
   }
 }
 

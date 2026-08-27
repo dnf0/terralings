@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: expr01
 # Chapter: 03_outputs_locals (Outputs, Locals & Expressions)
@@ -13,7 +12,6 @@
 # 1. `instance_type`: if `is_production` is true, use "m5.large", else "t3.micro"
 # 2. `replica_count`: if `is_production` is true, use 3, else 1
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {

@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: func05
 # Chapter: 04_functions (Built-in Functions & Collections)
@@ -16,7 +15,6 @@
 # 3. has_database: check if var.raw_data.database exists and is accessible using can()
 # 4. is_valid_json: check if jsondecode(var.raw_data.payload_json) succeeds using can()
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {
@@ -56,5 +54,12 @@ resource "terraform_data" "safety" {
     timeout    = local.parsed_timeout
     has_db     = local.has_database
     valid_json = local.is_valid_json
+  }
+
+  lifecycle {
+    postcondition {
+      condition     = local.safe_port == 8080 && local.parsed_timeout == 30 && !local.has_database && local.is_valid_json
+      error_message = "try() and can() safety evaluations must produce expected fallbacks and boolean results."
+    }
   }
 }

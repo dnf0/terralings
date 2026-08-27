@@ -1,6 +1,7 @@
 package watcher
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -66,6 +67,21 @@ func RunWatchWithExercises(ctx context.Context, r *runner.Runner, exercises []mo
 
 // RunWatchWithStore executes the watch loop with progress tracking via state.Store.
 func RunWatchWithStore(ctx context.Context, r *runner.Runner, exercises []models.Exercise, store *state.Store, watchDir string, out io.Writer) error {
+	return RunWatchWithInput(ctx, r, exercises, store, watchDir, nil, out)
+}
+
+type watchAction int
+
+const (
+	actionNext watchAction = iota
+	actionPrev
+	actionRerun
+	actionQuit
+	actionHint
+)
+
+// RunWatchWithInput executes the watch loop with progress tracking, interactive key commands, and fsnotify triggers.
+func RunWatchWithInput(ctx context.Context, r *runner.Runner, exercises []models.Exercise, store *state.Store, watchDir string, in io.Reader, out io.Writer) error {
 	if watchDir == "" {
 		watchDir = "exercises"
 	}
@@ -106,6 +122,7 @@ func RunWatchWithStore(ctx context.Context, r *runner.Runner, exercises []models
 				_ = store.RecordAttempt(ex.Name, ex.ChapterName, false)
 			}
 			fmt.Fprint(out, ui.FormatResult(res))
+			fmt.Fprint(out, ui.FormatInteractivePrompt())
 			break
 		}
 	}
@@ -120,6 +137,7 @@ func RunWatchWithStore(ctx context.Context, r *runner.Runner, exercises []models
 		debounceTimer *time.Timer
 		debounceMu    sync.Mutex
 		triggerChan   = make(chan struct{}, 1)
+		actionChan    = make(chan watchAction, 10)
 	)
 
 	triggerEvaluation := func() {
@@ -144,10 +162,64 @@ func RunWatchWithStore(ctx context.Context, r *runner.Runner, exercises []models
 		debounceMu.Unlock()
 	}()
 
+	// Start interactive input reader if provided
+	if in != nil {
+		go func() {
+			reader := bufio.NewReader(in)
+			for {
+				b, err := reader.ReadByte()
+				if err != nil {
+					return
+				}
+				switch b {
+				case '\n', '\r', 'n', 'N':
+					actionChan <- actionNext
+				case 'p', 'P':
+					actionChan <- actionPrev
+				case 'r', 'R':
+					actionChan <- actionRerun
+				case 'q', 'Q':
+					actionChan <- actionQuit
+				case 'h', 'H':
+					actionChan <- actionHint
+				}
+			}
+		}()
+	}
+
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
+
+		case act := <-actionChan:
+			switch act {
+			case actionQuit:
+				return nil
+			case actionNext:
+				if currentIdx+1 < len(exercises) {
+					currentIdx++
+					nextEx := exercises[currentIdx]
+					fmt.Fprintf(out, "\n%s\n", ui.FormatProgress(currentIdx, len(exercises)))
+					fmt.Fprintf(out, "Advancing to next exercise: %s (%s)\n\n", nextEx.Name, nextEx.Path)
+					triggerEvaluation()
+				}
+			case actionPrev:
+				if currentIdx > 0 {
+					currentIdx--
+					prevEx := exercises[currentIdx]
+					fmt.Fprintf(out, "\n%s\n", ui.FormatProgress(currentIdx, len(exercises)))
+					fmt.Fprintf(out, "Returning to previous exercise: %s (%s)\n\n", prevEx.Name, prevEx.Path)
+					triggerEvaluation()
+				}
+			case actionRerun:
+				triggerEvaluation()
+			case actionHint:
+				if currentIdx < len(exercises) {
+					fmt.Fprint(out, ui.FormatHint(&exercises[currentIdx], 0))
+					fmt.Fprint(out, ui.FormatInteractivePrompt())
+				}
+			}
 
 		case event, ok := <-w.Events:
 			if !ok {
@@ -177,26 +249,36 @@ func RunWatchWithStore(ctx context.Context, r *runner.Runner, exercises []models
 			if store != nil {
 				_ = store.RecordAttempt(currentEx.Name, currentEx.ChapterName, res.Passed)
 			}
-			fmt.Fprint(out, ui.FormatResult(res))
 
 			if res.Passed {
+				fmt.Fprint(out, ui.FormatSuccess(fmt.Sprintf("✓ %s passed!", currentEx.Name)))
 				if currentIdx+1 < len(exercises) {
-					currentIdx++
-					nextEx := exercises[currentIdx]
-					fmt.Fprintf(out, "\n%s\n", ui.FormatProgress(currentIdx, len(exercises)))
-					fmt.Fprintf(out, "Advancing to next exercise: %s (%s)\n\n", nextEx.Name, nextEx.Path)
-					nextRes := r.Run(nextEx)
-					if store != nil {
-						_ = store.RecordAttempt(nextEx.Name, nextEx.ChapterName, nextRes.Passed)
-					}
-					fmt.Fprint(out, ui.FormatResult(nextRes))
-					if nextRes.Passed {
-						triggerEvaluation()
+					if in == nil {
+						// In non-interactive mode, automatically advance
+						currentIdx++
+						nextEx := exercises[currentIdx]
+						fmt.Fprintf(out, "\n%s\n", ui.FormatProgress(currentIdx, len(exercises)))
+						fmt.Fprintf(out, "Advancing to next exercise: %s (%s)\n\n", nextEx.Name, nextEx.Path)
+						nextRes := r.Run(nextEx)
+						if store != nil {
+							_ = store.RecordAttempt(nextEx.Name, nextEx.ChapterName, nextRes.Passed)
+						}
+						fmt.Fprint(out, ui.FormatResult(nextRes))
+						if nextRes.Passed {
+							triggerEvaluation()
+						}
+					} else {
+						fmt.Fprint(out, ui.FormatInteractivePrompt())
 					}
 				} else {
 					fmt.Fprintln(out, "\n🎉 Congratulations! You have completed all Terralings exercises! 🎉")
 					fmt.Fprintln(out, ui.FormatProgress(len(exercises), len(exercises)))
 					return nil
+				}
+			} else {
+				fmt.Fprint(out, ui.FormatResult(res))
+				if in != nil {
+					fmt.Fprint(out, ui.FormatInteractivePrompt())
 				}
 			}
 

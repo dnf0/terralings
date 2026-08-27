@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: pattern01
 # Chapter: 11_patterns (Production Patterns & Anti-Patterns)
@@ -34,7 +33,6 @@
 #    - `monitoring`  = local.current_env.enable_monitoring
 #    - `tier`        = local.current_env.tier
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 variable "env" {
@@ -75,6 +73,9 @@ resource "terraform_data" "app_cluster" {
   # TODO: Populate the input map using var.env and local.current_env attributes
   input = {
     environment = var.env
+    instances   = local.current_env.instance_count
+    monitoring  = local.current_env.enable_monitoring
+    tier        = local.current_env.tier
   }
 }
 

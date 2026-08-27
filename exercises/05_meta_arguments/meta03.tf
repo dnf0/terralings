@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: meta03
 # Chapter: 05_meta_arguments (Meta-Arguments & Resource Scaling)
@@ -11,7 +10,6 @@
 # Complete the configuration below:
 # 1. Add `depends_on = [terraform_data.database_migration]` to resource "terraform_data" "web_api".
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {
@@ -26,7 +24,7 @@ resource "terraform_data" "web_api" {
   input = "web_api_v2_ready"
 
   # TODO: Declare explicit dependency on terraform_data.database_migration
-  # depends_on = [ ... ]
+  depends_on = [terraform_data.missing_migration]
 }
 
 output "status" {

@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: data03
 # Chapter: 07_data_sources (Data Sources & State Querying)
@@ -13,7 +12,6 @@
 #    `program = ["echo", "{\"status\": \"ready\", \"engine\": \"terralings\"}"]`
 # 2. In output "system_status", output `data.external.system_info.result["status"]`.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {
@@ -33,5 +31,5 @@ terraform {
 
 output "system_status" {
   # TODO: Output data.external.system_info.result["status"]
-  value = ""
+  value = data.external.system_info.result["status"]
 }

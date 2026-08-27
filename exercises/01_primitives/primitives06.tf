@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: primitives06
 # Chapter: 01_primitives (HCL Foundations & Core Primitives)
@@ -10,7 +9,6 @@
 # Fix the resource declaration below by adding `triggers_replace` to force
 # replacement whenever the version token changes.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {
@@ -20,5 +18,6 @@ terraform {
 resource "terraform_data" "deploy_token" {
   input = "v1.0.0"
 
-  # TODO: Add triggers_replace = ["v1.0.0"]
+  # TODO: Fix triggers_replace to track ["v1.0.0"]
+  triggers_replace = [var.missing_trigger_token]
 }

@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: func01
 # Chapter: 04_functions (Built-in Functions & Collections)
@@ -18,7 +17,6 @@
 # 4. tag_csv: join var.app_tags with ","
 # 5. slug: replace all "." in hostname with "-"
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {
@@ -64,5 +62,12 @@ resource "terraform_data" "strings" {
     hostname = local.hostname
     tags     = local.tag_csv
     slug     = local.slug
+  }
+
+  lifecycle {
+    postcondition {
+      condition     = local.normalized_env == "production" && local.clean_service == "auth-gateway" && local.hostname == "auth-gateway-production.internal.net" && local.tag_csv == "auth,security,v2" && local.slug == "auth-gateway-production-internal-net"
+      error_message = "All string transformations must match the expected format."
+    }
   }
 }

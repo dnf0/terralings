@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: primitives03
 # Chapter: 01_primitives (HCL Foundations & Core Primitives)
@@ -10,7 +9,6 @@
 # In this exercise, make the `second` resource depend on the `first` resource by
 # referencing the `content` attribute of `local_file.first` in `local_file.second`.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {
@@ -30,5 +28,5 @@ resource "local_file" "first" {
 resource "local_file" "second" {
   filename = "${path.module}/second.txt"
   # TODO: Reference local_file.first.content inside the string below
-  content = "Second file contains: "
+  content = "Second file contains: ${local_file.first.missing_attribute}"
 }

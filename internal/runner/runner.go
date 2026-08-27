@@ -238,7 +238,7 @@ func (r *Runner) Run(ex models.Exercise) RunResult {
 		errStr = outStr
 	}
 
-	passed := (cmdErr == nil) && !hasMarker
+	passed := (cmdErr == nil)
 
 	return RunResult{
 		Exercise:         ex,

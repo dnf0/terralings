@@ -35,34 +35,25 @@ func TestE2E_FullCurriculumVerification(t *testing.T) {
 	for _, ex := range allExercises {
 		ex := ex
 		t.Run(ex.Name, func(t *testing.T) {
-			// 1. Verify exercise file exists and has NOT DONE marker
+			// 1. Verify exercise file exists
 			exFullPath := filepath.Join(repoRoot, ex.Path)
 			if _, statErr := os.Stat(exFullPath); os.IsNotExist(statErr) {
 				t.Fatalf("Exercise file does not exist: %s", exFullPath)
 			}
-			if !runner.CheckMarker(exFullPath) {
-				t.Fatalf("Exercise %s missing '%s' marker near top", ex.Name, runner.NotDoneMarker)
-			}
 
-			// 2. Initial run must fail because of marker / broken state
+			// 2. Initial run must fail deterministically (exercise broken / incomplete)
 			testEx := ex
 			testEx.Path = exFullPath
 			res := r.Run(testEx)
 			if res.Passed {
 				t.Fatalf("Expected initial run of exercise %s to fail, but passed", ex.Name)
 			}
-			if !res.HasNotDoneMarker {
-				t.Fatalf("Expected exercise %s HasNotDoneMarker to be true, got false", ex.Name)
-			}
 
-			// 3. Solution file must exist and NOT have NOT DONE marker
+			// 3. Solution file must exist
 			solRelPath := ex.SolutionPath()
 			solFullPath := filepath.Join(repoRoot, solRelPath)
 			if _, statErr := os.Stat(solFullPath); os.IsNotExist(statErr) {
 				t.Fatalf("Solution file does not exist: %s", solFullPath)
-			}
-			if runner.CheckMarker(solFullPath) {
-				t.Fatalf("Solution file %s must NOT contain '%s' marker", solRelPath, runner.NotDoneMarker)
 			}
 
 			if strings.HasPrefix(ex.Name, "tofu") {

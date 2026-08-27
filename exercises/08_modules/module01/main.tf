@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: module01
 # Chapter: 08_modules (Modular Infrastructure Architecture)
@@ -18,7 +17,6 @@
 # 3. Define the output `full_name` in `modules/app_config/outputs.tf`
 # 4. Instantiate the module in this root `main.tf` passing `app_name = "terralings"`
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 module "app_config" {
