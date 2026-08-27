@@ -69,19 +69,14 @@ func TestCLI_Completion_UnsupportedShell(t *testing.T) {
 	}
 }
 
-func extractDirective(t *testing.T, stdout string) string {
+func assertDirective(t *testing.T, stdout, expectedDirective string) {
 	t.Helper()
 	trimmed := strings.TrimSpace(stdout)
 	if trimmed == "" {
-		t.Fatalf("expected non-empty output to extract directive")
+		t.Fatalf("expected non-empty output for completion directive check")
 	}
 	lines := strings.Split(trimmed, "\n")
-	return strings.TrimSpace(lines[len(lines)-1])
-}
-
-func assertDirective(t *testing.T, stdout, expectedDirective string) {
-	t.Helper()
-	lastLine := extractDirective(t, stdout)
+	lastLine := strings.TrimSpace(lines[len(lines)-1])
 	if lastLine != expectedDirective {
 		t.Errorf("expected trailing completion directive %q, got %q in output:\n%s", expectedDirective, lastLine, stdout)
 	}
@@ -102,7 +97,7 @@ func TestCLI_DynamicExerciseCompletion(t *testing.T) {
 			if !strings.Contains(stdout, "primitives01\t") {
 				t.Errorf("expected dynamic completion to include tab description annotation, got:\n%s", stdout)
 			}
-			// Verify directive is ShellCompDirectiveNoFileComp (:4)
+			// Verify directive value is ShellCompDirectiveNoFileComp (:4)
 			assertDirective(t, stdout, ":4")
 		})
 	}
@@ -119,5 +114,6 @@ func TestCLI_DynamicSearchCompletion_Chapters(t *testing.T) {
 	if !strings.Contains(stdout, "Chapter:") {
 		t.Errorf("expected dynamic completion description to mention 'Chapter:', got:\n%s", stdout)
 	}
+	// Verify directive value is ShellCompDirectiveNoFileComp (:4)
 	assertDirective(t, stdout, ":4")
 }
