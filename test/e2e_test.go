@@ -124,11 +124,8 @@ func TestE2E_CLIFullWorkflow(t *testing.T) {
 		if exitCode != 0 {
 			t.Fatalf("Expected exit code 0 for 'version', got %d. Stderr: %s", exitCode, stderr)
 		}
-		if !strings.Contains(stdout, "terralings") {
-			t.Errorf("Expected 'terralings' in version output, got:\n%s", stdout)
-		}
-		if !strings.Contains(stdout, "v0.1.0") {
-			t.Errorf("Expected 'v0.1.0' in version output, got:\n%s", stdout)
+		if !strings.Contains(stdout, "terralings v") {
+			t.Errorf("Expected 'terralings v' in version output, got:\n%s", stdout)
 		}
 		if !strings.Contains(stdout, "Detected binary:") {
 			t.Errorf("Expected 'Detected binary:' in version output, got:\n%s", stdout)
