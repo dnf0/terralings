@@ -45,7 +45,7 @@
         {
           "id": "terralings-exercises",
           "title": "Terralings",
-          "icon": "icons/terralings.svg"
+          "icon": "icons/activitybar.svg"
         }
       ]
     },
@@ -222,9 +222,10 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run build",
+    "vscode:prepublish": "node esbuild.js --production",
     "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
+    "watch": "node esbuild.js --watch",
+    "check-types": "tsc --noEmit -p ./",
     "build": "node esbuild.js",
     "test": "tsc -p ./ && node ./dist/test/runTest.js || mocha"
   },
