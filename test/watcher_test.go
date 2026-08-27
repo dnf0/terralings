@@ -13,6 +13,7 @@ import (
 	"github.com/dnf0/terralings/internal/detector"
 	"github.com/dnf0/terralings/internal/models"
 	"github.com/dnf0/terralings/internal/runner"
+	"github.com/dnf0/terralings/internal/state"
 	"github.com/dnf0/terralings/internal/watcher"
 )
 
@@ -217,5 +218,89 @@ func TestWatcher_AllExercisesCompleted(t *testing.T) {
 
 	if !strings.Contains(out.String(), "Congratulations") {
 		t.Fatalf("Expected congratulations message when all exercises are complete, got:\n%s", out.String())
+	}
+}
+
+func TestWatcher_StateRecording(t *testing.T) {
+	bin, err := detector.DetectBinary("")
+	if err != nil {
+		t.Skip("Neither tofu nor terraform found on system PATH; skipping watcher test")
+	}
+
+	tmpDir := t.TempDir()
+	statePath := filepath.Join(tmpDir, "state.json")
+	store, err := state.NewStore(statePath)
+	if err != nil {
+		t.Fatalf("Failed to initialize state store: %v", err)
+	}
+
+	ex1File := filepath.Join(tmpDir, "ex01.tf")
+	// Start with NOT DONE
+	_ = os.WriteFile(ex1File, []byte("# I AM NOT DONE\nterraform {\n  required_version = \">= 1.6.0\"\n}\n"), 0644)
+
+	exercises := []models.Exercise{
+		{Name: "ex01", ChapterName: "01_primitives", Path: ex1File, Mode: models.ModeValidate},
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	var out safeBuffer
+	r := runner.NewRunner(bin)
+	doneChan := make(chan error, 1)
+
+	go func() {
+		doneChan <- watcher.RunWatchWithStore(ctx, r, exercises, store, tmpDir, &out)
+	}()
+
+	// Wait for initial check
+	deadline := time.Now().Add(5 * time.Second)
+	for time.Now().Before(deadline) {
+		if strings.Contains(out.String(), "I AM NOT DONE") {
+			break
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+
+	// Verify attempt recorded in state
+	st := store.GetExerciseState("ex01")
+	if st == nil {
+		t.Fatal("Expected exercise state to be recorded after initial failure in watcher")
+	}
+	if st.Attempts < 1 {
+		t.Errorf("Expected at least 1 attempt recorded, got %d", st.Attempts)
+	}
+	if st.Status != state.StatusInProgress {
+		t.Errorf("Expected in_progress status, got %s", st.Status)
+	}
+
+	// Now fix the exercise
+	_ = os.WriteFile(ex1File, []byte("terraform {\n  required_version = \">= 1.6.0\"\n}\n"), 0644)
+
+	// Wait for congratulations
+	deadlinePass := time.Now().Add(5 * time.Second)
+	for time.Now().Before(deadlinePass) {
+		if strings.Contains(out.String(), "Congratulations") {
+			break
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+
+	st = store.GetExerciseState("ex01")
+	if st == nil {
+		t.Fatal("Expected exercise state to exist")
+	}
+	if st.Status != state.StatusPassed {
+		t.Errorf("Expected passed status after fixing, got %s", st.Status)
+	}
+	if st.CompletedAt == nil {
+		t.Error("Expected CompletedAt timestamp to be set")
+	}
+
+	cancel()
+	select {
+	case <-doneChan:
+	case <-time.After(1 * time.Second):
+		t.Fatal("Watcher failed to stop after cancel")
 	}
 }

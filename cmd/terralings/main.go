@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -11,6 +12,7 @@ import (
 	"github.com/dnf0/terralings/internal/models"
 	"github.com/dnf0/terralings/internal/runner"
 	"github.com/dnf0/terralings/internal/search"
+	"github.com/dnf0/terralings/internal/state"
 	"github.com/dnf0/terralings/internal/ui"
 	"github.com/dnf0/terralings/internal/watcher"
 	"github.com/spf13/cobra"
@@ -20,10 +22,11 @@ import (
 const Version = "v0.1.1"
 
 var (
-	binOverride string
-	hintIndex   int
-	initForce   bool
-	resetDir    string
+	binOverride   string
+	stateOverride string
+	hintIndex     int
+	initForce     bool
+	resetDir      string
 )
 
 // NewRootCmd constructs and returns the root Cobra command and its subcommands.
@@ -36,6 +39,7 @@ func NewRootCmd() *cobra.Command {
 	}
 
 	rootCmd.PersistentFlags().StringVar(&binOverride, "bin", "", "Custom path to tofu or terraform binary")
+	rootCmd.PersistentFlags().StringVar(&stateOverride, "state", "", "Custom path to state file (default .terralings/state.json)")
 
 	// watch command
 	watchCmd := &cobra.Command{
@@ -46,7 +50,11 @@ func NewRootCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			return watcher.RunWatch(bin, "exercises")
+			store, err := state.NewStore(stateOverride)
+			if err != nil {
+				return err
+			}
+			return watcher.RunWatchWithStore(context.Background(), runner.NewRunner(bin), manifest.GetManifest().AllExercises(), store, "exercises", os.Stdout)
 		},
 	}
 
@@ -84,6 +92,11 @@ func NewRootCmd() *cobra.Command {
 			res := r.Run(*ex)
 			fmt.Fprint(cmd.OutOrStdout(), ui.FormatResult(res))
 
+			store, err := state.NewStore(stateOverride)
+			if err == nil {
+				_ = store.RecordAttempt(ex.Name, ex.ChapterName, res.Passed)
+			}
+
 			if !res.Passed {
 				return fmt.Errorf("exercise %s did not pass", ex.Name)
 			}
@@ -104,10 +117,31 @@ func NewRootCmd() *cobra.Command {
 			}
 
 			fmt.Fprintln(cmd.OutOrStdout(), ui.FormatHint(ex, hintIndex))
+
+			store, err := state.NewStore(stateOverride)
+			if err == nil {
+				_ = store.RecordHint(ex.Name, ex.ChapterName, hintIndex+1)
+			}
 			return nil
 		},
 	}
 	hintCmd.Flags().IntVarP(&hintIndex, "index", "i", 0, "Zero-based index of the hint to display")
+
+	// stats command
+	statsCmd := &cobra.Command{
+		Use:   "stats",
+		Short: "Display progress and learning analytics",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			store, err := state.NewStore(stateOverride)
+			if err != nil {
+				return err
+			}
+			m := manifest.GetManifest()
+			summary := store.GetAnalytics(m)
+			fmt.Fprint(cmd.OutOrStdout(), ui.FormatAnalytics(summary))
+			return nil
+		},
+	}
 
 	// list command
 	listCmd := &cobra.Command{
@@ -270,7 +304,7 @@ func NewRootCmd() *cobra.Command {
 	}
 	resetCmd.Flags().StringVarP(&resetDir, "dir", "d", "exercises", "Base exercises directory")
 
-	rootCmd.AddCommand(watchCmd, runCmd, hintCmd, listCmd, verifyCmd, versionCmd, initCmd, resetCmd, searchCmd, completionsCmd)
+	rootCmd.AddCommand(watchCmd, runCmd, hintCmd, statsCmd, listCmd, verifyCmd, versionCmd, initCmd, resetCmd, searchCmd, completionsCmd)
 	return rootCmd
 }
 

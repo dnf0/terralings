@@ -13,6 +13,7 @@ import (
 	"github.com/dnf0/terralings/internal/manifest"
 	"github.com/dnf0/terralings/internal/models"
 	"github.com/dnf0/terralings/internal/runner"
+	"github.com/dnf0/terralings/internal/state"
 	"github.com/dnf0/terralings/internal/ui"
 	"github.com/fsnotify/fsnotify"
 )
@@ -28,18 +29,27 @@ func RunWatchWithContext(ctx context.Context, binPath string, watchDir string, o
 		watchDir = "exercises"
 	}
 	r := runner.NewRunner(binPath)
-	return RunWatchWithRunner(ctx, r, watchDir, out)
+	store, _ := state.NewStore("")
+	m := manifest.GetManifest()
+	all := m.AllExercises()
+	return RunWatchWithStore(ctx, r, all, store, watchDir, out)
 }
 
 // RunWatchWithRunner executes the watch loop with a provided runner against the default curriculum manifest.
 func RunWatchWithRunner(ctx context.Context, r *runner.Runner, watchDir string, out io.Writer) error {
 	m := manifest.GetManifest()
 	all := m.AllExercises()
-	return RunWatchWithExercises(ctx, r, all, watchDir, out)
+	store, _ := state.NewStore("")
+	return RunWatchWithStore(ctx, r, all, store, watchDir, out)
 }
 
 // RunWatchWithExercises executes the watch loop for an explicit list of exercises and watch directory.
 func RunWatchWithExercises(ctx context.Context, r *runner.Runner, exercises []models.Exercise, watchDir string, out io.Writer) error {
+	return RunWatchWithStore(ctx, r, exercises, nil, watchDir, out)
+}
+
+// RunWatchWithStore executes the watch loop with progress tracking via state.Store.
+func RunWatchWithStore(ctx context.Context, r *runner.Runner, exercises []models.Exercise, store *state.Store, watchDir string, out io.Writer) error {
 	if watchDir == "" {
 		watchDir = "exercises"
 	}
@@ -76,6 +86,9 @@ func RunWatchWithExercises(ctx context.Context, r *runner.Runner, exercises []mo
 		if !res.Passed {
 			currentIdx = i
 			allPassed = false
+			if store != nil {
+				_ = store.RecordAttempt(ex.Name, ex.ChapterName, false)
+			}
 			fmt.Fprint(out, ui.FormatResult(res))
 			break
 		}
@@ -145,6 +158,9 @@ func RunWatchWithExercises(ctx context.Context, r *runner.Runner, exercises []mo
 
 			currentEx := exercises[currentIdx]
 			res := r.Run(currentEx)
+			if store != nil {
+				_ = store.RecordAttempt(currentEx.Name, currentEx.ChapterName, res.Passed)
+			}
 			fmt.Fprint(out, ui.FormatResult(res))
 
 			if res.Passed {
@@ -154,6 +170,9 @@ func RunWatchWithExercises(ctx context.Context, r *runner.Runner, exercises []mo
 					fmt.Fprintf(out, "\n%s\n", ui.FormatProgress(currentIdx, len(exercises)))
 					fmt.Fprintf(out, "Advancing to next exercise: %s (%s)\n\n", nextEx.Name, nextEx.Path)
 					nextRes := r.Run(nextEx)
+					if store != nil {
+						_ = store.RecordAttempt(nextEx.Name, nextEx.ChapterName, nextRes.Passed)
+					}
 					fmt.Fprint(out, ui.FormatResult(nextRes))
 					if nextRes.Passed {
 						triggerEvaluation()
