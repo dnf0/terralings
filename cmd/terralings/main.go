@@ -225,6 +225,8 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 
+	// completeSearchQueries delegates exercise completion to completeExerciseNames and appends chapter titles.
+	// completeExerciseNames currently returns ShellCompDirectiveNoFileComp; the guard ensures safe degradation if that contract changes.
 	completeSearchQueries := func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		completions, directive := completeExerciseNames(cmd, args, toComplete)
 		if len(args) != 0 || directive != cobra.ShellCompDirectiveNoFileComp {

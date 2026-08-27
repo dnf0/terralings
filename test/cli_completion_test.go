@@ -69,25 +69,22 @@ func TestCLI_Completion_UnsupportedShell(t *testing.T) {
 	}
 }
 
+func extractDirective(t *testing.T, stdout string) string {
+	t.Helper()
+	trimmed := strings.TrimSpace(stdout)
+	if trimmed == "" {
+		t.Fatalf("expected non-empty output to extract directive")
+	}
+	lines := strings.Split(trimmed, "\n")
+	return strings.TrimSpace(lines[len(lines)-1])
+}
+
 func assertDirective(t *testing.T, stdout, expectedDirective string) {
 	t.Helper()
-	lines := strings.Split(strings.TrimSpace(stdout), "\n")
-	if len(lines) == 0 {
-		t.Fatalf("expected non-empty output for completion directive check")
-	}
-	lastLine := strings.TrimSpace(lines[len(lines)-1])
+	lastLine := extractDirective(t, stdout)
 	if lastLine != expectedDirective {
 		t.Errorf("expected trailing completion directive %q, got %q in output:\n%s", expectedDirective, lastLine, stdout)
 	}
-}
-
-func extractDirective(t *testing.T, stdout string) string {
-	t.Helper()
-	lines := strings.Split(strings.TrimSpace(stdout), "\n")
-	if len(lines) == 0 {
-		t.Fatalf("expected non-empty output to extract directive")
-	}
-	return strings.TrimSpace(lines[len(lines)-1])
 }
 
 func TestCLI_DynamicExerciseCompletion(t *testing.T) {
@@ -125,10 +122,13 @@ func TestCLI_DynamicSearchCompletion_Chapters(t *testing.T) {
 	assertDirective(t, stdout, ":4")
 
 	// Verify cross-command directive invariant: search directive matches run directive
-	runOut, _, runExit := runCLI(t, "__complete", "run", "prim")
-	if runExit == 0 {
-		if extractDirective(t, stdout) != extractDirective(t, runOut) {
-			t.Errorf("expected search directive to match run directive (%s vs %s)", extractDirective(t, stdout), extractDirective(t, runOut))
-		}
+	runOut, runErr, runExit := runCLI(t, "__complete", "run", "prim")
+	if runExit != 0 {
+		t.Fatalf("__complete run prim failed with exit code %d, stderr: %s", runExit, runErr)
+	}
+	searchDir := extractDirective(t, stdout)
+	runDir := extractDirective(t, runOut)
+	if searchDir != runDir {
+		t.Errorf("expected search directive to match run directive (%s vs %s)", searchDir, runDir)
 	}
 }
