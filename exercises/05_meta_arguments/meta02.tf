@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: meta02
 # Chapter: 05_meta_arguments (Meta-Arguments & Resource Scaling)
@@ -18,7 +17,6 @@
 #    }
 # 3. In the output "service_keys", return `keys(terraform_data.service)`.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {
@@ -50,10 +48,14 @@ resource "terraform_data" "service" {
   # TODO: Set for_each = var.microservices
 
   # TODO: Set input using each.key and each.value
-  input = {}
+  input = {
+    name = each.key
+    port = each.value.port
+    tier = each.value.tier
+  }
 }
 
 output "service_keys" {
   # TODO: Output keys(terraform_data.service)
-  value = []
+  value = keys(terraform_data.service)
 }

@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: func02
 # Chapter: 04_functions (Built-in Functions & Collections)
@@ -20,7 +19,6 @@
 # 5. flat_subnets: flatten var.nested_subnets into a 1D list
 # 6. config_map: zipmap var.keys_list and var.values_list
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {
@@ -90,5 +88,12 @@ resource "terraform_data" "collections" {
     zones   = local.primary_zones
     subnets = local.flat_subnets
     config  = local.config_map
+  }
+
+  lifecycle {
+    postcondition {
+      condition     = length(local.primary_zones) == 2 && length(local.flat_subnets) == 3 && local.owner == "Platform" && lookup(local.config_map, "db_port", "") == "5432"
+      error_message = "Collections must be transformed as expected (distinct/sliced zones, flattened subnets, merged tags, and zipmap config)."
+    }
   }
 }

@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: gov02
 # Chapter: 13_governance (Architecture Governance & Enterprise Standards)
@@ -24,7 +23,6 @@
 #    - `kms_decrypt` = local.kms_module.decrypt_policy_arn
 # 2. Output `attached_policies` referencing the IAM role's attached policy map.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 variable "service_name" {
@@ -52,9 +50,17 @@ resource "terraform_data" "iam_role" {
     # TODO: Map secret_read and kms_decrypt to their exported managed policy ARNs
     policy_arns = {}
   }
+
+  lifecycle {
+    postcondition {
+      condition     = lookup(lookup(self.output, "policy_arns", {}), "secret_read", "") == local.secret_module.read_only_policy_arn && lookup(lookup(self.output, "policy_arns", {}), "kms_decrypt", "") == local.kms_module.decrypt_policy_arn
+      error_message = "IAM role must attach managed policy ARNs exported by the secret and KMS modules."
+    }
+  }
+  }
 }
 
 output "attached_policies" {
   # TODO: Reference terraform_data.iam_role.output.policy_arns
-  value = null
+  value = terraform_data.iam_role.output.policy_arns
 }

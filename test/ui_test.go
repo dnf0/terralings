@@ -3,10 +3,12 @@ package test
 import (
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/dnf0/terralings/internal/manifest"
 	"github.com/dnf0/terralings/internal/models"
 	"github.com/dnf0/terralings/internal/runner"
+	"github.com/dnf0/terralings/internal/state"
 	"github.com/dnf0/terralings/internal/ui"
 )
 
@@ -36,20 +38,15 @@ func TestFormatResult_Passed(t *testing.T) {
 	}
 }
 
-func TestFormatResult_NotDone(t *testing.T) {
-	ex := models.Exercise{Name: "primitives02", Path: "exercises/01_primitives/primitives02.tf"}
-	res := runner.RunResult{
-		Exercise:         ex,
-		Passed:           false,
-		HasNotDoneMarker: true,
+func TestFormatSuccess_And_Prompt(t *testing.T) {
+	succ := ui.FormatSuccess("✓ primitives01 passed!")
+	if !strings.Contains(succ, "primitives01 passed!") {
+		t.Fatalf("Expected success message to contain 'primitives01 passed!', got:\n%s", succ)
 	}
 
-	rendered := ui.FormatResult(res)
-	if !strings.Contains(rendered, "primitives02") {
-		t.Fatalf("Expected output to contain exercise name 'primitives02', got:\n%s", rendered)
-	}
-	if !strings.Contains(rendered, "I AM NOT DONE") {
-		t.Fatalf("Expected output to contain 'I AM NOT DONE' warning, got:\n%s", rendered)
+	prompt := ui.FormatInteractivePrompt()
+	if !strings.Contains(prompt, "Next exercise") || !strings.Contains(prompt, "Quit") {
+		t.Fatalf("Expected prompt to contain navigation controls, got:\n%s", prompt)
 	}
 }
 
@@ -193,6 +190,78 @@ func TestFormatChapterList(t *testing.T) {
 		list := ui.FormatChapterList(nil, statuses)
 		if list == "" {
 			t.Fatal("Expected non-empty response or message for nil manifest")
+		}
+	})
+}
+
+func TestFormatAnalytics(t *testing.T) {
+	t.Run("EmptyAnalytics", func(t *testing.T) {
+		summary := state.AnalyticsSummary{
+			TotalExercises: 51,
+		}
+		rendered := ui.FormatAnalytics(summary)
+		if !strings.Contains(rendered, "TERRALINGS LEARNING ANALYTICS") {
+			t.Fatalf("Expected title banner in analytics, got:\n%s", rendered)
+		}
+		if !strings.Contains(rendered, "0%") {
+			t.Fatalf("Expected 0%% progress, got:\n%s", rendered)
+		}
+		if !strings.Contains(rendered, "Time Invested:") {
+			t.Fatalf("Expected Time Invested in analytics, got:\n%s", rendered)
+		}
+		if !strings.Contains(rendered, "Chapter Breakdown:") {
+			t.Fatalf("Expected Chapter Breakdown in analytics, got:\n%s", rendered)
+		}
+	})
+
+	t.Run("PopulatedAnalytics", func(t *testing.T) {
+		summary := state.AnalyticsSummary{
+			TotalExercises:   50,
+			CompletedCount:   10,
+			InProgressCount:  5,
+			TotalAttempts:    25,
+			TotalHintsViewed: 8,
+			TotalTimeSpent:   75 * time.Minute,
+			ChapterSummaries: []state.ChapterSummary{
+				{
+					ChapterID:     "01_primitives",
+					Title:         "HCL Foundations & Core Primitives",
+					Total:         6,
+					Completed:     6,
+					TotalAttempts: 8,
+					TotalHints:    2,
+				},
+				{
+					ChapterID:     "02_variables",
+					Title:         "Input Variables, Types & Validations",
+					Total:         5,
+					Completed:     4,
+					TotalAttempts: 17,
+					TotalHints:    6,
+				},
+			},
+		}
+		rendered := ui.FormatAnalytics(summary)
+		if !strings.Contains(rendered, "20%") {
+			t.Fatalf("Expected 20%% progress, got:\n%s", rendered)
+		}
+		if !strings.Contains(rendered, "10/50") {
+			t.Fatalf("Expected 10/50 completed count, got:\n%s", rendered)
+		}
+		if !strings.Contains(rendered, "1h 15m") {
+			t.Fatalf("Expected '1h 15m' time invested, got:\n%s", rendered)
+		}
+		if !strings.Contains(rendered, "25") {
+			t.Fatalf("Expected total attempts 25, got:\n%s", rendered)
+		}
+		if !strings.Contains(rendered, "8") {
+			t.Fatalf("Expected total hints 8, got:\n%s", rendered)
+		}
+		if !strings.Contains(rendered, "01_primitives") || !strings.Contains(rendered, "100%") {
+			t.Fatalf("Expected 01_primitives 100%% in chapter breakdown, got:\n%s", rendered)
+		}
+		if !strings.Contains(rendered, "02_variables") || !strings.Contains(rendered, "80%") {
+			t.Fatalf("Expected 02_variables 80%% in chapter breakdown, got:\n%s", rendered)
 		}
 	})
 }

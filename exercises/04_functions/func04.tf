@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: func04
 # Chapter: 04_functions (Built-in Functions & Collections)
@@ -17,7 +16,6 @@
 # 3. file_name: get the base name of "${path.module}/func04.tf" with basename()
 # 4. file_length: calculate the character length of the content of "${path.module}/func04.tf" using length(file(...))
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {
@@ -46,5 +44,12 @@ resource "terraform_data" "fs_info" {
     files  = local.tf_files
     name   = local.file_name
     length = local.file_length
+  }
+
+  lifecycle {
+    postcondition {
+      condition     = local.file_present && length(local.tf_files) > 0 && local.file_name == "func04.tf" && local.file_length > 0
+      error_message = "Filesystem functions must return valid metadata for func04.tf."
+    }
   }
 }

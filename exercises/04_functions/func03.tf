@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: func03
 # Chapter: 04_functions (Built-in Functions & Collections)
@@ -19,7 +18,6 @@
 # 4. parsed_json: deserialize local.json_config using jsondecode()
 # 5. decoded_b64: decode local.b64_json using base64decode()
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {

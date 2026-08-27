@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: meta04
 # Chapter: 05_meta_arguments (Meta-Arguments & Resource Scaling)
@@ -15,7 +14,6 @@
 # 1. In resource "terraform_data" "zero_downtime_app", configure a `lifecycle` block
 #    with `create_before_destroy = true`.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {
@@ -30,10 +28,10 @@ variable "app_version" {
 resource "terraform_data" "zero_downtime_app" {
   input = var.app_version
 
-  # TODO: Configure lifecycle block with create_before_destroy = true
-  # lifecycle {
-  #   create_before_destroy = ...
-  # }
+  lifecycle {
+    # TODO: Set create_before_destroy = true (must be literal boolean true)
+    create_before_destroy = var.app_version
+  }
 }
 
 output "deployed_version" {

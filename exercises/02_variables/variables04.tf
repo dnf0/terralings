@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: variables04
 # Chapter: 02_variables (Input Variables, Types & Validations)
@@ -12,7 +11,6 @@
 # 1. Setting default = "terralings-app" and nullable = false on `app_name`
 # 2. Setting default = 2 and nullable = false on `replica_count`
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {

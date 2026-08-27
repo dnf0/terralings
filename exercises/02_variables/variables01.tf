@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: variables01
 # Chapter: 02_variables (Input Variables, Types & Validations)
@@ -11,8 +10,6 @@
 # 1. `environment` (type: string, default: "development")
 # 2. `port` (type: number, default: 8080)
 # 3. `debug_mode` (type: bool, default: false)
-#
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {
@@ -20,16 +17,22 @@ terraform {
 }
 
 variable "environment" {
-  # TODO: Set type = string and default = "development"
+  type        = string
+  # TODO: Fix default value to match type string ("development")
+  default     = 12345
   description = "Deployment target environment"
 }
 
 variable "port" {
-  # TODO: Set type = number and default = 8080
+  type        = number
+  # TODO: Fix default value to match type number (8080)
+  default     = "not-a-number"
   description = "Application server listening port"
 }
 
 variable "debug_mode" {
-  # TODO: Set type = bool and default = false
+  type        = bool
+  # TODO: Fix default value to match type bool (false)
+  default     = "not-a-bool"
   description = "Flag to toggle verbose logging"
 }

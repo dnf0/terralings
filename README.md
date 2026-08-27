@@ -11,10 +11,14 @@ Inspired by [`rustlings`](https://github.com/rust-lang/rustlings), [`ziglings`](
 ## Features
 
 - **Turnkey Embedded Initialization (`terralings init`)**: The complete 56-exercise curriculum is embedded directly into the binary—run `terralings init` anywhere to start practicing immediately without cloning git repos.
+- **Interactive Full-Screen TUI Dashboard (`terralings tui` / `terralings watch -i`)**: Two-pane terminal dashboard featuring real-time compilation viewport, grouped chapter navigation, live exercise search modal (`/`), and expandable hints drawer (`h`).
+- **Learning Analytics & Progress Persistence (`terralings stats`)**: Automatically tracks completion state, pass/fail attempt metrics, time invested, and hint usage stored in `.terralings/state.json`.
+- **Language Server Protocol Daemon (`terralings lsp`)**: Built-in JSON-RPC 2.0 LSP server providing instant in-editor validation diagnostics, hover exercise descriptions with hints, and quick-fix actions for VS Code, Neovim, and Helix.
+- **NDJSON Event Streaming (`terralings watch --json`)**: Emits structured newline-delimited JSON events on file changes and evaluations for headless integrations, CI test runners, and custom editor plugins.
+- **Interactive Watch Mode (`terralings watch`)**: Automatically monitors your exercise files via `fsnotify` and re-evaluates and validates in real time on every file save.
 - **Exercise Reset (`terralings reset <name>`)**: Instantly restore any exercise back to its clean starter template if you want to redo it or fix a mistake.
 - **Curriculum Search (`terralings search <term>`)**: Fast full-text search across all chapters, topics, hints, and exercises with relevance scoring.
 - **Shell Autocompletions (`terralings completions`)**: Rich tab completion for Bash, Zsh, Fish, and PowerShell, including interactive exercise name completion.
-- **Interactive Watch Mode (`terralings watch`)**: Automatically monitors your exercise files via `fsnotify` and re-evaluates and validates in real time on every file save.
 - **Dual Engine Support**: Seamlessly detects and runs against either **OpenTofu** (`tofu`) or **Terraform** (`terraform`) (version >= 1.6.0).
 - **Sub-100ms Evaluation**: Shared provider plugin caching eliminates redundant network downloads during provider initialization.
 - **Comprehensive 13-Chapter Curriculum**: 56 progressive exercises covering primitives, variables, collections, functions, meta-arguments, dynamic blocks, data sources, modules, state refactoring, native testing, production patterns, OpenTofu extensions, and policy governance.
@@ -73,14 +77,19 @@ make build
 
 ## Quickstart
 
-Once installed, scaffold the exercises into any folder and start watch mode:
+Once installed, scaffold the exercises into any folder and start learning:
 
 ```bash
 # 1. Initialize exercises in current directory (creates exercises/ folder)
 terralings init
 
-# 2. Start interactive learning loop
+# 2. Start interactive learning loop (standard terminal stream)
 terralings watch
+
+# 3. Or launch the full-screen interactive TUI dashboard
+terralings tui
+# or
+terralings watch -i
 ```
 
 ---
@@ -90,17 +99,232 @@ terralings watch
 | Command | Description |
 |---|---|
 | `terralings init [dir]` | Extract and initialize embedded curriculum exercises into a directory |
-| `terralings watch` | Start interactive watch mode (automatically evaluates on file save) |
+| `terralings watch [-i] [--json]` | Start continuous watch mode (`-i` for TUI, `--json` for NDJSON stream) |
+| `terralings tui` | Launch the interactive full-screen terminal UI dashboard |
+| `terralings stats` | Display learning analytics, attempt counts, time invested, and progress |
+| `terralings lsp` | Start Language Server Protocol (LSP) daemon over stdio |
 | `terralings run <exercise>` | Run verification against a single exercise (e.g. `terralings run primitives01`) |
-| `terralings hint <exercise>` | Display progressive hint(s) for the specified exercise |
-| `terralings reset <exercise>` | Reset an exercise back to its initial starting template |
+| `terralings hint <exercise> [-i <idx>]` | Display progressive hint(s) for the specified exercise |
+| `terralings reset <exercise> [-d <dir>]` | Reset an exercise back to its initial starting template |
 | `terralings search <term>` | Search exercises by keyword, concept, or chapter |
 | `terralings list` | List all chapters and exercises with status indicators |
 | `terralings verify` | Run sequential evaluation across the entire curriculum and display progress |
 | `terralings completions <shell>` | Generate autocompletion scripts for `bash`, `zsh`, `fish`, or `powershell` |
 | `terralings version` | Print the Terralings CLI version and detected IaC binary |
 
-### Command Examples & Sample Outputs
+### Global Flags
+
+| Flag | Description |
+|---|---|
+| `--bin <path>` | Override binary auto-detection with an explicit path (or `export TERRALINGS_BIN=...`) |
+| `--state <path>` | Custom path to state persistence file (default: `.terralings/state.json`) |
+
+---
+
+## Features & Usage Guide
+
+### 1. Interactive Full-Screen TUI Dashboard
+
+Launch a terminal dashboard with split-pane navigation, real-time evaluation feedback, and searchable curriculum overview:
+
+```bash
+terralings tui
+# or
+terralings watch -i
+```
+
+#### TUI Layout & Features
+
+- **Sidebar (Left Pane)**: Visual tree of chapters and exercises with real-time status indicators (`✓` passed, `•` in progress, `·` not started).
+- **Compiler Viewport (Right Pane)**: Formatted validation output, syntax and runtime diagnostics, error callouts, and animated spinner during execution.
+- **Collapsible Hints Drawer**: View progressive hints on demand directly within the dashboard without leaving your terminal.
+- **Interactive Search Modal**: Press `/` to trigger instant search across exercises and jump directly to any topic.
+
+#### Keyboard Shortcuts
+
+| Key | Action |
+|---|---|
+| `↑` / `k` | Move cursor up in exercise list / search results |
+| `↓` / `j` | Move cursor down in exercise list / search results |
+| `Tab` | Switch active focus between Sidebar and Viewport |
+| `Enter` | Run/evaluate selected exercise (or select item in search) |
+| `h` | Toggle hints drawer / cycle through hint levels |
+| `r` | Reset current exercise back to original starter template |
+| `/` | Open exercise search modal |
+| `Esc` | Close search modal or cancel |
+| `q` / `Ctrl+C` | Quit dashboard |
+
+---
+
+### 2. Learning Analytics & Progress Persistence
+
+Terralings tracks your learning journey across all sessions and exercises. Progress is automatically persisted to `.terralings/state.json` (and automatically added to your `.gitignore`).
+
+```bash
+terralings stats
+```
+
+#### State Tracking Mechanics
+
+- **Attempt Tracking**: Increments total and failed attempts per exercise each time validation runs.
+- **Time Invested**: Tracks cumulative active time spent solving exercises.
+- **Hint Consultation**: Records the depth of hints consulted.
+- **Atomic & Resilient**: State updates are written atomically (`.tmp` + `sync` + `rename`) with automatic recovery and backup (`state.json.bak`) if corruption is detected.
+- **Custom State Location**: Use `--state <path>` to store state in a custom directory.
+
+#### Sample Output
+
+```text
+📊 TERRALINGS LEARNING ANALYTICS
+
+Overall Progress: [████████████░░░░░░░░] 60% (34/56 completed)
+Time Invested:    1h 45m
+Total Attempts:   82 (avg 1.5 per exercise)
+Hints Consulted:  12
+
+Chapter Breakdown:
+  • 01_primitives        100% (6/6) | Avg Attempts: 1.2 | Hints: 1
+  • 02_variables         100% (5/5) | Avg Attempts: 1.4 | Hints: 2
+  • 03_outputs_locals    100% (4/4) | Avg Attempts: 1.0 | Hints: 0
+  • 04_functions         100% (5/5) | Avg Attempts: 1.8 | Hints: 3
+  • 05_meta_arguments    100% (5/5) | Avg Attempts: 1.6 | Hints: 2
+  • 06_dynamic_blocks     75% (3/4) | Avg Attempts: 2.0 | Hints: 2
+  • 07_data_sources       50% (2/4) | Avg Attempts: 1.5 | Hints: 1
+  • 08_modules             0% (0/5) | Avg Attempts: 0.0 | Hints: 0
+```
+
+---
+
+### 3. Language Server Protocol (LSP) Daemon
+
+Terralings includes a built-in Language Server Protocol (LSP) daemon communicating over JSON-RPC 2.0 (`stdio`). When configured in your editor, it provides:
+
+- **Live Diagnostics (`publishDiagnostics`)**: Real-time syntax errors, semantic validation issues, and plan diagnostics.
+- **Hover Documentation (`textDocument/hover`)**: Hover over any exercise file to read its objectives, chapter context, and multi-level hints rendered in rich markdown.
+- **Code Actions (`textDocument/codeAction`)**: Quick-fix and source actions to reveal progressive hints.
+
+```bash
+terralings lsp
+```
+
+#### Editor Configuration
+
+##### Neovim (`nvim-lspconfig`)
+
+Add the following to your Neovim configuration (e.g. `~/.config/nvim/lua/plugins/lsp.lua` or `init.lua`):
+
+```lua
+local lspconfig = require("lspconfig")
+local configs = require("lspconfig.configs")
+
+if not configs.terralings then
+  configs.terralings = {
+    default_config = {
+      cmd = { "terralings", "lsp" },
+      filetypes = { "terraform", "hcl" },
+      root_dir = lspconfig.util.root_pattern(".terralings", "exercises", ".git"),
+      settings = {},
+    },
+  }
+end
+
+lspconfig.terralings.setup({
+  on_attach = function(client, bufnr)
+    local opts = { buffer = bufnr, silent = true }
+    vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+    vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
+  end,
+})
+```
+
+##### Helix (`languages.toml`)
+
+Add Terralings as a language server in `~/.config/helix/languages.toml`:
+
+```toml
+[language-server.terralings]
+command = "terralings"
+args = ["lsp"]
+
+[[language]]
+name = "hcl"
+language-servers = [ "terralings" ]
+
+[[language]]
+name = "terraform"
+language-servers = [ "terralings" ]
+```
+
+##### Visual Studio Code
+
+You can use `terralings lsp` in VS Code with any generic LSP extension (such as [Generic LSP Client](https://marketplace.visualstudio.com/items?itemName=eyhn.vscode-generic-lsp) or custom extension settings in `.vscode/settings.json`):
+
+```json
+{
+  "generic-lsp.serverConfigurations": [
+    {
+      "name": "terralings",
+      "command": "terralings",
+      "args": ["lsp"],
+      "languages": ["terraform", "hcl", "terraform-vars"]
+    }
+  ]
+}
+```
+
+---
+
+### 4. NDJSON Event Streaming
+
+For automated tooling, continuous integration environments, and custom IDE extensions, `terralings watch --json` streams newline-delimited JSON (NDJSON) events directly to `stdout`:
+
+```bash
+terralings watch --json
+```
+
+#### Event Types & Payload Schema
+
+Each line emitted is an atomic JSON object:
+
+1. **`exercise_start`**: Emitted when evaluation begins for an exercise.
+2. **`exercise_result`**: Emitted when evaluation completes with diagnostics, pass/fail status, and raw CLI output.
+3. **`completed`**: Emitted when all curriculum exercises pass.
+
+```json
+{
+  "event": "exercise_result",
+  "timestamp": "2026-08-27T12:00:00Z",
+  "exercise": {
+    "name": "primitives01",
+    "title": "Terraform Configuration Block",
+    "path": "exercises/01_primitives/primitives01.tf",
+    "mode": "validate",
+    "chapter_name": "01_primitives",
+    "hints": [
+      "Use required_version = \">= 1.6.0\"",
+      "Configure required_providers block with local provider"
+    ]
+  },
+  "passed": false,
+  "diagnostics": [
+    {
+      "file": "exercises/01_primitives/primitives01.tf",
+      "line": 4,
+      "column": 1,
+      "severity": "error",
+      "summary": "Missing required argument"
+    }
+  ],
+  "raw_output": "Error: Missing required argument...",
+  "exit_code": 1,
+  "current_index": 0,
+  "total_count": 56
+}
+```
+
+---
+
+### 5. Command Examples & Standard Watch Mode
 
 #### 1. Interactive Watch Mode
 ```bash
@@ -113,9 +337,9 @@ terralings watch
   Press Ctrl+C to exit
 ======================================================================
 
-⌛ primitives01 still contains 'I AM NOT DONE' marker. Keep going!
+✓ primitives01 passed!
 
-Success! The configuration is valid.
+[Enter / n] Next exercise (primitives02)  |  [p] Previous  |  [r] Rerun  |  [q] Quit
 ```
 
 #### 2. Progressive Hints

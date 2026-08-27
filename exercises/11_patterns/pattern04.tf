@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: pattern04
 # Chapter: 11_patterns (Production Patterns & Anti-Patterns)
@@ -24,8 +23,6 @@
 # 3. Create `terraform_data.service_route` iterating with `for_each = local.active_services`
 #    passing `name`, `port`, and `endpoint = local.routing_table[each.key]`.
 # 4. Output `routes` collecting all registered service endpoints.
-#
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 variable "services" {
@@ -54,15 +51,16 @@ variable "services" {
 
 locals {
   # TODO: Filter var.services for enabled == true
-  active_services = {}
+  active_services = {
+    for name, svc in var.services : name => svc if svc.enabled
+  }
 
   # TODO: Construct map of service name to formatted endpoint "https://<name>.internal:<port>"
   routing_table = {}
 }
 
 resource "terraform_data" "service_route" {
-  # TODO: Use for_each over local.active_services
-  for_each = {}
+  for_each = local.active_services
 
   input = {
     name     = each.key

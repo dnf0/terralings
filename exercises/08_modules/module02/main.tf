@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: module02
 # Chapter: 08_modules (Modular Infrastructure Architecture)
@@ -14,7 +13,6 @@
 #    - `port         = 8080`
 # 2. In the root `output "endpoint"`, expose the child module's `service_url` output.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 # TODO: Complete the module call and root output

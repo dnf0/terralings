@@ -667,7 +667,7 @@ func buildManifest() *models.Manifest {
 							"Configure terraform { encryption { key_provider \"pbkdf2\" { ... } method \"aes_gcm\" { ... } state { ... } } }",
 							"OpenTofu natively encrypts state and plan files at rest",
 						},
-						Mode: models.ModeValidate,
+						Mode: models.ModePlan,
 					},
 					{
 						Name:        "tofu02",

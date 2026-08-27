@@ -1,7 +1,9 @@
 package watcher
 
 import (
+	"bufio"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -10,12 +12,28 @@ import (
 	"sync"
 	"time"
 
+	"github.com/dnf0/terralings/internal/diagnostics"
 	"github.com/dnf0/terralings/internal/manifest"
 	"github.com/dnf0/terralings/internal/models"
 	"github.com/dnf0/terralings/internal/runner"
+	"github.com/dnf0/terralings/internal/state"
 	"github.com/dnf0/terralings/internal/ui"
 	"github.com/fsnotify/fsnotify"
 )
+
+// WatchEvent represents a structured NDJSON event emitted during watch --json mode.
+type WatchEvent struct {
+	Event            string                   `json:"event"`
+	Timestamp        string                   `json:"timestamp"`
+	Exercise         *models.Exercise         `json:"exercise,omitempty"`
+	Passed           *bool                    `json:"passed,omitempty"`
+	HasNotDoneMarker *bool                    `json:"has_not_done_marker,omitempty"`
+	Diagnostics      []diagnostics.Diagnostic `json:"diagnostics,omitempty"`
+	RawOutput        string                   `json:"raw_output,omitempty"`
+	ExitCode         int                      `json:"exit_code,omitempty"`
+	CurrentIndex     int                      `json:"current_index,omitempty"`
+	TotalCount       int                      `json:"total_count,omitempty"`
+}
 
 // RunWatch starts the interactive file watcher using stdout.
 func RunWatch(binPath string, watchDir string) error {
@@ -28,18 +46,42 @@ func RunWatchWithContext(ctx context.Context, binPath string, watchDir string, o
 		watchDir = "exercises"
 	}
 	r := runner.NewRunner(binPath)
-	return RunWatchWithRunner(ctx, r, watchDir, out)
+	store, _ := state.NewStore("")
+	m := manifest.GetManifest()
+	all := m.AllExercises()
+	return RunWatchWithStore(ctx, r, all, store, watchDir, out)
 }
 
 // RunWatchWithRunner executes the watch loop with a provided runner against the default curriculum manifest.
 func RunWatchWithRunner(ctx context.Context, r *runner.Runner, watchDir string, out io.Writer) error {
 	m := manifest.GetManifest()
 	all := m.AllExercises()
-	return RunWatchWithExercises(ctx, r, all, watchDir, out)
+	store, _ := state.NewStore("")
+	return RunWatchWithStore(ctx, r, all, store, watchDir, out)
 }
 
 // RunWatchWithExercises executes the watch loop for an explicit list of exercises and watch directory.
 func RunWatchWithExercises(ctx context.Context, r *runner.Runner, exercises []models.Exercise, watchDir string, out io.Writer) error {
+	return RunWatchWithStore(ctx, r, exercises, nil, watchDir, out)
+}
+
+// RunWatchWithStore executes the watch loop with progress tracking via state.Store.
+func RunWatchWithStore(ctx context.Context, r *runner.Runner, exercises []models.Exercise, store *state.Store, watchDir string, out io.Writer) error {
+	return RunWatchWithInput(ctx, r, exercises, store, watchDir, nil, out)
+}
+
+type watchAction int
+
+const (
+	actionNext watchAction = iota
+	actionPrev
+	actionRerun
+	actionQuit
+	actionHint
+)
+
+// RunWatchWithInput executes the watch loop with progress tracking, interactive key commands, and fsnotify triggers.
+func RunWatchWithInput(ctx context.Context, r *runner.Runner, exercises []models.Exercise, store *state.Store, watchDir string, in io.Reader, out io.Writer) error {
 	if watchDir == "" {
 		watchDir = "exercises"
 	}
@@ -76,7 +118,11 @@ func RunWatchWithExercises(ctx context.Context, r *runner.Runner, exercises []mo
 		if !res.Passed {
 			currentIdx = i
 			allPassed = false
+			if store != nil {
+				_ = store.RecordAttempt(ex.Name, ex.ChapterName, false)
+			}
 			fmt.Fprint(out, ui.FormatResult(res))
+			fmt.Fprint(out, ui.FormatInteractivePrompt())
 			break
 		}
 	}
@@ -84,6 +130,265 @@ func RunWatchWithExercises(ctx context.Context, r *runner.Runner, exercises []mo
 	if allPassed {
 		fmt.Fprintln(out, "\n🎉 Congratulations! You have completed all Terralings exercises! 🎉")
 		fmt.Fprintln(out, ui.FormatProgress(len(exercises), len(exercises)))
+		return nil
+	}
+
+	var (
+		debounceTimer *time.Timer
+		debounceMu    sync.Mutex
+		triggerChan   = make(chan struct{}, 1)
+		actionChan    = make(chan watchAction, 10)
+	)
+
+	triggerEvaluation := func() {
+		debounceMu.Lock()
+		defer debounceMu.Unlock()
+		if debounceTimer != nil {
+			debounceTimer.Stop()
+		}
+		debounceTimer = time.AfterFunc(50*time.Millisecond, func() {
+			select {
+			case triggerChan <- struct{}{}:
+			default:
+			}
+		})
+	}
+
+	defer func() {
+		debounceMu.Lock()
+		if debounceTimer != nil {
+			debounceTimer.Stop()
+		}
+		debounceMu.Unlock()
+	}()
+
+	// Start interactive input reader if provided
+	if in != nil {
+		go func() {
+			reader := bufio.NewReader(in)
+			for {
+				b, err := reader.ReadByte()
+				if err != nil {
+					return
+				}
+				switch b {
+				case '\n', '\r', 'n', 'N':
+					actionChan <- actionNext
+				case 'p', 'P':
+					actionChan <- actionPrev
+				case 'r', 'R':
+					actionChan <- actionRerun
+				case 'q', 'Q':
+					actionChan <- actionQuit
+				case 'h', 'H':
+					actionChan <- actionHint
+				}
+			}
+		}()
+	}
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+
+		case act := <-actionChan:
+			switch act {
+			case actionQuit:
+				return nil
+			case actionNext:
+				if currentIdx+1 < len(exercises) {
+					currentIdx++
+					nextEx := exercises[currentIdx]
+					fmt.Fprintf(out, "\n%s\n", ui.FormatProgress(currentIdx, len(exercises)))
+					fmt.Fprintf(out, "Advancing to next exercise: %s (%s)\n\n", nextEx.Name, nextEx.Path)
+					triggerEvaluation()
+				}
+			case actionPrev:
+				if currentIdx > 0 {
+					currentIdx--
+					prevEx := exercises[currentIdx]
+					fmt.Fprintf(out, "\n%s\n", ui.FormatProgress(currentIdx, len(exercises)))
+					fmt.Fprintf(out, "Returning to previous exercise: %s (%s)\n\n", prevEx.Name, prevEx.Path)
+					triggerEvaluation()
+				}
+			case actionRerun:
+				triggerEvaluation()
+			case actionHint:
+				if currentIdx < len(exercises) {
+					fmt.Fprint(out, ui.FormatHint(&exercises[currentIdx], 0))
+					fmt.Fprint(out, ui.FormatInteractivePrompt())
+				}
+			}
+
+		case event, ok := <-w.Events:
+			if !ok {
+				return nil
+			}
+
+			// If a new subdirectory is created, watch it automatically
+			if event.Op&fsnotify.Create != 0 {
+				if fi, err := os.Stat(event.Name); err == nil && fi.IsDir() {
+					_ = w.Add(event.Name)
+				}
+			}
+
+			if IsRelevantFile(event.Name) && (event.Op&(fsnotify.Write|fsnotify.Create|fsnotify.Remove|fsnotify.Rename) != 0) {
+				triggerEvaluation()
+			}
+
+		case <-triggerChan:
+			if currentIdx >= len(exercises) {
+				fmt.Fprintln(out, "\n🎉 Congratulations! You have completed all Terralings exercises! 🎉")
+				fmt.Fprintln(out, ui.FormatProgress(len(exercises), len(exercises)))
+				return nil
+			}
+
+			currentEx := exercises[currentIdx]
+			res := r.Run(currentEx)
+			if store != nil {
+				_ = store.RecordAttempt(currentEx.Name, currentEx.ChapterName, res.Passed)
+			}
+
+			if res.Passed {
+				fmt.Fprint(out, ui.FormatSuccess(fmt.Sprintf("✓ %s passed!", currentEx.Name)))
+				if currentIdx+1 < len(exercises) {
+					if in == nil {
+						// In non-interactive mode, automatically advance
+						currentIdx++
+						nextEx := exercises[currentIdx]
+						fmt.Fprintf(out, "\n%s\n", ui.FormatProgress(currentIdx, len(exercises)))
+						fmt.Fprintf(out, "Advancing to next exercise: %s (%s)\n\n", nextEx.Name, nextEx.Path)
+						nextRes := r.Run(nextEx)
+						if store != nil {
+							_ = store.RecordAttempt(nextEx.Name, nextEx.ChapterName, nextRes.Passed)
+						}
+						fmt.Fprint(out, ui.FormatResult(nextRes))
+						if nextRes.Passed {
+							triggerEvaluation()
+						}
+					} else {
+						fmt.Fprint(out, ui.FormatInteractivePrompt())
+					}
+				} else {
+					fmt.Fprintln(out, "\n🎉 Congratulations! You have completed all Terralings exercises! 🎉")
+					fmt.Fprintln(out, ui.FormatProgress(len(exercises), len(exercises)))
+					return nil
+				}
+			} else {
+				fmt.Fprint(out, ui.FormatResult(res))
+				if in != nil {
+					fmt.Fprint(out, ui.FormatInteractivePrompt())
+				}
+			}
+
+		case err, ok := <-w.Errors:
+			if !ok {
+				return nil
+			}
+			fmt.Fprintf(out, "Watcher error: %v\n", err)
+		}
+	}
+}
+
+// RunWatchJSON starts the watch loop emitting structured NDJSON events to out.
+func RunWatchJSON(ctx context.Context, r *runner.Runner, exercises []models.Exercise, store *state.Store, watchDir string, out io.Writer) error {
+	if watchDir == "" {
+		watchDir = "exercises"
+	}
+
+	var writeMu sync.Mutex
+	emit := func(evt WatchEvent) {
+		writeMu.Lock()
+		defer writeMu.Unlock()
+		if evt.Timestamp == "" {
+			evt.Timestamp = time.Now().UTC().Format(time.RFC3339)
+		}
+		data, err := json.Marshal(evt)
+		if err == nil {
+			_, _ = fmt.Fprintf(out, "%s\n", string(data))
+		}
+	}
+
+	if len(exercises) == 0 {
+		emit(WatchEvent{
+			Event:      "completed",
+			TotalCount: 0,
+		})
+		return nil
+	}
+
+	w, err := fsnotify.NewWatcher()
+	if err != nil {
+		return fmt.Errorf("failed to initialize fsnotify watcher: %w", err)
+	}
+	defer w.Close()
+
+	if info, err := os.Stat(watchDir); err == nil && info.IsDir() {
+		_ = w.Add(watchDir)
+		_ = filepath.Walk(watchDir, func(path string, info os.FileInfo, err error) error {
+			if err == nil && info.IsDir() {
+				_ = w.Add(path)
+			}
+			return nil
+		})
+	}
+
+	evaluate := func(idx int) runner.RunResult {
+		ex := exercises[idx]
+		emit(WatchEvent{
+			Event:        "exercise_start",
+			Exercise:     &ex,
+			CurrentIndex: idx,
+			TotalCount:   len(exercises),
+		})
+
+		res := r.Run(ex)
+		if store != nil {
+			_ = store.RecordAttempt(ex.Name, ex.ChapterName, res.Passed)
+		}
+
+		rawOut := res.Output
+		if res.Error != "" {
+			rawOut = rawOut + "\n" + res.Error
+		}
+		diags := diagnostics.Parse(rawOut, ex)
+
+		passed := res.Passed
+		hasMarker := res.HasNotDoneMarker
+
+		emit(WatchEvent{
+			Event:            "exercise_result",
+			Exercise:         &ex,
+			Passed:           &passed,
+			HasNotDoneMarker: &hasMarker,
+			Diagnostics:      diags,
+			RawOutput:        rawOut,
+			ExitCode:         res.ExitCode,
+			CurrentIndex:     idx,
+			TotalCount:       len(exercises),
+		})
+
+		return res
+	}
+
+	// Initial evaluation
+	currentIdx := 0
+	allPassed := true
+	for i := range exercises {
+		res := evaluate(i)
+		if !res.Passed {
+			currentIdx = i
+			allPassed = false
+			break
+		}
+	}
+
+	if allPassed {
+		emit(WatchEvent{
+			Event:      "completed",
+			TotalCount: len(exercises),
+		})
 		return nil
 	}
 
@@ -124,57 +429,56 @@ func RunWatchWithExercises(ctx context.Context, r *runner.Runner, exercises []mo
 			if !ok {
 				return nil
 			}
-
-			// If a new subdirectory is created, watch it automatically
 			if event.Op&fsnotify.Create != 0 {
 				if fi, err := os.Stat(event.Name); err == nil && fi.IsDir() {
 					_ = w.Add(event.Name)
 				}
 			}
-
-			if isRelevantFile(event.Name) && (event.Op&(fsnotify.Write|fsnotify.Create|fsnotify.Remove|fsnotify.Rename) != 0) {
+			if IsRelevantFile(event.Name) && (event.Op&(fsnotify.Write|fsnotify.Create|fsnotify.Remove|fsnotify.Rename) != 0) {
 				triggerEvaluation()
 			}
 
 		case <-triggerChan:
 			if currentIdx >= len(exercises) {
-				fmt.Fprintln(out, "\n🎉 Congratulations! You have completed all Terralings exercises! 🎉")
-				fmt.Fprintln(out, ui.FormatProgress(len(exercises), len(exercises)))
+				emit(WatchEvent{
+					Event:      "completed",
+					TotalCount: len(exercises),
+				})
 				return nil
 			}
 
-			currentEx := exercises[currentIdx]
-			res := r.Run(currentEx)
-			fmt.Fprint(out, ui.FormatResult(res))
-
+			res := evaluate(currentIdx)
 			if res.Passed {
-				if currentIdx+1 < len(exercises) {
+				for currentIdx+1 < len(exercises) {
 					currentIdx++
-					nextEx := exercises[currentIdx]
-					fmt.Fprintf(out, "\n%s\n", ui.FormatProgress(currentIdx, len(exercises)))
-					fmt.Fprintf(out, "Advancing to next exercise: %s (%s)\n\n", nextEx.Name, nextEx.Path)
-					nextRes := r.Run(nextEx)
-					fmt.Fprint(out, ui.FormatResult(nextRes))
-					if nextRes.Passed {
-						triggerEvaluation()
+					nextRes := evaluate(currentIdx)
+					if !nextRes.Passed {
+						break
 					}
-				} else {
-					fmt.Fprintln(out, "\n🎉 Congratulations! You have completed all Terralings exercises! 🎉")
-					fmt.Fprintln(out, ui.FormatProgress(len(exercises), len(exercises)))
-					return nil
+				}
+				if currentIdx == len(exercises)-1 {
+					lastEx := exercises[currentIdx]
+					lastRes := r.Run(lastEx)
+					if lastRes.Passed {
+						emit(WatchEvent{
+							Event:      "completed",
+							TotalCount: len(exercises),
+						})
+						return nil
+					}
 				}
 			}
 
-		case err, ok := <-w.Errors:
+		case _, ok := <-w.Errors:
 			if !ok {
 				return nil
 			}
-			fmt.Fprintf(out, "Watcher error: %v\n", err)
 		}
 	}
 }
 
-func isRelevantFile(path string) bool {
+// IsRelevantFile returns true if the file extension or suffix matches Terraform/OpenTofu files.
+func IsRelevantFile(path string) bool {
 	ext := filepath.Ext(path)
 	return ext == ".tf" || ext == ".hcl" || strings.HasSuffix(path, ".tftest.hcl") || strings.HasSuffix(path, ".tfvars")
 }

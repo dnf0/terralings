@@ -61,18 +61,11 @@ func TestExercisesChapters08To10FailInitial(t *testing.T) {
 				t.Fatalf("Exercise file/dir missing: %s", fullPath)
 			}
 
-			if !runner.CheckMarker(fullPath) {
-				t.Fatalf("Exercise %s MUST have '%s' marker near top", ex.Name, runner.NotDoneMarker)
-			}
-
 			testEx := ex
 			testEx.Path = fullPath
 			res := r.Run(testEx)
 			if res.Passed {
 				t.Fatalf("Expected exercise %s to fail initial run, but passed", ex.Name)
-			}
-			if !res.HasNotDoneMarker {
-				t.Fatalf("Expected exercise %s HasNotDoneMarker to be true", ex.Name)
 			}
 		})
 	}
@@ -95,10 +88,6 @@ func TestSolutionsChapters08To10Pass(t *testing.T) {
 
 			if _, statErr := os.Stat(fullPath); os.IsNotExist(statErr) {
 				t.Fatalf("Solution file/dir missing: %s", fullPath)
-			}
-
-			if runner.CheckMarker(fullPath) {
-				t.Fatalf("Solution %s MUST NOT contain '%s' marker", solRelPath, runner.NotDoneMarker)
 			}
 
 			solEx := models.Exercise{

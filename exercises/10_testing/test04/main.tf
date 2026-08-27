@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: test04
 # Chapter: 10_testing (Native Unit & Integration Testing)
@@ -26,7 +25,6 @@
 # 2. Add a passing `run "test_valid_port"` with `port = 443` asserting
 #    `output.port_number == 443`.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 variable "port" {

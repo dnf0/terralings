@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: state03
 # Chapter: 09_state_refactoring (State Management & Refactoring Surgery)
@@ -17,7 +16,6 @@
 #    `id = "corp-storage-vault-01"`.
 # 2. Define the matching `resource "terraform_data" "existing_storage"` block.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 # TODO: Add the import block here
@@ -29,5 +27,5 @@
 
 output "imported_id" {
   # value = terraform_data.existing_storage.input
-  value = ""
+  value = terraform_data.existing_storage.input
 }

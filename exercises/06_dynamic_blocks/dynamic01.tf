@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: dynamic01
 # Chapter: 06_dynamic_blocks (Dynamic Blocks & Advanced HCL)
@@ -15,7 +14,6 @@
 #    - `filename = source.key`
 #    - `content  = source.value`
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {

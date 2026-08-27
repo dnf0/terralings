@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: gov01
 # Chapter: 13_governance (Architecture Governance & Enterprise Standards)
@@ -22,7 +21,6 @@
 # 2. Instantiate `terraform_data.workload_module` passing the encapsulated configuration.
 # 3. Output `workload_service` referencing the service name from the module.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 variable "cluster_name" {
@@ -50,10 +48,17 @@ locals {
 
 resource "terraform_data" "workload_module" {
   # TODO: Set input to local.workload_module
-  input = {}
+  input = local.workload_module
+
+  lifecycle {
+    postcondition {
+      condition     = lookup(self.output, "service_name", "") == var.service_name && lookup(self.output, "cluster", "") == var.cluster_name && length(lookup(self.output, "security_groups", [])) == 1
+      error_message = "Workload compute module must encapsulate cluster, service_name, log retention, and security groups."
+    }
+  }
 }
 
 output "workload_service" {
   # TODO: Reference service_name from terraform_data.workload_module.output
-  value = null
+  value = terraform_data.workload_module.output.service_name
 }

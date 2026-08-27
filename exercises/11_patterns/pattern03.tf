@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: pattern03
 # Chapter: 11_patterns (Production Patterns & Anti-Patterns)
@@ -25,8 +24,6 @@
 # 1. In `locals`, compute `standard_tags` by merging `local.base_tags` and `local.env_tags`.
 # 2. In `terraform_data.payment_api.input.tags`, merge `local.standard_tags` with
 #    `var.custom_tags` and resource-specific tags `{ Component = "payment-gateway" }`.
-#
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 variable "environment" {
@@ -67,8 +64,19 @@ resource "terraform_data" "payment_api" {
   input = {
     service_name = "payment-api"
     # TODO: Merge local.standard_tags, var.custom_tags, and { Component = "payment-gateway" }
-    tags = {}
+    tags = merge(
+      local.standard_tags,
+      var.custom_tags,
+      {
+        Component = "payment-gateway"
+      }
+    )
   }
+}
+
+output "managed_by_tag" {
+  # TODO: Reference ManagedBy tag from terraform_data.payment_api.input.tags
+  value = terraform_data.payment_api.input.tags["ManagedBy"]
 }
 
 output "effective_tags" {

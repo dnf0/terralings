@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: module05
 # Chapter: 08_modules (Modular Infrastructure Architecture)
@@ -15,7 +14,6 @@
 #    - `db_host  = module.database.endpoint`
 # 3. Output `app_connection` displaying the application's connection string.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 # TODO: Coordinate module.database and module.app

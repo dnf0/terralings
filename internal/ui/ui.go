@@ -3,11 +3,13 @@ package ui
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/dnf0/terralings/internal/models"
 	"github.com/dnf0/terralings/internal/runner"
 	"github.com/dnf0/terralings/internal/search"
+	"github.com/dnf0/terralings/internal/state"
 )
 
 var (
@@ -48,15 +50,39 @@ func FormatBanner() string {
 	return headerStyle.Render("⚡ TERRALINGS: Master Terraform & OpenTofu from Scratch ⚡\n")
 }
 
+// FormatSuccess renders a celebratory success message.
+func FormatSuccess(msg string) string {
+	return successStyle.Render(msg) + "\n"
+}
+
+// FormatInteractivePrompt renders the interactive watcher key commands.
+func FormatInteractivePrompt() string {
+	promptStyle := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color("#BD93F9"))
+	keyStyle := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color("#00D7D7"))
+	dim := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#6272A4"))
+
+	return fmt.Sprintf("\n%s %s %s %s %s %s %s %s %s %s %s\n",
+		keyStyle.Render("[Enter / n]"), promptStyle.Render("Next exercise"),
+		dim.Render("|"),
+		keyStyle.Render("[p]"), promptStyle.Render("Previous"),
+		dim.Render("|"),
+		keyStyle.Render("[r]"), promptStyle.Render("Rerun"),
+		dim.Render("|"),
+		keyStyle.Render("[q]"), promptStyle.Render("Quit"),
+	)
+}
+
 // FormatResult renders a formatted string describing the outcome of an exercise run.
 func FormatResult(res runner.RunResult) string {
 	var b strings.Builder
 	if res.Passed {
 		b.WriteString(successStyle.Render(fmt.Sprintf("✓ Exercise %s passed!\n", res.Exercise.Name)))
 	} else {
-		if res.HasNotDoneMarker {
-			b.WriteString(warningStyle.Render(fmt.Sprintf("⌛ %s still contains '%s' marker. Keep going!\n", res.Exercise.Name, runner.NotDoneMarker)))
-		}
 		if res.Error != "" {
 			b.WriteString(errorBoxStyle.Render(fmt.Sprintf("Error in %s:\n%s", res.Exercise.Name, res.Error)))
 			b.WriteString("\n")
@@ -158,4 +184,76 @@ func FormatSearchResults(query string, results []search.SearchResult) string {
 		b.WriteString(fmt.Sprintf("    %s | matched in: %s\n", dimStyle.Render(r.Exercise.Path), lipgloss.NewStyle().Foreground(lipgloss.Color("#FFD700")).Render(r.MatchedIn)))
 	}
 	return b.String()
+}
+
+// FormatAnalytics renders comprehensive learning and progress analytics.
+func FormatAnalytics(summary state.AnalyticsSummary) string {
+	var b strings.Builder
+
+	titleStyle := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color("#00D7D7"))
+	b.WriteString(titleStyle.Render("📊 TERRALINGS LEARNING ANALYTICS") + "\n\n")
+
+	// Overall Progress bar
+	barWidth := 20
+	var filled int
+	var percent int
+	if summary.TotalExercises > 0 {
+		percent = (summary.CompletedCount * 100) / summary.TotalExercises
+		filled = (summary.CompletedCount * barWidth) / summary.TotalExercises
+	}
+	if filled > barWidth {
+		filled = barWidth
+	}
+	empty := barWidth - filled
+	bar := "[" + strings.Repeat("█", filled) + strings.Repeat("░", empty) + "]"
+	b.WriteString(fmt.Sprintf("Overall Progress: %s %d%% (%d/%d completed)\n", bar, percent, summary.CompletedCount, summary.TotalExercises))
+
+	// Total Time Invested
+	timeStr := formatDuration(summary.TotalTimeSpent)
+	b.WriteString(fmt.Sprintf("Time Invested:    %s\n", timeStr))
+
+	// Attempts & average attempts
+	avgAttempts := 0.0
+	if summary.TotalExercises > 0 {
+		avgAttempts = float64(summary.TotalAttempts) / float64(summary.TotalExercises)
+	}
+	b.WriteString(fmt.Sprintf("Total Attempts:   %d (avg %.1f per exercise)\n", summary.TotalAttempts, avgAttempts))
+
+	// Hints consulted
+	b.WriteString(fmt.Sprintf("Hints Consulted:  %d\n\n", summary.TotalHintsViewed))
+
+	// Chapter Breakdown
+	b.WriteString(chapterHeaderStyle.Render("Chapter Breakdown:") + "\n")
+	for _, cs := range summary.ChapterSummaries {
+		chPercent := 0
+		chAvgAttempts := 0.0
+		if cs.Total > 0 {
+			chPercent = (cs.Completed * 100) / cs.Total
+			chAvgAttempts = float64(cs.TotalAttempts) / float64(cs.Total)
+		}
+		b.WriteString(fmt.Sprintf("  • %-20s %3d%% (%d/%d) | Avg Attempts: %.1f | Hints: %d\n",
+			cs.ChapterID, chPercent, cs.Completed, cs.Total, chAvgAttempts, cs.TotalHints))
+	}
+
+	return b.String()
+}
+
+func formatDuration(d time.Duration) string {
+	if d <= 0 {
+		return "0m"
+	}
+	hours := int(d.Hours())
+	mins := int(d.Minutes()) % 60
+	if hours > 0 {
+		if mins > 0 {
+			return fmt.Sprintf("%dh %dm", hours, mins)
+		}
+		return fmt.Sprintf("%dh", hours)
+	}
+	if mins > 0 {
+		return fmt.Sprintf("%dm", mins)
+	}
+	return fmt.Sprintf("%ds", int(d.Seconds()))
 }

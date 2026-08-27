@@ -46,8 +46,8 @@ func TestReset_SingleFileExercise(t *testing.T) {
 		t.Fatalf("Failed to read restored file: %v", err)
 	}
 
-	if !strings.Contains(string(restored), "# I AM NOT DONE") {
-		t.Errorf("Expected reset exercise to contain '# I AM NOT DONE', got:\n%s", string(restored))
+	if !strings.Contains(string(restored), "primitives01") {
+		t.Errorf("Expected reset exercise to contain 'primitives01', got:\n%s", string(restored))
 	}
 }
 
@@ -86,8 +86,8 @@ func TestReset_DirectoryModuleExercise(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to read restored main.tf: %v", err)
 	}
-	if !strings.Contains(string(restored), "# I AM NOT DONE") {
-		t.Errorf("Expected reset module04/main.tf to contain marker, got:\n%s", string(restored))
+	if !strings.Contains(string(restored), "module04") && !strings.Contains(string(restored), "terraform") {
+		t.Errorf("Expected reset module04/main.tf to be restored, got:\n%s", string(restored))
 	}
 }
 

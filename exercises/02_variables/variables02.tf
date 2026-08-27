@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: variables02
 # Chapter: 02_variables (Input Variables, Types & Validations)
@@ -11,7 +10,6 @@
 #
 # Complete the variable definitions and fix the attribute references in `terraform_data`.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {
@@ -42,7 +40,7 @@ variable "allowed_ips" {
 resource "terraform_data" "config_summary" {
   input = {
     # TODO: Index the first availability zone using [0]
-    primary_zone = var.availability_zones
+    primary_zone = var.availability_zones[99]
     # TODO: Index the "project" key from tags using ["project"]
     project_tag = var.tags
     # TODO: Compute count of allowed_ips using length()

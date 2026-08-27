@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: meta05
 # Chapter: 05_meta_arguments (Meta-Arguments & Resource Scaling)
@@ -14,7 +13,6 @@
 # 2. Add `ignore_changes = [triggers_replace]` inside the lifecycle block so external
 #    drift on triggers_replace does not plan updates.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {
@@ -28,10 +26,10 @@ resource "terraform_data" "managed_resource" {
     external_revision = "rev-1"
   }
 
-  # TODO: Configure lifecycle block with ignore_changes = [triggers_replace]
-  # lifecycle {
-  #   ignore_changes = [ ... ]
-  # }
+  lifecycle {
+    # TODO: Set ignore_changes = [triggers_replace]
+    ignore_changes = [missing_attribute]
+  }
 }
 
 output "resource_name" {

@@ -49,6 +49,10 @@ resource "terraform_data" "payment_api" {
   }
 }
 
+output "managed_by_tag" {
+  value = terraform_data.payment_api.input.tags["ManagedBy"]
+}
+
 output "effective_tags" {
   value = terraform_data.payment_api.output.tags
 }

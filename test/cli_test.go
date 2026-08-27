@@ -192,7 +192,7 @@ func TestCLI_FlagsAndHelp(t *testing.T) {
 		if exitCode != 0 {
 			t.Fatalf("Expected exit code 0 for '--help', got %d", exitCode)
 		}
-		for _, cmdName := range []string{"list", "hint", "run", "watch", "verify", "version", "init", "reset", "search", "completions"} {
+		for _, cmdName := range []string{"list", "hint", "run", "watch", "verify", "version", "init", "reset", "search", "completions", "stats", "lsp", "tui"} {
 			if !strings.Contains(stdout, cmdName) {
 				t.Fatalf("Expected command %q to be listed in --help output, got:\n%s", cmdName, stdout)
 			}
@@ -261,7 +261,99 @@ func TestCLI_ResetCommand(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to read restored file: %v", err)
 	}
-	if !strings.Contains(string(restored), "# I AM NOT DONE") {
-		t.Fatalf("Expected restored file to contain marker, got:\n%s", string(restored))
+	if !strings.Contains(string(restored), "primitives01") {
+		t.Fatalf("Expected restored file to contain 'primitives01', got:\n%s", string(restored))
+	}
+}
+
+func TestCLI_StatsCommand(t *testing.T) {
+	t.Run("EmptyState", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		statePath := filepath.Join(tmpDir, "state.json")
+
+		stdout, stderr, exitCode := runCLI(t, "stats", "--state", statePath)
+		if exitCode != 0 {
+			t.Fatalf("Expected exit code 0 for 'stats', got %d. Stderr: %s", exitCode, stderr)
+		}
+		if !strings.Contains(stdout, "TERRALINGS LEARNING ANALYTICS") {
+			t.Fatalf("Expected 'TERRALINGS LEARNING ANALYTICS' banner in stats output, got:\n%s", stdout)
+		}
+		if !strings.Contains(stdout, "0%") {
+			t.Fatalf("Expected '0%%' in empty stats output, got:\n%s", stdout)
+		}
+		if !strings.Contains(stdout, "Chapter Breakdown:") {
+			t.Fatalf("Expected 'Chapter Breakdown:' in stats output, got:\n%s", stdout)
+		}
+	})
+
+	t.Run("RecordedProgress", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		statePath := filepath.Join(tmpDir, "state.json")
+
+		// Pre-populate state
+		st, err := os.OpenFile(statePath, os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			t.Fatalf("Failed to create state file: %v", err)
+		}
+		_ = st.Close()
+
+		// Run hint command to record hint
+		_, _, hintCode := runCLI(t, "hint", "primitives01", "--state", statePath)
+		if hintCode != 0 {
+			t.Fatalf("Expected exit code 0 for hint with --state, got %d", hintCode)
+		}
+
+		// Run run command to record attempt
+		runCLI(t, "run", "primitives01", "--state", statePath)
+
+		// Run stats command
+		stdout, stderr, exitCode := runCLI(t, "stats", "--state", statePath)
+		if exitCode != 0 {
+			t.Fatalf("Expected exit code 0 for stats, got %d. Stderr: %s", exitCode, stderr)
+		}
+		if !strings.Contains(stdout, "TERRALINGS LEARNING ANALYTICS") {
+			t.Fatalf("Expected analytics banner, got:\n%s", stdout)
+		}
+		if !strings.Contains(stdout, "Total Attempts:") {
+			t.Fatalf("Expected 'Total Attempts:' in stats output, got:\n%s", stdout)
+		}
+		if !strings.Contains(stdout, "Hints Consulted:") {
+			t.Fatalf("Expected 'Hints Consulted:' in stats output, got:\n%s", stdout)
+		}
+		if !strings.Contains(stdout, "01_primitives") {
+			t.Fatalf("Expected '01_primitives' in chapter breakdown, got:\n%s", stdout)
+		}
+	})
+}
+
+func TestCLI_LSPAndWatchFlags(t *testing.T) {
+	// 1. Check terralings lsp --help
+	stdout, stderr, exitCode := runCLI(t, "lsp", "--help")
+	if exitCode != 0 {
+		t.Fatalf("Expected exit code 0 for 'lsp --help', got %d. Stderr: %s", exitCode, stderr)
+	}
+	if !strings.Contains(stdout, "Language Server Protocol") {
+		t.Fatalf("Expected 'Language Server Protocol' in lsp help, got:\n%s", stdout)
+	}
+
+	// 2. Check terralings watch --help includes --json and --interactive
+	stdout, stderr, exitCode = runCLI(t, "watch", "--help")
+	if exitCode != 0 {
+		t.Fatalf("Expected exit code 0 for 'watch --help', got %d. Stderr: %s", exitCode, stderr)
+	}
+	if !strings.Contains(stdout, "--json") {
+		t.Fatalf("Expected '--json' flag in watch help, got:\n%s", stdout)
+	}
+	if !strings.Contains(stdout, "--interactive") || !strings.Contains(stdout, "-i") {
+		t.Fatalf("Expected '--interactive' / '-i' flag in watch help, got:\n%s", stdout)
+	}
+
+	// 3. Check terralings tui --help
+	stdout, stderr, exitCode = runCLI(t, "tui", "--help")
+	if exitCode != 0 {
+		t.Fatalf("Expected exit code 0 for 'tui --help', got %d. Stderr: %s", exitCode, stderr)
+	}
+	if !strings.Contains(stdout, "dashboard") && !strings.Contains(stdout, "interactive") {
+		t.Fatalf("Expected description in tui help, got:\n%s", stdout)
 	}
 }

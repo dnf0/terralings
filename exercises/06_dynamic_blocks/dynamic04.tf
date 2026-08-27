@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: dynamic04
 # Chapter: 06_dynamic_blocks (Dynamic Blocks & Advanced HCL)
@@ -10,11 +9,9 @@
 #
 # Complete the configuration below:
 # 1. In `data "archive_file" "package"`, add a standard dynamic "source" for `var.base_files`.
-# 2. Add a second dynamic "source" with label `conditional_debug` (or `source`) that iterates over:
+# 2. Add a second dynamic "source" that iterates over:
 #    `var.include_debug ? [{ filename = "debug.log", content = var.debug_content }] : []`
 # 3. Inside the content block, set `filename = source.value.filename` and `content = source.value.content`.
-#
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {
@@ -30,7 +27,7 @@ terraform {
 variable "base_files" {
   type = map(string)
   default = {
-    "server.js" = "require('http').createServer().listen(8080);"
+    "server.js" = "require(http).createServer().listen(8080);"
   }
 }
 
@@ -58,13 +55,14 @@ data "archive_file" "package" {
   }
 
   # TODO: Conditionally emit debug source using ternary: var.include_debug ? [...] : []
-  # dynamic "source" {
-  #   for_each = var.include_debug ? [{ filename = "debug.log", content = var.debug_content }] : []
-  #   content {
-  #     filename = ...
-  #     content  = ...
-  #   }
-  # }
+  dynamic "source" {
+    for_each = var.include_debug ? [{ filename = "debug.log", content = var.debug_content }] : []
+    content {
+      # TODO: Set filename = source.value.filename and content = source.value.content
+      filename = source.value.missing_filename
+      content  = source.value.content
+    }
+  }
 }
 
 output "archive_sha" {

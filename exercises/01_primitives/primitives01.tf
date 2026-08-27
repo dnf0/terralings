@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: primitives01
 # Chapter: 01_primitives (HCL Foundations & Core Primitives)
@@ -10,18 +9,15 @@
 #
 # In this exercise, complete the `terraform` block to require version ">= 1.6.0"
 # and declare the `local` provider from "hashicorp/local" with version "~> 2.0".
-#
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {
   required_version = ">= 1.6.0"
 
-  # TODO: Declare the required_providers block for the local provider
-  # required_providers {
-  #   local = {
-  #     source  = "hashicorp/local"
-  #     version = "~> 2.0"
-  #   }
-  # }
+  required_providers {
+    # TODO: Specify provider source "hashicorp/local" and version "~> 2.0"
+    local = {
+      source = ""
+    }
+  }
 }

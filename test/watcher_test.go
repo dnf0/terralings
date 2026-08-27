@@ -13,6 +13,7 @@ import (
 	"github.com/dnf0/terralings/internal/detector"
 	"github.com/dnf0/terralings/internal/models"
 	"github.com/dnf0/terralings/internal/runner"
+	"github.com/dnf0/terralings/internal/state"
 	"github.com/dnf0/terralings/internal/watcher"
 )
 
@@ -45,7 +46,7 @@ func TestWatcher_CleanShutdownOnContextCancel(t *testing.T) {
 	_ = os.MkdirAll(exDir, 0755)
 
 	exFile := filepath.Join(exDir, "ex01.tf")
-	_ = os.WriteFile(exFile, []byte("# I AM NOT DONE\nterraform {}"), 0644)
+	_ = os.WriteFile(exFile, []byte("terraform {\n  required_version = \">= 1.6.0\"\n}\n"), 0644)
 
 	exercises := []models.Exercise{
 		{Name: "ex01", Path: exFile, Mode: models.ModeValidate},
@@ -126,10 +127,10 @@ func TestWatcher_FileDebounceAndAdvancement(t *testing.T) {
 	ex1File := filepath.Join(tmpDir, "ex01.tf")
 	ex2File := filepath.Join(tmpDir, "ex02.tf")
 
-	// ex1 starts with NOT DONE marker
-	_ = os.WriteFile(ex1File, []byte("# I AM NOT DONE\nterraform {\n  required_version = \">= 1.6.0\"\n}\n"), 0644)
-	// ex2 starts with NOT DONE marker
-	_ = os.WriteFile(ex2File, []byte("# I AM NOT DONE\nterraform {\n  required_version = \">= 1.6.0\"\n}\n"), 0644)
+	// ex1 starts broken
+	_ = os.WriteFile(ex1File, []byte("resource \"terraform_data\" \"broken\" {\n  input = var.missing_attr\n}\n"), 0644)
+	// ex2 starts broken
+	_ = os.WriteFile(ex2File, []byte("resource \"terraform_data\" \"broken\" {\n  input = var.missing_attr\n}\n"), 0644)
 
 	exercises := []models.Exercise{
 		{Name: "ex01", Path: ex1File, Mode: models.ModeValidate},
@@ -151,14 +152,15 @@ func TestWatcher_FileDebounceAndAdvancement(t *testing.T) {
 	var initialReported bool
 	deadlineInitial := time.Now().Add(5 * time.Second)
 	for time.Now().Before(deadlineInitial) {
-		if strings.Contains(out.String(), "I AM NOT DONE") {
+		outStr := out.String()
+		if strings.Contains(outStr, "missing_attr") || strings.Contains(outStr, "Error") || strings.Contains(outStr, "error") {
 			initialReported = true
 			break
 		}
 		time.Sleep(50 * time.Millisecond)
 	}
 	if !initialReported {
-		t.Fatalf("Expected initial output to report 'I AM NOT DONE', got:\n%s", out.String())
+		t.Fatalf("Expected initial output to report compiler failure, got:\n%s", out.String())
 	}
 
 	// Rapidly edit file multiple times to test debounce
@@ -180,7 +182,7 @@ func TestWatcher_FileDebounceAndAdvancement(t *testing.T) {
 	}
 
 	if !advanced {
-		t.Fatalf("Watcher did not advance to next exercise after file update within timeout. Output:\n%s", out.String())
+		t.Fatalf("Expected watcher to advance after fixing ex01, got:\n%s", out.String())
 	}
 
 	cancel()
@@ -191,7 +193,7 @@ func TestWatcher_FileDebounceAndAdvancement(t *testing.T) {
 	}
 }
 
-func TestWatcher_AllExercisesCompleted(t *testing.T) {
+func TestWatcher_AllExercisesPassCongratulations(t *testing.T) {
 	bin, err := detector.DetectBinary("")
 	if err != nil {
 		t.Skip("Neither tofu nor terraform found on system PATH; skipping watcher test")
@@ -210,12 +212,172 @@ func TestWatcher_AllExercisesCompleted(t *testing.T) {
 
 	var out safeBuffer
 	r := runner.NewRunner(bin)
-	err = watcher.RunWatchWithExercises(ctx, r, exercises, tmpDir, &out)
-	if err != nil {
-		t.Fatalf("Unexpected watcher error: %v", err)
+	doneChan := make(chan error, 1)
+
+	go func() {
+		doneChan <- watcher.RunWatchWithExercises(ctx, r, exercises, tmpDir, &out)
+	}()
+
+	select {
+	case err := <-doneChan:
+		if err != nil {
+			t.Fatalf("Unexpected watcher error: %v", err)
+		}
+	case <-time.After(3 * time.Second):
+		t.Fatal("Watcher did not finish when all exercises passed")
 	}
 
 	if !strings.Contains(out.String(), "Congratulations") {
 		t.Fatalf("Expected congratulations message when all exercises are complete, got:\n%s", out.String())
+	}
+}
+
+func TestWatcher_StateRecording(t *testing.T) {
+	bin, err := detector.DetectBinary("")
+	if err != nil {
+		t.Skip("Neither tofu nor terraform found on system PATH; skipping watcher test")
+	}
+
+	tmpDir := t.TempDir()
+	statePath := filepath.Join(tmpDir, "state.json")
+	store, err := state.NewStore(statePath)
+	if err != nil {
+		t.Fatalf("Failed to initialize state store: %v", err)
+	}
+
+	ex1File := filepath.Join(tmpDir, "ex01.tf")
+	// Start broken
+	_ = os.WriteFile(ex1File, []byte("resource \"terraform_data\" \"broken\" {\n  input = var.undeclared\n}\n"), 0644)
+
+	exercises := []models.Exercise{
+		{Name: "ex01", ChapterName: "01_primitives", Path: ex1File, Mode: models.ModeValidate},
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	var out safeBuffer
+	r := runner.NewRunner(bin)
+	doneChan := make(chan error, 1)
+
+	go func() {
+		doneChan <- watcher.RunWatchWithStore(ctx, r, exercises, store, tmpDir, &out)
+	}()
+
+	// Wait for initial check
+	deadline := time.Now().Add(5 * time.Second)
+	for time.Now().Before(deadline) {
+		if strings.Contains(out.String(), "undeclared") || strings.Contains(out.String(), "Error") {
+			break
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+
+	// Verify attempt recorded in state
+	st := store.GetExerciseState("ex01")
+	if st == nil {
+		t.Fatal("Expected exercise state to be recorded after initial failure in watcher")
+	}
+	if st.Attempts < 1 {
+		t.Errorf("Expected at least 1 attempt recorded, got %d", st.Attempts)
+	}
+	if st.Status != state.StatusInProgress {
+		t.Errorf("Expected in_progress status, got %s", st.Status)
+	}
+
+	// Now fix the exercise
+	_ = os.WriteFile(ex1File, []byte("terraform {\n  required_version = \">= 1.6.0\"\n}\n"), 0644)
+
+	// Wait for congratulations
+	deadlinePass := time.Now().Add(5 * time.Second)
+	for time.Now().Before(deadlinePass) {
+		if strings.Contains(out.String(), "Congratulations") {
+			break
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+
+	st = store.GetExerciseState("ex01")
+	if st == nil {
+		t.Fatal("Expected exercise state to exist")
+	}
+	if st.Status != state.StatusPassed {
+		t.Errorf("Expected passed status after fixing, got %s", st.Status)
+	}
+	if st.CompletedAt == nil {
+		t.Error("Expected CompletedAt timestamp to be set")
+	}
+
+	cancel()
+	select {
+	case <-doneChan:
+	case <-time.After(1 * time.Second):
+		t.Fatal("Watcher failed to stop after cancel")
+	}
+}
+
+func TestWatcher_InteractiveInputControls(t *testing.T) {
+	bin, err := detector.DetectBinary("")
+	if err != nil {
+		t.Skip("Neither tofu nor terraform found on system PATH; skipping watcher test")
+	}
+
+	tmpDir := t.TempDir()
+	ex1File := filepath.Join(tmpDir, "ex01.tf")
+	ex2File := filepath.Join(tmpDir, "ex02.tf")
+
+	_ = os.WriteFile(ex1File, []byte("terraform {\n  required_version = \">= 1.6.0\"\n}\n"), 0644)
+	_ = os.WriteFile(ex2File, []byte("resource \"terraform_data\" \"bad\" {\n  input = var.missing\n}\n"), 0644)
+
+	exercises := []models.Exercise{
+		{Name: "ex01", Path: ex1File, Mode: models.ModeValidate},
+		{Name: "ex02", Path: ex2File, Mode: models.ModeValidate},
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	var out safeBuffer
+	r := runner.NewRunner(bin)
+	statePath := filepath.Join(tmpDir, "state.json")
+	store, _ := state.NewStore(statePath)
+
+	// Pipe input to test "n" (next) and "q" (quit)
+	inReader, inWriter, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("Failed to create pipe: %v", err)
+	}
+	defer inReader.Close()
+	defer inWriter.Close()
+
+	doneChan := make(chan error, 1)
+
+	go func() {
+		doneChan <- watcher.RunWatchWithInput(ctx, r, exercises, store, tmpDir, inReader, &out)
+	}()
+
+	// Wait for ex01 to pass and interactive prompt to display
+	deadline := time.Now().Add(5 * time.Second)
+	for time.Now().Before(deadline) {
+		if strings.Contains(out.String(), "Next exercise") {
+			break
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+
+	if !strings.Contains(out.String(), "Next exercise") {
+		t.Fatalf("Expected interactive prompt, got:\n%s", out.String())
+	}
+
+	// Send "q" to quit
+	_, _ = inWriter.Write([]byte("q"))
+
+	select {
+	case err := <-doneChan:
+		if err != nil {
+			t.Fatalf("Unexpected watcher error: %v", err)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("Watcher did not exit after 'q' command")
 	}
 }

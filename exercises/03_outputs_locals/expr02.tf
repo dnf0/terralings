@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: expr02
 # Chapter: 03_outputs_locals (Outputs, Locals & Expressions)
@@ -11,7 +10,6 @@
 # 1. Define `all_ips` extracting `ip_address` across all servers using splat syntax: `local.servers[*].ip_address`
 # 2. Define `all_hostnames` extracting `hostname` across all servers using splat syntax: `local.servers[*].hostname`
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {

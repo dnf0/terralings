@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: tofu02
 # Chapter: 12_opentofu (OpenTofu Innovations & Enterprise Features)
@@ -13,8 +12,6 @@
 # 2. Complete `terraform_data.gateway` resource inputs with `fqdn = local.cluster_fqdn`
 #    and `port = var.port`.
 # 3. Output `gateway_fqdn` referencing the planned FQDN.
-#
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 variable "environment" {
@@ -49,12 +46,12 @@ locals {
 resource "terraform_data" "gateway" {
   # TODO: Provide fqdn and port in input map
   input = {
-    fqdn = ""
-    port = 0
+    fqdn = split(".", local.cluster_fqdn)[2]
+    port = var.port
   }
 }
 
 output "gateway_fqdn" {
   # TODO: Reference terraform_data.gateway output fqdn
-  value = null
+  value = terraform_data.gateway.output.fqdn
 }

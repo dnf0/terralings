@@ -1,16 +1,20 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
 
 	"github.com/dnf0/terralings/exercises"
 	"github.com/dnf0/terralings/internal/detector"
+	"github.com/dnf0/terralings/internal/lsp"
 	"github.com/dnf0/terralings/internal/manifest"
 	"github.com/dnf0/terralings/internal/models"
 	"github.com/dnf0/terralings/internal/runner"
 	"github.com/dnf0/terralings/internal/search"
+	"github.com/dnf0/terralings/internal/state"
+	"github.com/dnf0/terralings/internal/tui"
 	"github.com/dnf0/terralings/internal/ui"
 	"github.com/dnf0/terralings/internal/watcher"
 	"github.com/spf13/cobra"
@@ -20,10 +24,13 @@ import (
 const Version = "v0.1.1"
 
 var (
-	binOverride string
-	hintIndex   int
-	initForce   bool
-	resetDir    string
+	binOverride      string
+	stateOverride    string
+	hintIndex        int
+	initForce        bool
+	resetDir         string
+	watchJSON        bool
+	watchInteractive bool
 )
 
 // NewRootCmd constructs and returns the root Cobra command and its subcommands.
@@ -36,6 +43,7 @@ func NewRootCmd() *cobra.Command {
 	}
 
 	rootCmd.PersistentFlags().StringVar(&binOverride, "bin", "", "Custom path to tofu or terraform binary")
+	rootCmd.PersistentFlags().StringVar(&stateOverride, "state", "", "Custom path to state file (default .terralings/state.json)")
 
 	// watch command
 	watchCmd := &cobra.Command{
@@ -44,11 +52,29 @@ func NewRootCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			bin, err := detector.DetectBinary(binOverride)
 			if err != nil {
+				bin = ""
+			}
+			if watchInteractive {
+				return tui.RunTUI(cmd.Context(), bin, "exercises", stateOverride, os.Stdin, os.Stdout)
+			}
+			if bin == "" {
+				bin, err = detector.DetectBinary(binOverride)
+				if err != nil {
+					return err
+				}
+			}
+			store, err := state.NewStore(stateOverride)
+			if err != nil {
 				return err
 			}
-			return watcher.RunWatch(bin, "exercises")
+			if watchJSON {
+				return watcher.RunWatchJSON(context.Background(), runner.NewRunner(bin), manifest.GetManifest().AllExercises(), store, "exercises", os.Stdout)
+			}
+			return watcher.RunWatchWithStore(context.Background(), runner.NewRunner(bin), manifest.GetManifest().AllExercises(), store, "exercises", os.Stdout)
 		},
 	}
+	watchCmd.Flags().BoolVar(&watchJSON, "json", false, "Emit structured NDJSON stream of evaluation events")
+	watchCmd.Flags().BoolVarP(&watchInteractive, "interactive", "i", false, "Start interactive full-screen TUI dashboard")
 
 	completeExerciseNames := func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		if len(args) != 0 {
@@ -84,6 +110,11 @@ func NewRootCmd() *cobra.Command {
 			res := r.Run(*ex)
 			fmt.Fprint(cmd.OutOrStdout(), ui.FormatResult(res))
 
+			store, err := state.NewStore(stateOverride)
+			if err == nil {
+				_ = store.RecordAttempt(ex.Name, ex.ChapterName, res.Passed)
+			}
+
 			if !res.Passed {
 				return fmt.Errorf("exercise %s did not pass", ex.Name)
 			}
@@ -104,10 +135,31 @@ func NewRootCmd() *cobra.Command {
 			}
 
 			fmt.Fprintln(cmd.OutOrStdout(), ui.FormatHint(ex, hintIndex))
+
+			store, err := state.NewStore(stateOverride)
+			if err == nil {
+				_ = store.RecordHint(ex.Name, ex.ChapterName, hintIndex+1)
+			}
 			return nil
 		},
 	}
 	hintCmd.Flags().IntVarP(&hintIndex, "index", "i", 0, "Zero-based index of the hint to display")
+
+	// stats command
+	statsCmd := &cobra.Command{
+		Use:   "stats",
+		Short: "Display progress and learning analytics",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			store, err := state.NewStore(stateOverride)
+			if err != nil {
+				return err
+			}
+			m := manifest.GetManifest()
+			summary := store.GetAnalytics(m)
+			fmt.Fprint(cmd.OutOrStdout(), ui.FormatAnalytics(summary))
+			return nil
+		},
+	}
 
 	// list command
 	listCmd := &cobra.Command{
@@ -270,7 +322,37 @@ func NewRootCmd() *cobra.Command {
 	}
 	resetCmd.Flags().StringVarP(&resetDir, "dir", "d", "exercises", "Base exercises directory")
 
-	rootCmd.AddCommand(watchCmd, runCmd, hintCmd, listCmd, verifyCmd, versionCmd, initCmd, resetCmd, searchCmd, completionsCmd)
+	// lsp command
+	lspCmd := &cobra.Command{
+		Use:   "lsp",
+		Short: "Start Language Server Protocol (LSP) daemon over stdio",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			bin, err := detector.DetectBinary(binOverride)
+			if err != nil {
+				bin = ""
+			}
+			store, _ := state.NewStore(stateOverride)
+			m := manifest.GetManifest()
+			r := runner.NewRunner(bin)
+			srv := lsp.NewServer(r, m, store)
+			return srv.RunWithContext(cmd.Context(), os.Stdin, os.Stdout)
+		},
+	}
+
+	// tui command
+	tuiCmd := &cobra.Command{
+		Use:   "tui",
+		Short: "Start interactive full-screen terminal dashboard",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			bin, err := detector.DetectBinary(binOverride)
+			if err != nil {
+				bin = ""
+			}
+			return tui.RunTUI(cmd.Context(), bin, "exercises", stateOverride, os.Stdin, os.Stdout)
+		},
+	}
+
+	rootCmd.AddCommand(watchCmd, runCmd, hintCmd, statsCmd, listCmd, verifyCmd, versionCmd, initCmd, resetCmd, searchCmd, completionsCmd, lspCmd, tuiCmd)
 	return rootCmd
 }
 

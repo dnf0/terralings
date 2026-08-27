@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: primitives04
 # Chapter: 01_primitives (HCL Foundations & Core Primitives)
@@ -10,7 +9,6 @@
 #
 # Fix the broken heredoc syntax below so that the resource validates and plans cleanly.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 terraform {

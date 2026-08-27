@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: state01
 # Chapter: 09_state_refactoring (State Management & Refactoring Surgery)
@@ -21,10 +20,13 @@
 #    `terraform_data.redis_cache`.
 # 2. Rename the resource block to `terraform_data.redis_cache`.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
-# TODO: Add the moved block here
+moved {
+  # TODO: Fix move destination to terraform_data.redis_cache
+  from = terraform_data.legacy_cache
+  to   = terraform_data.missing_cache
+}
 
 # TODO: Rename this resource from legacy_cache to redis_cache
 resource "terraform_data" "legacy_cache" {

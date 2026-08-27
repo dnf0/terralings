@@ -1,4 +1,3 @@
-# I AM NOT DONE
 # ==============================================================================
 # Exercise: test03
 # Chapter: 10_testing (Native Unit & Integration Testing)
@@ -16,7 +15,6 @@
 #    to override `output = { status = "healthy", latency_ms = 12 }`.
 # 2. Run assertions validating `output.gateway_status == "healthy"` and `output.latency_ms == 12`.
 #
-# When done, remove the '# I AM NOT DONE' line at the top.
 # ==============================================================================
 
 resource "terraform_data" "external_gateway" {
