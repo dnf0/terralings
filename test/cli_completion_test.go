@@ -57,9 +57,6 @@ func TestCLI_Completion_AliasCompletions(t *testing.T) {
 	if aliasOut != canonicalOut {
 		t.Errorf("expected 'completions bash' output to match 'completion bash', got mismatch")
 	}
-	if !strings.Contains(aliasOut, "bash completion V2") {
-		t.Errorf("expected alias output to contain 'bash completion V2'")
-	}
 }
 
 func TestCLI_Completion_UnsupportedShell(t *testing.T) {

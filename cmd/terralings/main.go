@@ -236,7 +236,7 @@ func NewRootCmd() *cobra.Command {
 				completions = append(completions, fmt.Sprintf("%s\tChapter: %s", ch.Name, ch.Title))
 			}
 		}
-		return completions, cobra.ShellCompDirectiveNoFileComp
+		return completions, directive
 	}
 
 	// search command
