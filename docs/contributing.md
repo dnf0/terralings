@@ -44,7 +44,7 @@ make all
 
 | Target | Description |
 |---|---|
-| `make all` | Runs `make check`, `make build`, `make test-race`, and `make extension-check` |
+| `make all` | Runs `make check`, `make build`, `make test-race`, `make extension-check`, and `make extension-package` |
 | `make build` | Compiles the Go binary into `bin/terralings` (with macOS codesigning) |
 | `make test` | Executes the complete Go test suite |
 | `make test-race` | Executes Go test suite with the race detector enabled (`-race`) |
@@ -52,6 +52,7 @@ make all
 | `make fmt-check` | Verifies all Go source files are formatted with `gofmt` |
 | `make fmt-solutions` | Verifies all HCL solution files are formatted with `tofu fmt` / `terraform fmt` |
 | `make extension-check` | Compiles TypeScript, checks types, and runs VS Code extension tests |
+| `make extension-package` | Bundles and packages the VS Code extension into `dist/terralings-vscode.vsix` |
 | `make docs-serve` | Starts local MkDocs documentation development server on `localhost:8000` |
 | `make docs-build` | Builds the static documentation site with `--strict` verification |
 | `make clean` | Removes compiled binaries, temporary test state, and cache directories |
