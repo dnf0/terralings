@@ -938,11 +938,23 @@ export class TerralingsTreeDataProvider
    * and fires the change event.
    */
   public refresh(): void {
-    this.exerciseStates.clear();
-    const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+    const nextStates = new Map<string, ExerciseStatus>();
+    const folders = vscode.workspace.workspaceFolders || [];
+    let stateFile: string | undefined;
 
-    if (workspaceRoot) {
-      const stateFile = path.join(workspaceRoot, '.terralings', 'state.json');
+    for (const folder of folders) {
+      const candidate = path.join(folder.uri.fsPath, '.terralings', 'state.json');
+      if (fs.existsSync(candidate)) {
+        stateFile = candidate;
+        break;
+      }
+      const exercisesDir = path.join(folder.uri.fsPath, 'exercises');
+      if (fs.existsSync(exercisesDir)) {
+        stateFile = candidate;
+      }
+    }
+
+    if (stateFile) {
       try {
         if (fs.existsSync(stateFile)) {
           const raw = fs.readFileSync(stateFile, 'utf-8');
@@ -953,18 +965,19 @@ export class TerralingsTreeDataProvider
                 continue;
               }
               if (exState.status === 'passed') {
-                this.exerciseStates.set(name, 'passed');
+                nextStates.set(name, 'passed');
               } else if (exState.status === 'failed') {
-                this.exerciseStates.set(name, 'failed');
+                nextStates.set(name, 'failed');
               } else if (
                 exState.status === 'in_progress' ||
                 (typeof exState.attempts === 'number' && exState.attempts > 0)
               ) {
-                this.exerciseStates.set(name, 'in_progress');
+                nextStates.set(name, 'in_progress');
               } else {
-                this.exerciseStates.set(name, 'not_started');
+                nextStates.set(name, 'not_started');
               }
             }
+            this.exerciseStates = nextStates;
           }
         }
       } catch (err) {

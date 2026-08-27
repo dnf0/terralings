@@ -115,7 +115,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const statusBar = new TerralingsStatusBar();
   context.subscriptions.push(statusBar);
 
-  const stateWatcherDisposable = initStateWatcher(treeDataProvider, statusBar, context);
+  const stateWatcherDisposable = initStateWatcher(treeDataProvider, statusBar);
   context.subscriptions.push(stateWatcherDisposable);
 
   // Initial status bar sync

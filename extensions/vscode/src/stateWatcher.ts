@@ -8,8 +8,7 @@ import { TerralingsStatusBar } from './statusBar';
  */
 export function initStateWatcher(
   treeProvider: TerralingsTreeDataProvider,
-  statusBar: TerralingsStatusBar,
-  context: vscode.ExtensionContext
+  statusBar: TerralingsStatusBar
 ): vscode.Disposable {
   const disposables: vscode.Disposable[] = [];
   let debounceTimer: NodeJS.Timeout | undefined;
@@ -27,17 +26,21 @@ export function initStateWatcher(
 
   // Watch .terralings/state.json for real-time progress transitions
   const stateWatcher = vscode.workspace.createFileSystemWatcher('**/.terralings/state.json');
-  stateWatcher.onDidChange(triggerUpdate);
-  stateWatcher.onDidCreate(triggerUpdate);
-  stateWatcher.onDidDelete(triggerUpdate);
-  disposables.push(stateWatcher);
+  disposables.push(
+    stateWatcher,
+    stateWatcher.onDidChange(triggerUpdate),
+    stateWatcher.onDidCreate(triggerUpdate),
+    stateWatcher.onDidDelete(triggerUpdate)
+  );
 
   // Watch exercise files for user code modifications
   const exerciseWatcher = vscode.workspace.createFileSystemWatcher('**/exercises/**/*.{tf,hcl}');
-  exerciseWatcher.onDidChange(triggerUpdate);
-  exerciseWatcher.onDidCreate(triggerUpdate);
-  exerciseWatcher.onDidDelete(triggerUpdate);
-  disposables.push(exerciseWatcher);
+  disposables.push(
+    exerciseWatcher,
+    exerciseWatcher.onDidChange(triggerUpdate),
+    exerciseWatcher.onDidCreate(triggerUpdate),
+    exerciseWatcher.onDidDelete(triggerUpdate)
+  );
 
   const compositeDisposable = vscode.Disposable.from(
     ...disposables,
@@ -49,6 +52,5 @@ export function initStateWatcher(
     })
   );
 
-  context.subscriptions.push(compositeDisposable);
   return compositeDisposable;
 }
