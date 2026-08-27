@@ -38,6 +38,11 @@ func (e Exercise) SolutionPath() string {
 	return strings.Replace(e.Path, "exercises/", "solutions/", 1)
 }
 
+// IsDirectory returns true if the exercise is a directory module rather than a single file.
+func (e Exercise) IsDirectory() bool {
+	return !strings.HasSuffix(e.Path, ".tf") && !strings.HasSuffix(e.Path, ".hcl")
+}
+
 // Chapter represents a curriculum chapter containing a sequence of exercises.
 type Chapter struct {
 	Number      int

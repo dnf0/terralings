@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/dnf0/terralings/internal/models"
 	"github.com/dnf0/terralings/internal/runner"
+	"github.com/dnf0/terralings/internal/search"
 )
 
 var (
@@ -140,5 +141,21 @@ func FormatChapterList(m *models.Manifest, statuses map[string]models.ExerciseSt
 		b.WriteString("\n")
 	}
 
+	return b.String()
+}
+
+// FormatSearchResults renders exercise search results in a clean styled list.
+func FormatSearchResults(query string, results []search.SearchResult) string {
+	if len(results) == 0 {
+		return warningStyle.Render(fmt.Sprintf("No exercises found matching '%s'.\n", query))
+	}
+
+	var b strings.Builder
+	b.WriteString(headerStyle.Render(fmt.Sprintf("🔍 Search Results for '%s' (%d matches):\n", query, len(results))))
+
+	for _, r := range results {
+		b.WriteString(fmt.Sprintf("  • %-16s %s\n", lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#00D7D7")).Render(r.Exercise.Name), r.Exercise.Title))
+		b.WriteString(fmt.Sprintf("    %s | matched in: %s\n", dimStyle.Render(r.Exercise.Path), lipgloss.NewStyle().Foreground(lipgloss.Color("#FFD700")).Render(r.MatchedIn)))
+	}
 	return b.String()
 }
