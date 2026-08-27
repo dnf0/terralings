@@ -20,7 +20,7 @@
 - Create: `internal/tour/tour.go`
 - Create: `test/tour_test.go`
 
-- [ ] **Step 1: Write unit tests in `test/tour_test.go`**
+- [x] **Step 1: Write unit tests in `test/tour_test.go`**
 
 ```go
 package test
@@ -146,12 +146,12 @@ func TestTour_InteractiveNavigation(t *testing.T) {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `go test -v ./test/tour_test.go`
 Expected: FAIL with undefined `tour` package.
 
-- [ ] **Step 3: Implement `internal/tour/tour.go`**
+- [x] **Step 3: Implement `internal/tour/tour.go`**
 
 ```go
 package tour
@@ -427,12 +427,12 @@ func (t *Tour) Run(ctx context.Context, startStep int) error {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `go test -v -race ./test/tour_test.go`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add internal/tour/tour.go test/tour_test.go
@@ -447,7 +447,7 @@ git commit -m "feat(tour): implement 5-step interactive onboarding tour engine"
 - Create: `internal/doctor/doctor.go`
 - Create: `test/doctor_test.go`
 
-- [ ] **Step 1: Write unit tests in `test/doctor_test.go`**
+- [x] **Step 1: Write unit tests in `test/doctor_test.go`**
 
 ```go
 package test
@@ -548,12 +548,12 @@ func TestDoctor_JSONSerialization(t *testing.T) {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `go test -v ./test/doctor_test.go`
 Expected: FAIL with undefined `doctor` package.
 
-- [ ] **Step 3: Implement `internal/doctor/doctor.go`**
+- [x] **Step 3: Implement `internal/doctor/doctor.go`**
 
 ```go
 package doctor
@@ -798,12 +798,12 @@ func FormatReport(report DiagnosticReport) string {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `go test -v -race ./test/doctor_test.go`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add internal/doctor/doctor.go test/doctor_test.go
@@ -818,7 +818,7 @@ git commit -m "feat(doctor): implement pre-flight environment diagnostics engine
 - Modify: `cmd/terralings/main.go`
 - Create: `test/cli_onboarding_test.go`
 
-- [ ] **Step 1: Write integration tests in `test/cli_onboarding_test.go`**
+- [x] **Step 1: Write integration tests in `test/cli_onboarding_test.go`**
 
 ```go
 package test
@@ -866,24 +866,24 @@ func TestCLI_DoctorExecution(t *testing.T) {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `go test -v ./test/cli_onboarding_test.go`
 Expected: FAIL or PASS depending on underlying packages.
 
-- [ ] **Step 3: Update `cmd/terralings/main.go`**
+- [x] **Step 3: Update `cmd/terralings/main.go`**
 
 Register `tour` and `doctor` commands with flags:
 - `tour`: `--step <int>`, `--non-interactive`, `--json`.
 - `doctor`: `--json`.
 - Add first-run welcome prompt to `mainCmd` / `initCmd`.
 
-- [ ] **Step 4: Run all CLI tests to verify they pass**
+- [x] **Step 4: Run all CLI tests to verify they pass**
 
 Run: `go test -v -race ./test/...`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add cmd/terralings/main.go test/cli_onboarding_test.go
@@ -899,7 +899,7 @@ git commit -m "feat(cli): add tour and doctor subcommands with first-run guidanc
 - Modify: `README.md`
 - Test: All test suites (`make all`)
 
-- [ ] **Step 1: Create `docs/onboarding-guide.md`**
+- [x] **Step 1: Create `docs/onboarding-guide.md`**
 Author comprehensive illustrated guide covering:
 1. System requirements & pre-flight diagnostics (`terralings doctor`).
 2. Scaffold initialization (`terralings init`).
@@ -908,14 +908,14 @@ Author comprehensive illustrated guide covering:
 5. Editor configurations (VS Code, Neovim, Helix).
 6. Troubleshooting & FAQs.
 
-- [ ] **Step 2: Update `README.md`**
+- [x] **Step 2: Update `README.md`**
 Add `terralings tour` and `terralings doctor` to CLI command table and quickstart section.
 
-- [ ] **Step 3: Run full verification suite**
+- [x] **Step 3: Run full verification suite**
 - `make check`
 - `make all`
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add docs/onboarding-guide.md README.md
