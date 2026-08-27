@@ -226,16 +226,11 @@ func NewRootCmd() *cobra.Command {
 	}
 
 	completeSearchQueries := func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		completions, directive := completeExerciseNames(cmd, args, toComplete)
 		if len(args) != 0 {
-			return nil, cobra.ShellCompDirectiveNoFileComp
+			return completions, directive
 		}
-		var completions []string
 		m := manifest.GetManifest()
-		for _, ex := range m.AllExercises() {
-			if strings.HasPrefix(ex.Name, toComplete) {
-				completions = append(completions, fmt.Sprintf("%s\t%s", ex.Name, ex.Title))
-			}
-		}
 		for _, ch := range m.Chapters {
 			if strings.HasPrefix(ch.Name, toComplete) {
 				completions = append(completions, fmt.Sprintf("%s\tChapter: %s", ch.Name, ch.Title))

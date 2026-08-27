@@ -10,8 +10,8 @@ func TestCLI_Completion_Bash(t *testing.T) {
 	if exitCode != 0 {
 		t.Fatalf("completion bash failed with exit code %d, stderr: %s", exitCode, stderr)
 	}
-	if !strings.Contains(stdout, "bash completion") && !strings.Contains(stdout, "__terralings_") && !strings.Contains(stdout, "complete -o default -F") && !strings.Contains(stdout, "_terralings") {
-		t.Errorf("expected bash completion script, got:\n%s", stdout)
+	if !strings.Contains(stdout, "bash completion V2") || !strings.Contains(stdout, "__start_terralings") {
+		t.Errorf("expected bash completion V2 script with __start_terralings, got:\n%s", stdout)
 	}
 }
 
@@ -46,12 +46,19 @@ func TestCLI_Completion_PowerShell(t *testing.T) {
 }
 
 func TestCLI_Completion_AliasCompletions(t *testing.T) {
-	stdout, stderr, exitCode := runCLI(t, "completions", "bash")
-	if exitCode != 0 {
-		t.Fatalf("completions alias failed with exit code %d, stderr: %s", exitCode, stderr)
+	canonicalOut, canonicalErr, canonicalExit := runCLI(t, "completion", "bash")
+	if canonicalExit != 0 {
+		t.Fatalf("canonical completion failed: %s", canonicalErr)
 	}
-	if len(stdout) == 0 {
-		t.Errorf("expected completions bash to output bash completion script, got empty output")
+	aliasOut, aliasErr, aliasExit := runCLI(t, "completions", "bash")
+	if aliasExit != 0 {
+		t.Fatalf("completions alias failed with exit code %d, stderr: %s", aliasExit, aliasErr)
+	}
+	if aliasOut != canonicalOut {
+		t.Errorf("expected 'completions bash' output to match 'completion bash', got mismatch")
+	}
+	if !strings.Contains(aliasOut, "bash completion V2") {
+		t.Errorf("expected alias output to contain 'bash completion V2'")
 	}
 }
 
