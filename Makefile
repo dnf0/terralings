@@ -1,6 +1,6 @@
-.PHONY: all build build-all run test test-race lint fmt-check fmt-solutions verify check clean
+.PHONY: all build build-all run test test-race lint fmt-check fmt-solutions verify check clean extension-install extension-build extension-test extension-check
 
-all: check build test-race
+all: check build test-race extension-check
 
 build:
 	go build -o bin/terralings ./cmd/terralings
@@ -40,6 +40,18 @@ verify:
 	go mod verify
 
 check: verify fmt-check fmt-solutions lint
+
+extension-install:
+	cd extensions/vscode && npm install
+
+extension-build:
+	cd extensions/vscode && npm run build
+
+extension-test:
+	cd extensions/vscode && npm test
+
+extension-check:
+	cd extensions/vscode && npm run check-types && npm test
 
 clean:
 	rm -rf bin/ .terraform/ .cache/ && rm -f ./terralings

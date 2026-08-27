@@ -225,11 +225,28 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 
+	// completeSearchQueries delegates exercise completion to completeExerciseNames and appends chapter titles.
+	// completeExerciseNames currently returns ShellCompDirectiveNoFileComp; the guard ensures safe degradation if that contract changes.
+	completeSearchQueries := func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		completions, directive := completeExerciseNames(cmd, args, toComplete)
+		if len(args) != 0 || directive != cobra.ShellCompDirectiveNoFileComp {
+			return completions, directive
+		}
+		m := manifest.GetManifest()
+		for _, ch := range m.Chapters {
+			if strings.HasPrefix(ch.Name, toComplete) {
+				completions = append(completions, fmt.Sprintf("%s\tChapter: %s", ch.Name, ch.Title))
+			}
+		}
+		return completions, directive
+	}
+
 	// search command
 	searchCmd := &cobra.Command{
-		Use:   "search [query]",
-		Short: "Search curriculum exercises by concept, keyword, or chapter",
-		Args:  cobra.ExactArgs(1),
+		Use:               "search [query]",
+		Short:             "Search curriculum exercises by concept, keyword, or chapter",
+		Args:              cobra.ExactArgs(1),
+		ValidArgsFunction: completeSearchQueries,
 		Run: func(cmd *cobra.Command, args []string) {
 			m := manifest.GetManifest()
 			results := search.SearchExercises(m, args[0])
@@ -237,9 +254,10 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 
-	// completions command
-	completionsCmd := &cobra.Command{
-		Use:       "completions [bash|zsh|fish|powershell]",
+	// completion command
+	completionCmd := &cobra.Command{
+		Use:       "completion [bash|zsh|fish|powershell]",
+		Aliases:   []string{"completions"},
 		Short:     "Generate shell completion scripts",
 		Args:      cobra.ExactArgs(1),
 		ValidArgs: []string{"bash", "zsh", "fish", "powershell"},
@@ -247,7 +265,7 @@ func NewRootCmd() *cobra.Command {
 			shell := args[0]
 			switch shell {
 			case "bash":
-				return rootCmd.GenBashCompletion(cmd.OutOrStdout())
+				return rootCmd.GenBashCompletionV2(cmd.OutOrStdout(), true)
 			case "zsh":
 				return rootCmd.GenZshCompletion(cmd.OutOrStdout())
 			case "fish":
@@ -401,7 +419,7 @@ func NewRootCmd() *cobra.Command {
 	}
 	doctorCmd.Flags().BoolVar(&doctorJSON, "json", false, "Emit diagnostic report as JSON")
 
-	rootCmd.AddCommand(watchCmd, runCmd, hintCmd, statsCmd, listCmd, verifyCmd, versionCmd, initCmd, resetCmd, searchCmd, completionsCmd, lspCmd, tuiCmd, tourCmd, doctorCmd)
+	rootCmd.AddCommand(watchCmd, runCmd, hintCmd, statsCmd, listCmd, verifyCmd, versionCmd, initCmd, resetCmd, searchCmd, completionCmd, lspCmd, tuiCmd, tourCmd, doctorCmd)
 	return rootCmd
 }
 
