@@ -39,14 +39,15 @@ make all
 
 | Target | Description |
 |---|---|
-| `make all` | Runs `make check`, `make build`, `make test-race`, and `make extension-check` |
+| `make all` | Runs `make check`, `make build`, `make test-race`, `make extension-check`, and `make extension-package` |
 | `make check` | Runs `go mod verify`, `gofmt` check, solutions format check, and `go vet` |
 | `make build` | Compiles binary to `bin/terralings` (with macOS codesigning support) |
 | `make test` | Runs Go test suite |
 | `make test-race` | Runs Go test suite with the race detector enabled (`-race`) |
 | `make fmt-check` | Verifies Go source files are formatted with `gofmt` |
 | `make fmt-solutions` | Verifies HCL solution files are formatted with `tofu fmt` / `terraform fmt` |
-| `make extension-check` | Type-checks and compiles the VS Code companion extension |
+| `make extension-check` | Type-checks, compiles, and tests the VS Code companion extension |
+| `make extension-package` | Bundles and packages the VS Code extension into `dist/terralings-vscode.vsix` |
 | `make docs-serve` | Starts local MkDocs documentation development server on `localhost:8000` |
 | `make docs-build` | Builds static documentation site with strict verification |
 | `make clean` | Removes compiled binaries, temporary test state, and cache directories |

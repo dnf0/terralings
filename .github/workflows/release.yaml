@@ -82,9 +82,35 @@ jobs:
           name: ${{ env.ASSET_FILE }}
           path: ${{ env.ASSET_FILE }}
 
+  build-vscode-extension:
+    name: Package VS Code Extension (.vsix)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: "extensions/vscode/package-lock.json"
+
+      - name: Install Dependencies
+        run: make extension-install
+
+      - name: Build and Package Extension
+        run: make extension-package
+
+      - name: Upload VS Code Extension Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: terralings-vscode.vsix
+          path: dist/terralings-vscode.vsix
+
   publish-release:
     name: Create GitHub Release
-    needs: build-release
+    needs: [build-release, build-vscode-extension]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

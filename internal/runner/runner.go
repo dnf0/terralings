@@ -192,17 +192,34 @@ func (r *Runner) Run(ex models.Exercise) RunResult {
 		"TF_INPUT=0",
 	)
 
-	// Step 1: Run init
-	initCmd := exec.CommandContext(ctx, r.BinaryPath, "init", "-backend=false", "-no-color", "-input=false")
-	initCmd.Dir = workDir
-	initCmd.Env = cmdEnv
-	initOut, initErr := initCmd.CombinedOutput()
-
-	if initErr != nil {
-		exitCode := 1
+	// Step 1: Run init (with retry on transient registry/network download failures)
+	var initOut []byte
+	var initErr error
+	var exitCode int
+	for attempt := 0; attempt < 3; attempt++ {
+		initCmd := exec.CommandContext(ctx, r.BinaryPath, "init", "-backend=false", "-no-color", "-input=false")
+		initCmd.Dir = workDir
+		initCmd.Env = cmdEnv
+		initOut, initErr = initCmd.CombinedOutput()
+		if initErr == nil {
+			break
+		}
+		exitCode = 1
 		if initCmd.ProcessState != nil {
 			exitCode = initCmd.ProcessState.ExitCode()
 		}
+		outStr := string(initOut)
+		if strings.Contains(outStr, "connection reset") ||
+			strings.Contains(outStr, "timeout") ||
+			strings.Contains(outStr, "Failed to install provider") ||
+			strings.Contains(outStr, "temporary failure") {
+			time.Sleep(time.Duration(150*(attempt+1)) * time.Millisecond)
+			continue
+		}
+		break
+	}
+
+	if initErr != nil {
 		return RunResult{
 			Exercise:         ex,
 			Passed:           false,
@@ -231,7 +248,7 @@ func (r *Runner) Run(ex models.Exercise) RunResult {
 	cmd.Stderr = &stderr
 	cmdErr := cmd.Run()
 
-	exitCode := 0
+	exitCode = 0
 	if cmdErr != nil {
 		exitCode = 1
 		if cmd.ProcessState != nil {
