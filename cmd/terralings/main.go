@@ -17,7 +17,7 @@ import (
 )
 
 // Version is the current release version of terralings.
-const Version = "v0.1.0"
+const Version = "v0.1.1"
 
 var (
 	binOverride string
