@@ -2,18 +2,21 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
 
 	"github.com/dnf0/terralings/exercises"
 	"github.com/dnf0/terralings/internal/detector"
+	"github.com/dnf0/terralings/internal/doctor"
 	"github.com/dnf0/terralings/internal/lsp"
 	"github.com/dnf0/terralings/internal/manifest"
 	"github.com/dnf0/terralings/internal/models"
 	"github.com/dnf0/terralings/internal/runner"
 	"github.com/dnf0/terralings/internal/search"
 	"github.com/dnf0/terralings/internal/state"
+	"github.com/dnf0/terralings/internal/tour"
 	"github.com/dnf0/terralings/internal/tui"
 	"github.com/dnf0/terralings/internal/ui"
 	"github.com/dnf0/terralings/internal/watcher"
@@ -24,13 +27,17 @@ import (
 const Version = "v0.2.0"
 
 var (
-	binOverride      string
-	stateOverride    string
-	hintIndex        int
-	initForce        bool
-	resetDir         string
-	watchJSON        bool
-	watchInteractive bool
+	binOverride        string
+	stateOverride      string
+	hintIndex          int
+	initForce          bool
+	resetDir           string
+	watchJSON          bool
+	watchInteractive   bool
+	tourStep           int
+	tourNonInteractive bool
+	tourJSON           bool
+	doctorJSON         bool
 )
 
 // NewRootCmd constructs and returns the root Cobra command and its subcommands.
@@ -40,6 +47,11 @@ func NewRootCmd() *cobra.Command {
 		Short:        "Terralings - Interactive CLI learning environment for Terraform & OpenTofu",
 		Long:         "Terralings guides you through hands-on exercises to master Terraform & OpenTofu HCL and workflows.",
 		SilenceUsage: true,
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Fprintln(cmd.OutOrStdout(), ui.FormatBanner())
+			fmt.Fprintln(cmd.OutOrStdout(), ui.FormatFirstRunWelcome())
+			_ = cmd.Help()
+		},
 	}
 
 	rootCmd.PersistentFlags().StringVar(&binOverride, "bin", "", "Custom path to tofu or terraform binary")
@@ -287,6 +299,7 @@ func NewRootCmd() *cobra.Command {
 			m := manifest.GetManifest()
 			all := m.AllExercises()
 			fmt.Fprintf(cmd.OutOrStdout(), "✨ Successfully initialized %d exercises into '%s'!\n\n", len(all), targetDir)
+			fmt.Fprintln(cmd.OutOrStdout(), ui.FormatFirstRunWelcome())
 			fmt.Fprintln(cmd.OutOrStdout(), "To get started, run:")
 			fmt.Fprintln(cmd.OutOrStdout(), "  terralings watch")
 			return nil
@@ -352,7 +365,43 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 
-	rootCmd.AddCommand(watchCmd, runCmd, hintCmd, statsCmd, listCmd, verifyCmd, versionCmd, initCmd, resetCmd, searchCmd, completionsCmd, lspCmd, tuiCmd)
+	// tour command
+	tourCmd := &cobra.Command{
+		Use:   "tour",
+		Short: "Start the interactive guided onboarding tour",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			t := tour.NewTour(cmd.OutOrStdout(), cmd.InOrStdin())
+			t.NonInteractive = tourNonInteractive
+			t.JSONMode = tourJSON
+			return t.Run(cmd.Context(), tourStep)
+		},
+	}
+	tourCmd.Flags().IntVar(&tourStep, "step", 0, "Specific tour step to render (1-5)")
+	tourCmd.Flags().BoolVar(&tourNonInteractive, "non-interactive", false, "Render tour steps without interactive prompt")
+	tourCmd.Flags().BoolVar(&tourJSON, "json", false, "Emit tour content as structured JSON")
+
+	// doctor command
+	doctorCmd := &cobra.Command{
+		Use:   "doctor",
+		Short: "Run diagnostics to verify environment and workspace readiness",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cwd, _ := os.Getwd()
+			report := doctor.RunDiagnostics(cwd, binOverride, stateOverride)
+			if doctorJSON {
+				data, err := json.MarshalIndent(report, "", "  ")
+				if err != nil {
+					return err
+				}
+				fmt.Fprintln(cmd.OutOrStdout(), string(data))
+				return nil
+			}
+			fmt.Fprint(cmd.OutOrStdout(), doctor.FormatReport(report))
+			return nil
+		},
+	}
+	doctorCmd.Flags().BoolVar(&doctorJSON, "json", false, "Emit diagnostic report as JSON")
+
+	rootCmd.AddCommand(watchCmd, runCmd, hintCmd, statsCmd, listCmd, verifyCmd, versionCmd, initCmd, resetCmd, searchCmd, completionsCmd, lspCmd, tuiCmd, tourCmd, doctorCmd)
 	return rootCmd
 }
 

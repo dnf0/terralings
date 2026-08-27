@@ -11,6 +11,8 @@ Inspired by [`rustlings`](https://github.com/rust-lang/rustlings), [`ziglings`](
 ## Features
 
 - **Turnkey Embedded Initialization (`terralings init`)**: The complete 56-exercise curriculum is embedded directly into the binary—run `terralings init` anywhere to start practicing immediately without cloning git repos.
+- **Interactive Guided Tour (`terralings tour`)**: 5-step interactive terminal walkthrough introducing IaC principles, exercise structure, watch/TUI modes, progressive hints, and LSP editor integration.
+- **Pre-Flight Diagnostics (`terralings doctor`)**: Comprehensive environment health check verifying OpenTofu/Terraform binary availability, exercise directory scaffold integrity, plugin cache permissions, and state health.
 - **Interactive Full-Screen TUI Dashboard (`terralings tui` / `terralings watch -i`)**: Two-pane terminal dashboard featuring real-time compilation viewport, grouped chapter navigation, live exercise search modal (`/`), and expandable hints drawer (`h`).
 - **Learning Analytics & Progress Persistence (`terralings stats`)**: Automatically tracks completion state, pass/fail attempt metrics, time invested, and hint usage stored in `.terralings/state.json`.
 - **Language Server Protocol Daemon (`terralings lsp`)**: Built-in JSON-RPC 2.0 LSP server providing instant in-editor validation diagnostics, hover exercise descriptions with hints, and quick-fix actions for VS Code, Neovim, and Helix.
@@ -77,20 +79,28 @@ make build
 
 ## Quickstart
 
-Once installed, scaffold the exercises into any folder and start learning:
+Once installed, verify your environment, take the guided tour, and scaffold the exercises:
 
 ```bash
-# 1. Initialize exercises in current directory (creates exercises/ folder)
+# 1. Run pre-flight health checks to verify your OpenTofu/Terraform setup
+terralings doctor
+
+# 2. Take the 2-minute interactive guided walkthrough
+terralings tour
+
+# 3. Initialize exercises in current directory (creates exercises/ folder)
 terralings init
 
-# 2. Start interactive learning loop (standard terminal stream)
+# 4. Start interactive learning loop (standard terminal stream)
 terralings watch
 
-# 3. Or launch the full-screen interactive TUI dashboard
+# 5. Or launch the full-screen interactive TUI dashboard
 terralings tui
 # or
 terralings watch -i
 ```
+
+> 📖 **New to Terralings?** Check out the comprehensive [Onboarding Guide](docs/onboarding-guide.md) for step-by-step instructions, editor configurations, and learning tips.
 
 ---
 
@@ -98,7 +108,9 @@ terralings watch -i
 
 | Command | Description |
 |---|---|
-| `terralings init [dir]` | Extract and initialize embedded curriculum exercises into a directory |
+| `terralings doctor [--json]` | Run pre-flight diagnostics to verify environment and workspace readiness |
+| `terralings tour [--step <n>] [--non-interactive] [--json]` | Start the interactive guided onboarding tour |
+| `terralings init [dir] [-f]` | Extract and initialize embedded curriculum exercises into a directory |
 | `terralings watch [-i] [--json]` | Start continuous watch mode (`-i` for TUI, `--json` for NDJSON stream) |
 | `terralings tui` | Launch the interactive full-screen terminal UI dashboard |
 | `terralings stats` | Display learning analytics, attempt counts, time invested, and progress |
@@ -326,7 +338,57 @@ Each line emitted is an atomic JSON object:
 
 ### 5. Command Examples & Standard Watch Mode
 
-#### 1. Interactive Watch Mode
+#### 1. Pre-Flight Diagnostics
+```bash
+terralings doctor
+```
+```text
+🩺 Terralings Doctor Diagnostic Report
+────────────────────────────────────────────────────────────
+
+ ✓ IaC Engine Binary
+   Found opentofu at /usr/local/bin/tofu (OpenTofu v1.8.0)
+
+ ✓ Curriculum Scaffold
+   Exercises directory present (56 configuration files found)
+
+ ✓ Provider Plugin Cache
+   Plugin cache directory ready at ~/.terralings/plugin-cache
+
+ ✓ Git Ignore Integration
+   .terralings directory is properly git-ignored.
+
+ ✓ Progress Persistence Store
+   State store healthy at .terralings/state.json (0 completed, 0 attempts)
+
+────────────────────────────────────────────────────────────
+ All diagnostics passed! Your environment is 100% ready for Terralings.
+```
+
+#### 2. Interactive Guided Tour
+```bash
+terralings tour
+```
+```text
+ STEP 1 OF 5  Welcome & Core Philosophy
+ Master Terraform & OpenTofu through interactive hands-on practice
+
+   Terralings is designed to teach you Infrastructure-as-Code from first principles.
+   All exercises run in isolated, sandboxed environments without requiring real cloud credentials.
+   We follow the Ziglings / Rustlings v6 model: pure deterministic validation with zero magic comment friction.
+
+   Example Command:
+   terralings watch
+
+   Key Takeaways:
+   ✓ 100% local, safe evaluation with OpenTofu / Terraform.
+   ✓ Real compiler errors & plan outputs guide your progress.
+
+[Enter / n] Next | [p] Prev | [1-5] Jump | [q] Quit
+>
+```
+
+#### 3. Interactive Watch Mode
 ```bash
 terralings watch
 ```
@@ -342,7 +404,7 @@ terralings watch
 [Enter / n] Next exercise (primitives02)  |  [p] Previous  |  [r] Rerun  |  [q] Quit
 ```
 
-#### 2. Progressive Hints
+#### 4. Progressive Hints
 ```bash
 terralings hint primitives01
 ```
@@ -360,7 +422,7 @@ View the next hint level:
 terralings hint primitives01 --index 1
 ```
 
-#### 3. Curriculum Overview
+#### 5. Curriculum Overview
 ```bash
 terralings list
 ```
@@ -377,7 +439,7 @@ Chapter 01: HCL Foundations & Core Primitives - Blocks, attributes, provider req
 ...
 ```
 
-#### 4. Curriculum Search
+#### 6. Curriculum Search
 ```bash
 terralings search dynamic
 ```
@@ -390,7 +452,7 @@ terralings search dynamic
 ...
 ```
 
-#### 5. Resetting an Exercise
+#### 7. Resetting an Exercise
 ```bash
 terralings reset primitives01
 ```
@@ -398,7 +460,7 @@ terralings reset primitives01
 🔄 Reset exercise 'primitives01' (exercises/01_primitives/primitives01.tf) back to original template.
 ```
 
-#### 6. Shell Autocompletions
+#### 8. Shell Autocompletions
 Enable shell autocompletions for quick tab navigation and exercise autocompletion:
 
 ```bash
@@ -415,7 +477,7 @@ terralings completions fish > ~/.config/fish/completions/terralings.fish
 terralings completions powershell | Out-String | Invoke-Expression
 ```
 
-#### 7. Progress Verification
+#### 9. Progress Verification
 ```bash
 terralings verify
 ```
