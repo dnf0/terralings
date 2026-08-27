@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Comprehensive Material for MkDocs Documentation Suite**: Multi-page documentation website (`mkdocs.yml`, `docs/`) with custom theme styling, instant search, navigation tabs, and syntax highlighting.
+- **Dedicated Documentation Pages**: Getting Started (`docs/getting-started.md`), Onboarding Guide (`docs/onboarding-guide.md`), Curriculum Syllabus (`docs/syllabus.md`), CLI Reference (`docs/cli-reference.md`), VS Code Companion Guide (`docs/vscode-extension.md`), Architecture & Internals (`docs/architecture.md`), and Contributing Guide (`docs/contributing.md`).
+- **Rich SVG Visual Assets**: Animated terminal demo graphic (`assets/demo.svg`) and high-resolution Terralings brand logo (`assets/logo.svg`).
+- **Root Documentation & Guide Overhaul**: Modernized top-level `README.md` with ecosystem links, architecture flowcharts, and 56-exercise curriculum matrix, updated `CONTRIBUTING.md`, and refreshed `CHANGELOG.md`.
+
 ## [0.2.0] - 2026-08-27
 
 ### Added

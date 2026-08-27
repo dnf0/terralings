@@ -110,7 +110,7 @@ Terralings is engineered in Go for extreme performance, offline reliability, and
 
     ---
 
-    Comprehensive guide to all 14 subcommands, interactive hotkeys, flags, NDJSON event streaming, and environment variables.
+    Comprehensive guide to all 15 subcommands, interactive hotkeys, flags, NDJSON event streaming, and environment variables.
 
 -   :material-microsoft-visual-studio-code: **[VS Code Companion](vscode-extension.md)**
 

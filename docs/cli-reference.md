@@ -1,6 +1,6 @@
 # CLI Reference
 
-Terralings provides a versatile command-line interface featuring 14 subcommands, interactive terminal user interfaces, JSON streaming modes, and Language Server Protocol daemons.
+Terralings provides a versatile command-line interface featuring 15 subcommands, interactive terminal user interfaces, JSON streaming modes, and Language Server Protocol daemons.
 
 ---
 
