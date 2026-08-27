@@ -98,7 +98,7 @@ func TestCLI_DynamicExerciseCompletion(t *testing.T) {
 				t.Errorf("expected dynamic completion to include tab description annotation, got:\n%s", stdout)
 			}
 			// Verify directive value is ShellCompDirectiveNoFileComp (:4).
-			// Note: This pins the observed value; propagation of non-NoFileComp directives is documented in main.go.
+			// Note: pins the observed value only — propagation of a non-NoFileComp directive from completeExerciseNames is not covered by this test (would require lifting completeSearchQueries out of NewRootCmd with an injectable delegate; contract is noted at cmd/terralings/main.go:228).
 			assertDirective(t, stdout, ":4")
 		})
 	}
@@ -116,6 +116,6 @@ func TestCLI_DynamicSearchCompletion_Chapters(t *testing.T) {
 		t.Errorf("expected dynamic completion description to mention 'Chapter:', got:\n%s", stdout)
 	}
 	// Verify directive value is ShellCompDirectiveNoFileComp (:4).
-	// Note: This pins the observed value; propagation of non-NoFileComp directives is documented in main.go.
+	// Note: pins the observed value only — propagation of a non-NoFileComp directive from completeExerciseNames is not covered by this test (would require lifting completeSearchQueries out of NewRootCmd with an injectable delegate; contract is noted at cmd/terralings/main.go:228).
 	assertDirective(t, stdout, ":4")
 }
