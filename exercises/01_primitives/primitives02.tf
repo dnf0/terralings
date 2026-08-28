@@ -23,7 +23,9 @@ terraform {
   }
 }
 
-# TODO: Fix the incomplete resource block below
+# TODO (What): Add the 'content' attribute to resource "local_file" "welcome" set to "Welcome to Terralings!".
+# TODO (Why): The local_file provider manages files on disk; without content (or content_base64),
+#             provider schema validation fails because it cannot determine what data to write.
 resource "local_file" "welcome" {
   filename = "${path.module}/welcome.txt"
   # content is missing!

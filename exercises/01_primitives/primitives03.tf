@@ -27,6 +27,8 @@ resource "local_file" "first" {
 
 resource "local_file" "second" {
   filename = "${path.module}/second.txt"
-  # TODO: Reference local_file.first.content inside the string below
+  # TODO (What): Change ${local_file.first.missing_attribute} to ${local_file.first.content}.
+  # TODO (Why): Referencing exported resource attributes creates an implicit edge in Terraform's DAG,
+  #             guaranteeing local_file.first is evaluated and created before local_file.second.
   content = "Second file contains: ${local_file.first.missing_attribute}"
 }

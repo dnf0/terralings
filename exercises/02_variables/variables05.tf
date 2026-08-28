@@ -24,7 +24,9 @@ variable "environment" {
   default     = "dev"
 
   validation {
-    # TODO: Fix validation condition to refer to var.environment
+    # TODO (What): Change var.missing_env_var to var.environment in the condition.
+    # TODO (Why): Validation conditions must refer strictly to the variable being declared (var.environment)
+    #             so Terraform can validate input values early before downstream resource evaluation.
     condition     = contains(["dev", "staging", "prod"], var.missing_env_var)
     error_message = "The environment variable must be one of: dev, staging, prod."
   }
@@ -36,7 +38,9 @@ variable "db_password" {
   default     = "SuperSecretPass123"
   sensitive   = true
 
-  # TODO: Add validation block checking length(var.db_password) >= 12
+  # TODO (What): Add a validation block with condition = length(var.db_password) >= 12 and a helpful error_message.
+  # TODO (Why): Enforcing password length constraints declaratively at variable ingestion prevents insecure database credentials
+  #             from propagating into provisioning runs.
 }
 
 resource "terraform_data" "app" {

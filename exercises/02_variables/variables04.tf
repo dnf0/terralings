@@ -20,13 +20,15 @@ terraform {
 variable "app_name" {
   type        = string
   description = "Name of the application"
-  # TODO: Add default = "terralings-app" and nullable = false
+  # TODO (What): Add default = "terralings-app" and nullable = false.
+  # TODO (Why): Variables without defaults are mandatory; setting nullable = false ensures callers cannot pass explicit null.
 }
 
 variable "replica_count" {
   type        = number
   description = "Number of worker replicas"
-  # TODO: Add default = 2 and nullable = false
+  # TODO (What): Add default = 2 and nullable = false.
+  # TODO (Why): Explicit non-nullability protects downstream resource configurations that require positive integer counts.
 }
 
 resource "terraform_data" "service" {

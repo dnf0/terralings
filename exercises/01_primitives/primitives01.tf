@@ -15,7 +15,9 @@ terraform {
   required_version = ">= 1.6.0"
 
   required_providers {
-    # TODO: Specify provider source "hashicorp/local" and version "~> 2.0"
+    # TODO (What): Set provider source to "hashicorp/local" and version to "~> 2.0".
+    # TODO (Why): Terraform/OpenTofu requires explicit source addresses to resolve provider plugins
+    #             from the registry, and version constraints guarantee reproducible behavior across environments.
     local = {
       source = ""
     }

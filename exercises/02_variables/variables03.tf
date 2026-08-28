@@ -16,8 +16,9 @@ terraform {
 }
 
 variable "database_config" {
-  # TODO: Define object type with:
-  # host = string, port = number, username = string, ssl = optional(bool, true)
+  # TODO (What): Add `ssl = optional(bool, true)` to the object type definition.
+  # TODO (Why): The `optional(...)` modifier allows callers to omit the attribute, automatically falling back
+  #             to the specified default value (true) without requiring boilerplate ternary expressions.
   type = object({
     host     = string
     port     = number
@@ -34,6 +35,7 @@ variable "database_config" {
 variable "endpoint_pair" {
   type        = tuple([string, number])
   description = "Tuple of hostname and port"
-  # TODO: Fix default tuple to ["api.internal", 443]
+  # TODO (What): Change the second element of the tuple from "not_a_number" to a number literal like 443.
+  # TODO (Why): Tuples enforce positional type constraints; index 0 must be string and index 1 must be number.
   default     = ["api.internal", "not_a_number"]
 }
