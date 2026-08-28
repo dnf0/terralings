@@ -42,12 +42,14 @@ variable "log_retention_days" {
 }
 
 locals {
-  # TODO: Encapsulate workload compute primitives into a structured module payload
+  # TODO (What): Encapsulate workload primitives into a map: { cluster = var.cluster_name, service_name = var.service_name, log_retention_days = var.log_retention_days, security_groups = ["sg-workload-internal"] }.
+  # TODO (Why): Zero loose compute resources in root modules: encapsulating primitives enforces modular architecture and uniform lifecycle governance.
   workload_module = {}
 }
 
 resource "terraform_data" "workload_module" {
-  # TODO: Set input to local.workload_module
+  # TODO (What): Set input = local.workload_module.
+  # TODO (Why): Passes the encapsulated workload specification into the module representation.
   input = local.workload_module
 
   lifecycle {
@@ -59,6 +61,7 @@ resource "terraform_data" "workload_module" {
 }
 
 output "workload_service" {
-  # TODO: Reference service_name from terraform_data.workload_module.output
+  # TODO (What): Reference service_name from terraform_data.workload_module.output.service_name.
+  # TODO (Why): Exposes the validated service name from the encapsulated module.
   value = terraform_data.workload_module.output.service_name
 }

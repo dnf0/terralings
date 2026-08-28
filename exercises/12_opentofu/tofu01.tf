@@ -31,13 +31,17 @@
 # ==============================================================================
 
 terraform {
-  # TODO: Configure OpenTofu encryption block
+  # TODO (What): Configure OpenTofu encryption block with pbkdf2 key provider, aes_gcm method, and enforced state encryption.
+  # TODO (Why): OpenTofu state encryption guarantees client-side data protection for secrets in state files prior to remote backend transit.
   encryption {
-    # TODO: Define key_provider "pbkdf2" "passphrase" with passphrase = "correct-horse-battery-staple"
-    # TODO: Define method "aes_gcm" "main" referencing key_provider.pbkdf2.passphrase
+    # TODO (What): Define key_provider "pbkdf2" "passphrase" with passphrase = "correct-horse-battery-staple".
+    # TODO (Why): Key providers supply cryptographic material used to derive data encryption keys.
+    # TODO (What): Define method "aes_gcm" "main" with keys = key_provider.pbkdf2.passphrase.
+    # TODO (Why): Encryption methods define the cipher (AES-GCM) applied to state snapshots and plan files.
 
     state {
-      # TODO: Set method and enforced
+      # TODO (What): Set method = method.aes_gcm.main and enforced = true.
+      # TODO (Why): Enforcing encryption ensures unencrypted fallback states are rejected during apply.
       method   = method.aes_gcm.main
       enforced = true
     }

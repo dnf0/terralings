@@ -39,12 +39,14 @@ variable "port" {
 }
 
 locals {
-  # TODO: Construct cluster_fqdn as "<subdomain>.<environment>.<domain_suffix>"
+  # TODO (What): Construct cluster_fqdn as "${var.subdomain}.${var.environment}.${var.domain_suffix}".
+  # TODO (Why): Standardizing domain name strings in locals guarantees consistent internal addressing across workload gateways.
   cluster_fqdn = ""
 }
 
 resource "terraform_data" "gateway" {
-  # TODO: Provide fqdn and port in input map
+  # TODO (What): Set fqdn = local.cluster_fqdn and port = var.port in the input map.
+  # TODO (Why): Clean local interpolation passes validated endpoint strings directly into infrastructure inputs.
   input = {
     fqdn = split(".", local.cluster_fqdn)[2]
     port = var.port
@@ -52,6 +54,7 @@ resource "terraform_data" "gateway" {
 }
 
 output "gateway_fqdn" {
-  # TODO: Reference terraform_data.gateway output fqdn
+  # TODO (What): Reference terraform_data.gateway.output.fqdn.
+  # TODO (Why): Exposes the generated gateway address to consuming client services.
   value = terraform_data.gateway.output.fqdn
 }

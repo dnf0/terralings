@@ -65,12 +65,14 @@ locals {
     }
   }
 
-  # TODO: Look up the active environment configuration using var.env as the key
+  # TODO (What): Look up the active environment configuration using local.environments[var.env].
+  # TODO (Why): Map lookups eliminate brittle nested ternaries and centralize per-environment sizing matrices into clean data structures.
   current_env = null
 }
 
 resource "terraform_data" "app_cluster" {
-  # TODO: Populate the input map using var.env and local.current_env attributes
+  # TODO (What): Populate input using var.env and local.current_env attributes (instances, monitoring, tier).
+  # TODO (Why): Passing pre-computed configuration objects simplifies resource definitions and improves testability.
   input = {
     environment = var.env
     instances   = local.current_env.instance_count

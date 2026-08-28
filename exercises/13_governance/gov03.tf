@@ -47,12 +47,14 @@ resource "terraform_data" "job_trigger" {
 }
 
 locals {
-  # TODO: Define ephemeral_workload namespace, workers, ttl_mins, and isolated flag
+  # TODO (What): Define ephemeral_workload = { namespace = "ephemeral-${var.job_id}", workers = var.worker_nodes, ttl_mins = var.max_runtime_minutes, isolated = true }.
+  # TODO (Why): Ephemeral workloads (e.g. Ray clusters, training runs) must be namespaced and encapsulated to prevent root module pollution and state collisions.
   ephemeral_workload = {}
 }
 
 resource "terraform_data" "ephemeral_cluster" {
-  # TODO: Set input to local.ephemeral_workload
+  # TODO (What): Set input = local.ephemeral_workload.
+  # TODO (Why): Encapsulating compute primitives ensures runtime constraints (TTL, worker scale) are bundled atomically.
   input = local.ephemeral_workload
 
   lifecycle {
@@ -65,6 +67,7 @@ resource "terraform_data" "ephemeral_cluster" {
 }
 
 output "cluster_namespace" {
-  # TODO: Reference namespace from terraform_data.ephemeral_cluster.output
+  # TODO (What): Reference namespace from terraform_data.ephemeral_cluster.output.namespace.
+  # TODO (Why): Exposes the generated ephemeral cluster namespace for downstream orchestration jobs.
   value = terraform_data.ephemeral_cluster.output.namespace
 }
