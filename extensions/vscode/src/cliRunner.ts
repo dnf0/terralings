@@ -1,7 +1,9 @@
 import * as cp from 'child_process';
 import * as vscode from 'vscode';
 import * as path from 'path';
+import * as fs from 'fs';
 import { findTerralingsBinary } from './lspClient';
+import { getEffectiveWorkspaceRoot } from './pathUtils';
 
 let outputChannel: vscode.OutputChannel | undefined;
 
@@ -29,7 +31,7 @@ export function disposeOutputChannel(): void {
  * Resolves the path to the terralings executable for CLI commands.
  */
 export function getTerralingsBinary(): string {
-  const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+  const workspaceRoot = getEffectiveWorkspaceRoot();
   return findTerralingsBinary(workspaceRoot);
 }
 
@@ -63,7 +65,7 @@ export function normalizeExerciseName(input?: string): string | undefined {
  * then sends the terralings command to it and reveals the terminal.
  */
 export function openTerminalCommand(name: string, args: string[]): vscode.Terminal {
-  const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+  const workspaceRoot = getEffectiveWorkspaceRoot();
   let terminal = vscode.window.terminals.find((t) => t.name === name);
   if (!terminal) {
     terminal = vscode.window.createTerminal({
@@ -105,10 +107,10 @@ export function runTuiTerminal(): vscode.Terminal {
 /**
  * Executes a terralings CLI command, writing formatted output to the shared OutputChannel.
  */
-export function runCliCommand(args: string[], title: string): Promise<string> {
+export function runCliCommand(args: string[], title: string, customCwd?: string): Promise<string> {
   const channel = getOutputChannel();
   const binary = getTerralingsBinary();
-  const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+  const cwd = customCwd || getEffectiveWorkspaceRoot();
 
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19);
   channel.appendLine(`\n=== [${timestamp}] ${title} ===`);
@@ -119,7 +121,7 @@ export function runCliCommand(args: string[], title: string): Promise<string> {
       binary,
       args,
       {
-        cwd: workspaceRoot,
+        cwd,
         env: { ...process.env, NO_COLOR: '1' }
       },
       (error, stdout, stderr) => {
@@ -140,6 +142,17 @@ export function runCliCommand(args: string[], title: string): Promise<string> {
       }
     );
   });
+}
+
+/**
+ * Initializes exercises into the specified directory or effective workspace root using `terralings init`.
+ */
+export async function initExercises(targetDir?: string): Promise<string> {
+  const target = targetDir || getEffectiveWorkspaceRoot();
+  if (!fs.existsSync(target)) {
+    fs.mkdirSync(target, { recursive: true });
+  }
+  return runCliCommand(['init', '.'], 'Initialize Exercises', target);
 }
 
 /**

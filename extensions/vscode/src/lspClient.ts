@@ -7,6 +7,7 @@ import {
   ServerOptions,
   TransportKind
 } from 'vscode-languageclient/node';
+import { getEffectiveWorkspaceRoot } from './pathUtils';
 
 let client: LanguageClient | undefined;
 let fileWatcher: vscode.FileSystemWatcher | undefined;
@@ -42,7 +43,7 @@ export function findTerralingsBinary(workspaceRoot?: string): string {
   }
 
   // 2. Check workspace root ./bin/terralings
-  const root = workspaceRoot ?? vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+  const root = workspaceRoot ?? getEffectiveWorkspaceRoot();
   if (root) {
     const workspaceBin = path.join(root, 'bin', binName);
     if (fs.existsSync(workspaceBin)) {
@@ -87,14 +88,14 @@ export async function startLspClient(
     return client;
   }
 
-  const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+  const workspaceRoot = getEffectiveWorkspaceRoot();
   const binaryPath = findTerralingsBinary(workspaceRoot);
 
   const serverOptions: ServerOptions = {
     command: binaryPath,
     args: ['lsp'],
     transport: TransportKind.stdio,
-    options: workspaceRoot ? { cwd: workspaceRoot } : undefined
+    options: { cwd: workspaceRoot }
   };
 
   if (!fileWatcher) {

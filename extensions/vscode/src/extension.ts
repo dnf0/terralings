@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as os from 'os';
 import {
   startLspClient,
   stopLspClient
@@ -13,17 +14,18 @@ import {
   runDoctor,
   runHint,
   runReset,
-  runCurrentExercise
+  runCurrentExercise,
+  initExercises
 } from './cliRunner';
 import { TerralingsStatusBar } from './statusBar';
 import {
   TerralingsTreeDataProvider,
   ALL_EXERCISES,
   findExercise,
-  resolveExerciseUri,
   findChapter
 } from './treeProvider';
 import { initStateWatcher } from './stateWatcher';
+import { getEffectiveWorkspaceRoot, resolveExercisePath } from './pathUtils';
 
 /**
  * Helper to extract an exercise name or target path from command parameters or tree items.
@@ -75,9 +77,9 @@ function checkAutoOpenWalkthrough(context: vscode.ExtensionContext): void {
     return;
   }
 
-  const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-  const statePath = workspaceRoot ? path.join(workspaceRoot, '.terralings', 'state.json') : undefined;
-  const stateExists = statePath ? fs.existsSync(statePath) : false;
+  const workspaceRoot = getEffectiveWorkspaceRoot();
+  const statePath = path.join(workspaceRoot, '.terralings', 'state.json');
+  const stateExists = fs.existsSync(statePath);
 
   if (!stateExists) {
     context.globalState.update('terralings.hasSeenWalkthrough', true);
@@ -161,10 +163,80 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
       if (targetName) {
         const found = findExercise(targetName);
-        const filePath = found ? found.path : targetName;
-        const uri = resolveExerciseUri(filePath);
-        await vscode.commands.executeCommand('vscode.open', uri);
+        const relPath = found ? found.path : targetName;
+        const workspaceRoot = getEffectiveWorkspaceRoot();
+        let resolved = resolveExercisePath(relPath, workspaceRoot);
+
+        if (!fs.existsSync(resolved)) {
+          const targetDir = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || path.join(os.homedir(), 'terralings');
+          const choice = await vscode.window.showInformationMessage(
+            `Terralings exercises were not found on disk. Would you like to initialize them in "${targetDir}"?`,
+            'Initialize Exercises',
+            'Cancel'
+          );
+
+          if (choice === 'Initialize Exercises') {
+            try {
+              await initExercises(targetDir);
+              vscode.window.showInformationMessage('Terralings exercises initialized successfully! 🎉');
+              treeDataProvider.refresh();
+              const progress = treeDataProvider.getProgress();
+              statusBar.update(progress.completed, progress.total);
+              resolved = resolveExercisePath(relPath, targetDir);
+            } catch (e) {
+              vscode.window.showErrorMessage(
+                `Failed to initialize exercises: ${e instanceof Error ? e.message : String(e)}`
+              );
+              return;
+            }
+          } else {
+            return;
+          }
+        }
+
+        if (fs.existsSync(resolved)) {
+          try {
+            const doc = await vscode.workspace.openTextDocument(vscode.Uri.file(resolved));
+            await vscode.window.showTextDocument(doc);
+          } catch (err) {
+            vscode.window.showErrorMessage(
+              `Failed to open exercise file: ${err instanceof Error ? err.message : String(err)}`
+            );
+          }
+        } else {
+          vscode.window.showErrorMessage(`Exercise file still not found at: ${resolved}`);
+        }
       }
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('terralings.initExercises', async () => {
+      const targetDir = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || path.join(os.homedir(), 'terralings');
+      try {
+        await initExercises(targetDir);
+        vscode.window.showInformationMessage(`Terralings exercises initialized successfully in ${targetDir}! 🎉`);
+        treeDataProvider.refresh();
+        const progress = treeDataProvider.getProgress();
+        statusBar.update(progress.completed, progress.total);
+      } catch (err) {
+        vscode.window.showErrorMessage(
+          `Failed to initialize exercises: ${err instanceof Error ? err.message : String(err)}`
+        );
+      }
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('terralings.openNextExercise', async () => {
+      for (const ex of ALL_EXERCISES) {
+        const status = treeDataProvider.getExerciseStatus(ex.name);
+        if (status !== 'passed') {
+          await vscode.commands.executeCommand('terralings.openExercise', ex.name);
+          return;
+        }
+      }
+      vscode.window.showInformationMessage('🎉 All Terralings exercises have been completed! Amazing job!');
     })
   );
 

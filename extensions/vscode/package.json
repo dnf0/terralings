@@ -111,24 +111,39 @@
         "command": "terralings.refreshTree",
         "title": "Terralings: Refresh Exercises",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "terralings.openNextExercise",
+        "title": "Terralings: Open Next Exercise",
+        "icon": "$(arrow-right)"
+      },
+      {
+        "command": "terralings.initExercises",
+        "title": "Terralings: Initialize Exercises in Workspace",
+        "icon": "$(folder-opened)"
       }
     ],
     "menus": {
       "view/title": [
         {
-          "command": "terralings.watch",
+          "command": "terralings.openNextExercise",
           "when": "view == terralings-tree",
           "group": "navigation@1"
         },
         {
-          "command": "terralings.tui",
+          "command": "terralings.watch",
           "when": "view == terralings-tree",
           "group": "navigation@2"
         },
         {
-          "command": "terralings.refreshTree",
+          "command": "terralings.tui",
           "when": "view == terralings-tree",
           "group": "navigation@3"
+        },
+        {
+          "command": "terralings.refreshTree",
+          "when": "view == terralings-tree",
+          "group": "navigation@4"
         }
       ],
       "view/item/context": [
