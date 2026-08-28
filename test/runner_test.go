@@ -44,6 +44,26 @@ func TestCheckMarker(t *testing.T) {
 			expected: true,
 		},
 		{
+			name:     "HtmlCommentExact",
+			content:  "<!-- I AM NOT DONE -->\nterraform {}",
+			expected: true,
+		},
+		{
+			name:     "TripleUnderscoreBlank",
+			content:  "variable \"name\" {\n  default = ___\n}",
+			expected: true,
+		},
+		{
+			name:     "BlockCommentPlaceholder",
+			content:  "output \"url\" {\n  value = /* ??? */\n}",
+			expected: true,
+		},
+		{
+			name:     "HtmlAnswerPlaceholder",
+			content:  "resource \"local_file\" \"doc\" {\n  content = <!-- ANSWER -->\n}",
+			expected: true,
+		},
+		{
 			name:     "MarkerAbsentDone",
 			content:  "# I AM DONE\nterraform {}",
 			expected: false,
