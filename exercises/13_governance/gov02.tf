@@ -54,7 +54,7 @@ resource "terraform_data" "iam_role" {
 
   lifecycle {
     postcondition {
-      condition     = lookup(lookup(self.output, "policy_arns", {}), "secret_read", "") == local.secret_module.read_only_policy_arn && lookup(lookup(self.output, "policy_arns", {}), "kms_decrypt", "") == local.kms_module.decrypt_policy_arn
+      condition     = try(self.input.policy_arns.secret_read, "") == local.secret_module.read_only_policy_arn && try(self.input.policy_arns.kms_decrypt, "") == local.kms_module.decrypt_policy_arn
       error_message = "IAM role must attach managed policy ARNs exported by the secret and KMS modules."
     }
   }
