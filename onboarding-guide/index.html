@@ -1,0 +1,2262 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="An interactive, hands-on CLI learning environment for Terraform and OpenTofu.">
+      
+      
+        <meta name="author" content="Terralings Contributors">
+      
+      
+        <link rel="canonical" href="https://dnf0.github.io/terralings/onboarding-guide/">
+      
+      
+        <link rel="prev" href="../getting-started/">
+      
+      
+        <link rel="next" href="../syllabus/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Onboarding Guide - Terralings</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#terralings-onboarding-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Terralings" class="md-header__button md-logo" aria-label="Terralings" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Terralings
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Onboarding Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/dnf0/terralings" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    dnf0/terralings
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Terralings" class="md-nav__button md-logo" aria-label="Terralings" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Terralings
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/dnf0/terralings" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    dnf0/terralings
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Onboarding Guide
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Onboarding Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table of Contents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-welcome-core-philosophy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Welcome &amp; Core Philosophy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Welcome &amp; Core Philosophy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-design-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Design Principles
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-step-0-environment-health-check-terralings-doctor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Step 0: Environment Health Check (terralings doctor)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Step 0: Environment Health Check (terralings doctor)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagnostic-checks-performed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagnostic Checks Performed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sample-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sample Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#machine-readable-diagnostics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Machine-Readable Diagnostics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-step-1-workspace-initialization-terralings-init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Step 1: Workspace Initialization (terralings init)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-step-2-the-interactive-guided-tour-terralings-tour" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Step 2: The Interactive Guided Tour (terralings tour)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Step 2: The Interactive Guided Tour (terralings tour)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-5-tour-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The 5 Tour Steps
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interactive-tour-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interactive Tour Controls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#non-interactive-json-tour-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Non-Interactive &amp; JSON Tour Modes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-step-3-solving-your-first-exercise-primitives01" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Step 3: Solving Your First Exercise (primitives01)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Step 3: Solving Your First Exercise (primitives01)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-open-the-exercise-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Open the Exercise File
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-run-single-exercise-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Run Single Exercise Verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-apply-the-fix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Apply the Fix
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-verify-the-solution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Verify the Solution
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-choosing-your-learning-modality" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Choosing Your Learning Modality
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Choosing Your Learning Modality">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#modal-a-continuous-watch-mode-terralings-watch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modal A: Continuous Watch Mode (terralings watch)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Modal A: Continuous Watch Mode (terralings watch)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#interactive-watch-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interactive Watch Controls
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#modal-b-interactive-full-screen-tui-dashboard-terralings-tui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modal B: Interactive Full-Screen TUI Dashboard (terralings tui)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Modal B: Interactive Full-Screen TUI Dashboard (terralings tui)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tui-dashboard-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TUI Dashboard Layout
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tui-keyboard-shortcuts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TUI Keyboard Shortcuts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-step-5-using-progressive-hints-search-reset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Step 5: Using Progressive Hints, Search &amp; Reset
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Step 5: Using Progressive Hints, Search &amp; Reset">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#progressive-hints-terralings-hint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Progressive Hints (terralings hint)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#curriculum-search-terralings-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Curriculum Search (terralings search)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resetting-exercises-terralings-reset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resetting Exercises (terralings reset)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-step-6-progress-tracking-analytics-terralings-stats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Step 6: Progress Tracking &amp; Analytics (terralings stats)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Step 6: Progress Tracking &amp; Analytics (terralings stats)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sample-analytics-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sample Analytics Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-step-7-editor-integration-language-server-terralings-lsp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Step 7: Editor Integration &amp; Language Server (terralings lsp)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Step 7: Editor Integration &amp; Language Server (terralings lsp)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#visual-studio-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visual Studio Code
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#neovim-nvim-lspconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Neovim (nvim-lspconfig)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#helix-languagestoml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Helix (languages.toml)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-curriculum-roadmap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Curriculum Roadmap
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-troubleshooting-faq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Troubleshooting &amp; FAQ
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Troubleshooting &amp; FAQ">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#q1-terralings-doctor-reports-missing-iac-engine-binary-how-do-i-install-opentofu-or-terraform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Q1: terralings doctor reports missing IaC engine binary. How do I install OpenTofu or Terraform?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q2-do-i-need-aws-gcp-or-azure-credentials-to-complete-the-exercises" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Q2: Do I need AWS, GCP, or Azure credentials to complete the exercises?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q3-how-do-i-verify-all-exercises-at-once" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Q3: How do I verify all exercises at once?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q4-my-editor-is-not-showing-error-diagnostics-how-do-i-troubleshoot-terralings-lsp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Q4: My editor is not showing error diagnostics. How do I troubleshoot terralings lsp?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q5-how-do-i-generate-shell-completions-for-tab-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Q5: How do I generate shell completions for tab navigation?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q6-where-is-my-progress-saved-can-i-backup-or-transfer-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Q6: Where is my progress saved? Can I backup or transfer it?
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syllabus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Curriculum Syllabus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vscode-extension/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VS Code Companion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table of Contents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-welcome-core-philosophy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Welcome &amp; Core Philosophy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Welcome &amp; Core Philosophy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-design-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Design Principles
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-step-0-environment-health-check-terralings-doctor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Step 0: Environment Health Check (terralings doctor)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Step 0: Environment Health Check (terralings doctor)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagnostic-checks-performed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagnostic Checks Performed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sample-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sample Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#machine-readable-diagnostics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Machine-Readable Diagnostics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-step-1-workspace-initialization-terralings-init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Step 1: Workspace Initialization (terralings init)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-step-2-the-interactive-guided-tour-terralings-tour" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Step 2: The Interactive Guided Tour (terralings tour)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Step 2: The Interactive Guided Tour (terralings tour)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-5-tour-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The 5 Tour Steps
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interactive-tour-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interactive Tour Controls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#non-interactive-json-tour-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Non-Interactive &amp; JSON Tour Modes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-step-3-solving-your-first-exercise-primitives01" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Step 3: Solving Your First Exercise (primitives01)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Step 3: Solving Your First Exercise (primitives01)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-open-the-exercise-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Open the Exercise File
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-run-single-exercise-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Run Single Exercise Verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-apply-the-fix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Apply the Fix
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-verify-the-solution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Verify the Solution
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-choosing-your-learning-modality" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Choosing Your Learning Modality
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Choosing Your Learning Modality">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#modal-a-continuous-watch-mode-terralings-watch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modal A: Continuous Watch Mode (terralings watch)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Modal A: Continuous Watch Mode (terralings watch)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#interactive-watch-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interactive Watch Controls
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#modal-b-interactive-full-screen-tui-dashboard-terralings-tui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modal B: Interactive Full-Screen TUI Dashboard (terralings tui)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Modal B: Interactive Full-Screen TUI Dashboard (terralings tui)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tui-dashboard-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TUI Dashboard Layout
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tui-keyboard-shortcuts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TUI Keyboard Shortcuts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-step-5-using-progressive-hints-search-reset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Step 5: Using Progressive Hints, Search &amp; Reset
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Step 5: Using Progressive Hints, Search &amp; Reset">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#progressive-hints-terralings-hint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Progressive Hints (terralings hint)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#curriculum-search-terralings-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Curriculum Search (terralings search)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resetting-exercises-terralings-reset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resetting Exercises (terralings reset)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-step-6-progress-tracking-analytics-terralings-stats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Step 6: Progress Tracking &amp; Analytics (terralings stats)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Step 6: Progress Tracking &amp; Analytics (terralings stats)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sample-analytics-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sample Analytics Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-step-7-editor-integration-language-server-terralings-lsp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Step 7: Editor Integration &amp; Language Server (terralings lsp)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Step 7: Editor Integration &amp; Language Server (terralings lsp)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#visual-studio-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visual Studio Code
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#neovim-nvim-lspconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Neovim (nvim-lspconfig)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#helix-languagestoml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Helix (languages.toml)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-curriculum-roadmap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Curriculum Roadmap
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-troubleshooting-faq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Troubleshooting &amp; FAQ
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Troubleshooting &amp; FAQ">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#q1-terralings-doctor-reports-missing-iac-engine-binary-how-do-i-install-opentofu-or-terraform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Q1: terralings doctor reports missing IaC engine binary. How do I install OpenTofu or Terraform?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q2-do-i-need-aws-gcp-or-azure-credentials-to-complete-the-exercises" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Q2: Do I need AWS, GCP, or Azure credentials to complete the exercises?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q3-how-do-i-verify-all-exercises-at-once" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Q3: How do I verify all exercises at once?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q4-my-editor-is-not-showing-error-diagnostics-how-do-i-troubleshoot-terralings-lsp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Q4: My editor is not showing error diagnostics. How do I troubleshoot terralings lsp?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q5-how-do-i-generate-shell-completions-for-tab-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Q5: How do I generate shell completions for tab navigation?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q6-where-is-my-progress-saved-can-i-backup-or-transfer-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Q6: Where is my progress saved? Can I backup or transfer it?
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="terralings-onboarding-guide">Terralings Onboarding Guide</h1>
+<blockquote>
+<p>An interactive, terminal-driven learning journey to master Terraform and OpenTofu through hands-on practice.</p>
+</blockquote>
+<p>Welcome to <strong>Terralings</strong>! This guide takes you from zero to confidently authoring, refactoring, testing, and governing production-grade Infrastructure as Code (IaC).</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#1-welcome-core-philosophy">Welcome &amp; Core Philosophy</a></li>
+<li><a href="#2-step-0-environment-health-check-terralings-doctor">Step 0: Environment Health Check (<code>terralings doctor</code>)</a></li>
+<li><a href="#3-step-1-workspace-initialization-terralings-init">Step 1: Workspace Initialization (<code>terralings init</code>)</a></li>
+<li><a href="#4-step-2-the-interactive-guided-tour-terralings-tour">Step 2: The Interactive Guided Tour (<code>terralings tour</code>)</a></li>
+<li><a href="#5-step-3-solving-your-first-exercise-primitives01">Step 3: Solving Your First Exercise (<code>primitives01</code>)</a></li>
+<li><a href="#6-choosing-your-learning-modality">Step 4: Choosing Your Learning Modality</a></li>
+<li><a href="#modal-a-continuous-watch-mode-terralings-watch">Modal A: Continuous Watch Mode (<code>terralings watch</code>)</a></li>
+<li><a href="#modal-b-interactive-full-screen-tui-dashboard-terralings-tui">Modal B: Interactive Full-Screen TUI Dashboard (<code>terralings tui</code>)</a></li>
+<li><a href="#7-step-5-using-progressive-hints-search-reset">Step 5: Using Progressive Hints, Search &amp; Reset</a></li>
+<li><a href="#progressive-hints-terralings-hint">Progressive Hints (<code>terralings hint</code>)</a></li>
+<li><a href="#curriculum-search-terralings-search">Curriculum Search (<code>terralings search</code>)</a></li>
+<li><a href="#resetting-exercises-terralings-reset">Resetting Exercises (<code>terralings reset</code>)</a></li>
+<li><a href="#8-step-6-progress-tracking-analytics-terralings-stats">Step 6: Progress Tracking &amp; Analytics (<code>terralings stats</code>)</a></li>
+<li><a href="#9-step-7-editor-integration-language-server-terralings-lsp">Step 7: Editor Integration &amp; Language Server (<code>terralings lsp</code>)</a></li>
+<li><a href="#visual-studio-code">Visual Studio Code</a></li>
+<li><a href="#neovim-nvim-lspconfig">Neovim (<code>nvim-lspconfig</code>)</a></li>
+<li><a href="#helix-languagestoml">Helix (<code>languages.toml</code>)</a></li>
+<li><a href="#10-curriculum-roadmap">Curriculum Roadmap</a></li>
+<li><a href="#11-troubleshooting-faq">Troubleshooting &amp; FAQ</a></li>
+</ol>
+<hr />
+<h2 id="1-welcome-core-philosophy">1. Welcome &amp; Core Philosophy</h2>
+<p>Terralings is inspired by <a href="https://github.com/rust-lang/rustlings"><code>rustlings</code></a>, <a href="https://github.com/ziglings/exercises"><code>ziglings</code></a>, and <a href="https://github.com/ray-project/raylings"><code>raylings</code></a>. It provides a self-contained, offline-first feedback loop for learning HashiCorp Configuration Language (HCL), Terraform, and OpenTofu.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>       ┌────────────────┐
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>       │ Read `# TODO:` │
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>       └───────┬────────┘
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>               │
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>       ┌───────▼────────┐
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>       │   Edit Code    │◄───────────┐
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>       └───────┬────────┘            │
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>               │ (Save file)         │ Fix
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>       ┌───────▼────────┐            │ Errors
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>       │  Auto-Evaluate ├─[ Failed ]─┘
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>       └───────┬────────┘
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>               │ [ Passed ]
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>       ┌───────▼────────┐
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>       │ Next Exercise! │
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>       └────────────────┘
+</span></code></pre></div>
+<h3 id="core-design-principles">Core Design Principles</h3>
+<ul>
+<li><strong>Zero Cloud Credentials or Costs</strong>: All exercises run entirely locally using lightweight built-in providers (<code>local</code>, <code>random</code>, <code>archive</code>, <code>terraform_data</code>, <code>test_mock</code>) or fast in-memory execution. You never need AWS, GCP, or Azure accounts to complete the curriculum.</li>
+<li><strong>Sandboxed Runner</strong>: Each exercise runs in an isolated workspace with shared provider plugin caching (<code>~/.terralings/plugin-cache</code>), executing evaluation subroutines in under 100 milliseconds.</li>
+<li><strong>Zero Magic Comment Friction</strong>: Unlike older educational tools that require removing <code>// I AM NOT DONE</code> comments, Terralings validates your code deterministically against real compiler syntax, validation checks, execution plans, and <code>.tftest.hcl</code> assertions.</li>
+<li><strong>Dual Engine Compatibility</strong>: Works seamlessly with either <strong>OpenTofu</strong> (<code>tofu</code>) or <strong>Terraform</strong> (<code>terraform</code>) (version &gt;= 1.6.0).</li>
+</ul>
+<hr />
+<h2 id="2-step-0-environment-health-check-terralings-doctor">2. Step 0: Environment Health Check (<code>terralings doctor</code>)</h2>
+<p>Before starting the curriculum, run <code>terralings doctor</code> to verify that your system is configured correctly:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>terralings<span class="w"> </span>doctor
+</span></code></pre></div>
+<h3 id="diagnostic-checks-performed">Diagnostic Checks Performed</h3>
+<p><code>terralings doctor</code> evaluates 5 critical pre-flight criteria:</p>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>What is Validated</th>
+<th>Resolution if Warning/Failure</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>IaC Engine Binary</strong></td>
+<td>Discovers <code>tofu</code> or <code>terraform</code> in <code>$PATH</code> or via <code>--bin</code> / <code>$TERRALINGS_BIN</code></td>
+<td>Install OpenTofu (<code>brew install opentofu</code> or official curl script) or Terraform</td>
+</tr>
+<tr>
+<td><strong>Curriculum Scaffold</strong></td>
+<td>Verifies the presence and integrity of the <code>exercises/</code> folder</td>
+<td>Run <code>terralings init</code> in your project folder</td>
+</tr>
+<tr>
+<td><strong>Provider Plugin Cache</strong></td>
+<td>Verifies read/write access to <code>~/.terralings/plugin-cache</code></td>
+<td>Ensure write permissions on <code>~/.terralings</code> or set <code>TERRALINGS_PLUGIN_CACHE_DIR</code></td>
+</tr>
+<tr>
+<td><strong>Progress Persistence Store</strong></td>
+<td>Validates <code>.terralings/state.json</code> permissions and JSON schema</td>
+<td>Check write permissions in <code>.terralings/</code></td>
+</tr>
+<tr>
+<td><strong>Git Ignore Integration</strong></td>
+<td>Ensures <code>.terralings/</code> is ignored if working inside a Git repository</td>
+<td>Add <code>.terralings/</code> to your <code>.gitignore</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="sample-output">Sample Output</h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>🩺 Terralings Doctor Diagnostic Report
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>────────────────────────────────────────────────────────────
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a> ✓ IaC Engine Binary
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>   Found opentofu at /usr/local/bin/tofu (OpenTofu v1.8.0)
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a> ✓ Curriculum Scaffold
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>   Exercises directory present (56 configuration files found)
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a> ✓ Provider Plugin Cache
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>   Plugin cache directory ready at /Users/username/.terralings/plugin-cache
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a> ✓ Git Ignore Integration
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>   .terralings directory is properly git-ignored.
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a> ✓ Progress Persistence Store
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>   State store healthy at .terralings/state.json (0 completed, 0 attempts)
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>────────────────────────────────────────────────────────────
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a> All diagnostics passed! Your environment is 100% ready for Terralings.
+</span></code></pre></div>
+<h3 id="machine-readable-diagnostics">Machine-Readable Diagnostics</h3>
+<p>To integrate environment checks into scripts or CI pipelines, pass <code>--json</code>:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>terralings<span class="w"> </span>doctor<span class="w"> </span>--json
+</span></code></pre></div>
+<hr />
+<h2 id="3-step-1-workspace-initialization-terralings-init">3. Step 1: Workspace Initialization (<code>terralings init</code>)</h2>
+<p>Terralings embeds all 56 exercises directly into the binary. You do not need to clone a git repository to start practicing.</p>
+<p>Create a directory for your practice exercises and initialize:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>mkdir<span class="w"> </span>my-terralings<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>my-terralings
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>terralings<span class="w"> </span>init
+</span></code></pre></div>
+<p>This creates the <code>exercises/</code> directory with 13 progressive chapters:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>exercises/
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>├── 01_primitives/
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>│   ├── primitives01.tf
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>│   ├── primitives02.tf
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>│   └── ...
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>├── 02_variables/
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>├── 03_outputs_locals/
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>├── 04_functions/
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>├── 05_meta_arguments/
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>├── 06_dynamic_blocks/
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>├── 07_data_sources/
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>├── 08_modules/
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>├── 09_state_refactoring/
+</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>├── 10_testing/
+</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>├── 11_patterns/
+</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>├── 12_opentofu/
+</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>└── 13_governance/
+</span></code></pre></div>
+<blockquote>
+<p>[!TIP]
+If you ever want to re-extract fresh exercise files over existing ones, use the force flag:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>terralings<span class="w"> </span>init<span class="w"> </span>--force
+</span></code></pre></div></p>
+</blockquote>
+<hr />
+<h2 id="4-step-2-the-interactive-guided-tour-terralings-tour">4. Step 2: The Interactive Guided Tour (<code>terralings tour</code>)</h2>
+<p>To get an immediate 2-minute visual walkthrough of Terralings, run:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>terralings<span class="w"> </span>tour
+</span></code></pre></div>
+<h3 id="the-5-tour-steps">The 5 Tour Steps</h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>┌────────────────────────────────────────────────────────────┐
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>│ STEP 1 OF 5  Welcome &amp; Core Philosophy                     │
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>│ Master Terraform &amp; OpenTofu through interactive practice   │
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>├────────────────────────────────────────────────────────────┤
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>│ STEP 2 OF 5  Anatomy of an Exercise                        │
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>│ How exercises are structured and solved                    │
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>├────────────────────────────────────────────────────────────┤
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>│ STEP 3 OF 5  Continuous Watch &amp; Verification               │
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>│ The rapid edit-save-verify feedback loop                   │
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>├────────────────────────────────────────────────────────────┤
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>│ STEP 4 OF 5  Interactive TUI, Hints &amp; Analytics            │
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>│ Terminal dashboard, progressive hints, and progress stats  │
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>├────────────────────────────────────────────────────────────┤
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>│ STEP 5 OF 5  Editor Integration &amp; LSP                      │
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>│ Live compiler diagnostics and hover docs in your editor    │
+</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>└────────────────────────────────────────────────────────────┘
+</span></code></pre></div>
+<h3 id="interactive-tour-controls">Interactive Tour Controls</h3>
+<p>While running <code>terralings tour</code>:
+- Press <kbd>Enter</kbd> or <kbd>n</kbd> to advance to the next step.
+- Press <kbd>p</kbd> to return to the previous step.
+- Press <kbd>1</kbd> – <kbd>5</kbd> to jump directly to any step.
+- Press <kbd>q</kbd> or <kbd>Ctrl+C</kbd> to exit the tour.</p>
+<h3 id="non-interactive-json-tour-modes">Non-Interactive &amp; JSON Tour Modes</h3>
+<p>Render all steps at once without waiting for keyboard input:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>terralings<span class="w"> </span>tour<span class="w"> </span>--non-interactive
+</span></code></pre></div></p>
+<p>Render a specific step directly:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>terralings<span class="w"> </span>tour<span class="w"> </span>--step<span class="w"> </span><span class="m">3</span><span class="w"> </span>--non-interactive
+</span></code></pre></div></p>
+<p>Export tour content as JSON for tooling:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>terralings<span class="w"> </span>tour<span class="w"> </span>--json
+</span></code></pre></div></p>
+<hr />
+<h2 id="5-step-3-solving-your-first-exercise-primitives01">5. Step 3: Solving Your First Exercise (<code>primitives01</code>)</h2>
+<p>Let's walk through solving the very first exercise: <code>exercises/01_primitives/primitives01.tf</code>.</p>
+<h3 id="1-open-the-exercise-file">1. Open the Exercise File</h3>
+<p>Open <code>exercises/01_primitives/primitives01.tf</code> in your editor. You will see:</p>
+<div class="language-terraform highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># ==============================================================================</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="c1"># Exercise: primitives01</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="c1"># Chapter: 01_primitives (HCL Foundations &amp; Core Primitives)</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c1">#</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="c1"># Task:</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="c1"># Every Terraform / OpenTofu project begins with a `terraform` configuration</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="c1"># block. This block specifies the minimum required engine version and declares</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="c1"># the providers needed by your configuration.</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="c1">#</span>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="c1"># In this exercise, complete the `terraform` block to require version "&gt;= 1.6.0"</span>
+</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="c1"># and declare the `local` provider from "hashicorp/local" with version "~&gt; 2.0".</span>
+</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="c1"># ==============================================================================</span>
+</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>
+</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="nb">terraform</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="w">  </span><span class="na">required_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"&gt;= 1.6.0"</span>
+</span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>
+</span><span id="__span-12-17"><a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="w">  </span><span class="nb">required_providers</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-18"><a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="c1">    # TODO: Specify provider source "hashicorp/local" and version "~&gt; 2.0"</span>
+</span><span id="__span-12-19"><a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a><span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-20"><a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a><span class="w">      </span><span class="na">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">""</span>
+</span><span id="__span-12-21"><a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-12-22"><a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-12-23"><a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="2-run-single-exercise-verification">2. Run Single Exercise Verification</h3>
+<p>Verify the exercise from the CLI:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>terralings<span class="w"> </span>run<span class="w"> </span>primitives01
+</span></code></pre></div>
+<p>Terralings evaluates the file and prints the compiler diagnostic output:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>✗ primitives01: Terraform Configuration Block (exercises/01_primitives/primitives01.tf)
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>Error: Invalid version constraint string
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>  on exercises/01_primitives/primitives01.tf line 16, in terraform:
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>  16:   required_version = "INVALID_VERSION"
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>The given string "INVALID_VERSION" is not a valid version constraint.
+</span></code></pre></div>
+<h3 id="3-apply-the-fix">3. Apply the Fix</h3>
+<p>Edit <code>exercises/01_primitives/primitives01.tf</code> and resolve the TODO instructions:</p>
+<div class="language-hcl highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="nb">terraform</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">  </span><span class="na">required_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"&gt;= 1.6.0"</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">  </span><span class="nb">required_providers</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">      </span><span class="na">source</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2">"hashicorp/local"</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="w">      </span><span class="na">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"&gt;= 2.4.0"</span>
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="4-verify-the-solution">4. Verify the Solution</h3>
+<p>Run <code>terralings run primitives01</code> again:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>✓ primitives01: Terraform Configuration Block (exercises/01_primitives/primitives01.tf)
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>  Configuration is valid.
+</span></code></pre></div>
+<p>Congratulations! You have solved your first Terralings exercise.</p>
+<hr />
+<h2 id="6-choosing-your-learning-modality">6. Choosing Your Learning Modality</h2>
+<p>Terralings offers two primary learning workflows to match your preference:</p>
+<h3 id="modal-a-continuous-watch-mode-terralings-watch">Modal A: Continuous Watch Mode (<code>terralings watch</code>)</h3>
+<p>Standard continuous watch mode monitors the <code>exercises/</code> folder via filesystem notifications. Every time you save a <code>.tf</code> or <code>.hcl</code> file, Terralings immediately validates it.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>terralings<span class="w"> </span>watch
+</span></code></pre></div>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>======================================================================
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>  TERRALINGS: Continuous Watch Mode
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>  Watching directory: exercises
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>  Press Ctrl+C to exit
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>======================================================================
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>✓ primitives01 passed!
+</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>
+</span><span id="__span-18-9"><a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>[Enter / n] Next exercise (primitives02)  |  [p] Previous  |  [r] Rerun  |  [q] Quit
+</span></code></pre></div>
+<h4 id="interactive-watch-controls">Interactive Watch Controls</h4>
+<p>When an exercise passes, the watcher pauses and offers interactive hotkeys:
+- <kbd>Enter</kbd> or <kbd>n</kbd>: Advance to next exercise.
+- <kbd>p</kbd>: Return to previous exercise.
+- <kbd>r</kbd>: Re-run the current exercise.
+- <kbd>q</kbd>: Quit watch mode.</p>
+<hr />
+<h3 id="modal-b-interactive-full-screen-tui-dashboard-terralings-tui">Modal B: Interactive Full-Screen TUI Dashboard (<code>terralings tui</code>)</h3>
+<p>For an immersive, terminal dashboard experience with split panes, real-time error viewports, collapsible hint drawers, and quick search:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>terralings<span class="w"> </span>tui
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="c1"># or</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>terralings<span class="w"> </span>watch<span class="w"> </span>-i
+</span></code></pre></div>
+<h4 id="tui-dashboard-layout">TUI Dashboard Layout</h4>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>┌───────────────────────────────┬──────────────────────────────────────────────┐
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>│  TERRALINGS CURRICULUM        │  EVALUATION VIEWPORT: primitives01           │
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>├───────────────────────────────┼──────────────────────────────────────────────┤
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>│ ▼ Chapter 01: Primitives      │                                              │
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>│   ✓ primitives01              │ Error: Invalid version constraint string     │
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>│   • primitives02              │   on exercises/01_primitives/primitives01.tf │
+</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>│   · primitives03              │   required_version = "INVALID_VERSION"       │
+</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>│                               │                                              │
+</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>│ ► Chapter 02: Variables       │ ──────────────────────────────────────────── │
+</span><span id="__span-20-10"><a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a>│ ► Chapter 03: Outputs &amp; Locals│ 💡 Hint (1/2): Set required_version =        │
+</span><span id="__span-20-11"><a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a>│                               │    "&gt;= 1.6.0" inside the terraform block.    │
+</span><span id="__span-20-12"><a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a>├───────────────────────────────┴──────────────────────────────────────────────┤
+</span><span id="__span-20-13"><a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a>│ [Tab] Switch Pane | [Enter] Run | [h] Toggle Hints | [/] Search | [q] Quit   │
+</span><span id="__span-20-14"><a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a>└──────────────────────────────────────────────────────────────────────────────┘
+</span></code></pre></div>
+<h4 id="tui-keyboard-shortcuts">TUI Keyboard Shortcuts</h4>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><kbd>↑</kbd> / <kbd>k</kbd></td>
+<td>Move cursor up in exercise list / search results</td>
+</tr>
+<tr>
+<td><kbd>↓</kbd> / <kbd>j</kbd></td>
+<td>Move cursor down in exercise list / search results</td>
+</tr>
+<tr>
+<td><kbd>Tab</kbd></td>
+<td>Toggle active focus between Chapter Sidebar and Viewport</td>
+</tr>
+<tr>
+<td><kbd>Enter</kbd></td>
+<td>Evaluate selected exercise (or select item in search)</td>
+</tr>
+<tr>
+<td><kbd>h</kbd></td>
+<td>Toggle progressive hint drawer / cycle hint levels</td>
+</tr>
+<tr>
+<td><kbd>r</kbd></td>
+<td>Reset exercise back to starter template</td>
+</tr>
+<tr>
+<td><kbd>/</kbd></td>
+<td>Open curriculum search modal</td>
+</tr>
+<tr>
+<td><kbd>Esc</kbd></td>
+<td>Close modal / cancel search</td>
+</tr>
+<tr>
+<td><kbd>q</kbd> / <kbd>Ctrl+C</kbd></td>
+<td>Quit TUI</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-step-5-using-progressive-hints-search-reset">7. Step 5: Using Progressive Hints, Search &amp; Reset</h2>
+<h3 id="progressive-hints-terralings-hint">Progressive Hints (<code>terralings hint</code>)</h3>
+<p>When you are stuck on an exercise, use progressive hints. Terralings provides tiered hints starting with conceptual nudges before revealing syntax examples:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="c1"># View the first hint</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>terralings<span class="w"> </span>hint<span class="w"> </span>primitives01
+</span></code></pre></div>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>╭────────────────────────────────────────────────╮
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>│                                                │
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>│ 💡 Hint (1/2) for primitives01:                │
+</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>│ Set required_version = "&gt;= 1.6.0" inside the   │
+</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>│ terraform block.                               │
+</span><span id="__span-22-6"><a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>│                                                │
+</span><span id="__span-22-7"><a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a>╰────────────────────────────────────────────────╯
+</span></code></pre></div>
+<p>To reveal deeper hints, pass the <code>--index</code> flag:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="c1"># View the second (more detailed) hint</span>
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>terralings<span class="w"> </span>hint<span class="w"> </span>primitives01<span class="w"> </span>-i<span class="w"> </span><span class="m">1</span>
+</span></code></pre></div>
+<hr />
+<h3 id="curriculum-search-terralings-search">Curriculum Search (<code>terralings search</code>)</h3>
+<p>Quickly find exercises covering specific HCL constructs, functions, or topics:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>terralings<span class="w"> </span>search<span class="w"> </span><span class="s2">"for_each"</span>
+</span></code></pre></div>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>🔍 Search Results for 'for_each' (3 matches):
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>  • meta02           Resource Mapping with for_each
+</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>    exercises/05_meta_arguments/meta02.tf | matched in: name, chapter, hints
+</span><span id="__span-25-4"><a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>  • module04         Multi-instance Module Provisioning with for_each
+</span><span id="__span-25-5"><a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>    exercises/08_modules/module04.tf | matched in: name, chapter, hints
+</span><span id="__span-25-6"><a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>  • dynamic01        Repeating Nested Blocks with dynamic
+</span><span id="__span-25-7"><a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>    exercises/06_dynamic_blocks/dynamic01.tf | matched in: hints
+</span></code></pre></div>
+<hr />
+<h3 id="resetting-exercises-terralings-reset">Resetting Exercises (<code>terralings reset</code>)</h3>
+<p>If you want to start an exercise from scratch or test your memory, reset it back to its original starter template:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>terralings<span class="w"> </span>reset<span class="w"> </span>primitives01
+</span></code></pre></div>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>🔄 Reset exercise 'primitives01' (exercises/01_primitives/primitives01.tf) back to original template.
+</span></code></pre></div>
+<hr />
+<h2 id="8-step-6-progress-tracking-analytics-terralings-stats">8. Step 6: Progress Tracking &amp; Analytics (<code>terralings stats</code>)</h2>
+<p>Terralings automatically records your learning metrics in <code>.terralings/state.json</code>. Run <code>terralings stats</code> at any time to inspect your progress:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>terralings<span class="w"> </span>stats
+</span></code></pre></div>
+<h3 id="sample-analytics-output">Sample Analytics Output</h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>📊 TERRALINGS LEARNING ANALYTICS
+</span><span id="__span-29-2"><a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>
+</span><span id="__span-29-3"><a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>Overall Progress: [████████████████████░░░░░░░░░░] 67% (38/56 completed)
+</span><span id="__span-29-4"><a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a>Time Invested:    2h 15m
+</span><span id="__span-29-5"><a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a>Total Attempts:   94 (avg 1.6 per exercise)
+</span><span id="__span-29-6"><a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a>Hints Consulted:  14
+</span><span id="__span-29-7"><a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a>
+</span><span id="__span-29-8"><a id="__codelineno-29-8" name="__codelineno-29-8" href="#__codelineno-29-8"></a>Chapter Breakdown:
+</span><span id="__span-29-9"><a id="__codelineno-29-9" name="__codelineno-29-9" href="#__codelineno-29-9"></a>  • 01_primitives        100% (6/6) | Avg Attempts: 1.2 | Hints: 1
+</span><span id="__span-29-10"><a id="__codelineno-29-10" name="__codelineno-29-10" href="#__codelineno-29-10"></a>  • 02_variables         100% (5/5) | Avg Attempts: 1.4 | Hints: 2
+</span><span id="__span-29-11"><a id="__codelineno-29-11" name="__codelineno-29-11" href="#__codelineno-29-11"></a>  • 03_outputs_locals    100% (4/4) | Avg Attempts: 1.0 | Hints: 0
+</span><span id="__span-29-12"><a id="__codelineno-29-12" name="__codelineno-29-12" href="#__codelineno-29-12"></a>  • 04_functions         100% (5/5) | Avg Attempts: 1.8 | Hints: 3
+</span><span id="__span-29-13"><a id="__codelineno-29-13" name="__codelineno-29-13" href="#__codelineno-29-13"></a>  • 05_meta_arguments    100% (5/5) | Avg Attempts: 1.6 | Hints: 2
+</span><span id="__span-29-14"><a id="__codelineno-29-14" name="__codelineno-29-14" href="#__codelineno-29-14"></a>  • 06_dynamic_blocks    100% (4/4) | Avg Attempts: 2.2 | Hints: 3
+</span><span id="__span-29-15"><a id="__codelineno-29-15" name="__codelineno-29-15" href="#__codelineno-29-15"></a>  • 07_data_sources       75% (3/4) | Avg Attempts: 1.5 | Hints: 1
+</span><span id="__span-29-16"><a id="__codelineno-29-16" name="__codelineno-29-16" href="#__codelineno-29-16"></a>  • 08_modules            40% (2/5) | Avg Attempts: 2.0 | Hints: 2
+</span><span id="__span-29-17"><a id="__codelineno-29-17" name="__codelineno-29-17" href="#__codelineno-29-17"></a>  • 09_state_refactoring   0% (0/4) | Avg Attempts: 0.0 | Hints: 0
+</span><span id="__span-29-18"><a id="__codelineno-29-18" name="__codelineno-29-18" href="#__codelineno-29-18"></a>  ...
+</span></code></pre></div>
+<hr />
+<h2 id="9-step-7-editor-integration-language-server-terralings-lsp">9. Step 7: Editor Integration &amp; Language Server (<code>terralings lsp</code>)</h2>
+<p>Terralings comes with a built-in Language Server Protocol (LSP) daemon communicating over JSON-RPC 2.0 (<code>stdio</code>). When configured in your editor, you get:</p>
+<ul>
+<li><strong>Inline Diagnostics</strong>: Real-time syntax errors and validation failures right in your editor gutter.</li>
+<li><strong>Hover Documentation</strong>: Hover over any exercise to read its objectives and hint cards rendered in rich markdown.</li>
+<li><strong>Code Actions</strong>: Quick fixes to reveal progressive hints.</li>
+</ul>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>terralings<span class="w"> </span>lsp
+</span></code></pre></div>
+<h3 id="visual-studio-code">Visual Studio Code</h3>
+<p>Configure Terralings using any generic LSP client extension (such as <a href="https://marketplace.visualstudio.com/items?itemName=eyhn.vscode-generic-lsp">Generic LSP Client</a>):</p>
+<p>Add to <code>.vscode/settings.json</code>:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="p">{</span>
+</span><span id="__span-31-2"><a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a><span class="w">  </span><span class="nt">"generic-lsp.serverConfigurations"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-31-3"><a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-31-4"><a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a><span class="w">      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"terralings"</span><span class="p">,</span>
+</span><span id="__span-31-5"><a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a><span class="w">      </span><span class="nt">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"terralings"</span><span class="p">,</span>
+</span><span id="__span-31-6"><a id="__codelineno-31-6" name="__codelineno-31-6" href="#__codelineno-31-6"></a><span class="w">      </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"lsp"</span><span class="p">],</span>
+</span><span id="__span-31-7"><a id="__codelineno-31-7" name="__codelineno-31-7" href="#__codelineno-31-7"></a><span class="w">      </span><span class="nt">"languages"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"terraform"</span><span class="p">,</span><span class="w"> </span><span class="s2">"hcl"</span><span class="p">,</span><span class="w"> </span><span class="s2">"terraform-vars"</span><span class="p">],</span>
+</span><span id="__span-31-8"><a id="__codelineno-31-8" name="__codelineno-31-8" href="#__codelineno-31-8"></a><span class="w">      </span><span class="nt">"rootMarkers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">".terralings"</span><span class="p">,</span><span class="w"> </span><span class="s2">"exercises"</span><span class="p">,</span><span class="w"> </span><span class="s2">".git"</span><span class="p">]</span>
+</span><span id="__span-31-9"><a id="__codelineno-31-9" name="__codelineno-31-9" href="#__codelineno-31-9"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-31-10"><a id="__codelineno-31-10" name="__codelineno-31-10" href="#__codelineno-31-10"></a><span class="w">  </span><span class="p">]</span>
+</span><span id="__span-31-11"><a id="__codelineno-31-11" name="__codelineno-31-11" href="#__codelineno-31-11"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr />
+<h3 id="neovim-nvim-lspconfig">Neovim (<code>nvim-lspconfig</code>)</h3>
+<p>Add the following to your Neovim configuration (e.g., <code>~/.config/nvim/lua/plugins/lsp.lua</code> or <code>init.lua</code>):</p>
+<div class="language-lua highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">lspconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">"lspconfig"</span><span class="p">)</span>
+</span><span id="__span-32-2"><a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a><span class="kd">local</span><span class="w"> </span><span class="nv">configs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">"lspconfig.configs"</span><span class="p">)</span>
+</span><span id="__span-32-3"><a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a>
+</span><span id="__span-32-4"><a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a><span class="kr">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="nv">configs</span><span class="p">.</span><span class="py">terralings</span><span class="w"> </span><span class="kr">then</span>
+</span><span id="__span-32-5"><a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a><span class="w">  </span><span class="nv">configs</span><span class="p">.</span><span class="py">terralings</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-32-6"><a id="__codelineno-32-6" name="__codelineno-32-6" href="#__codelineno-32-6"></a><span class="w">    </span><span class="nv">default_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-32-7"><a id="__codelineno-32-7" name="__codelineno-32-7" href="#__codelineno-32-7"></a><span class="w">      </span><span class="nv">cmd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">"terralings"</span><span class="p">,</span><span class="w"> </span><span class="s2">"lsp"</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-32-8"><a id="__codelineno-32-8" name="__codelineno-32-8" href="#__codelineno-32-8"></a><span class="w">      </span><span class="nv">filetypes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">"terraform"</span><span class="p">,</span><span class="w"> </span><span class="s2">"hcl"</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-32-9"><a id="__codelineno-32-9" name="__codelineno-32-9" href="#__codelineno-32-9"></a><span class="w">      </span><span class="nv">root_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">lspconfig</span><span class="p">.</span><span class="py">util</span><span class="p">.</span><span class="nf">root_pattern</span><span class="p">(</span><span class="s2">".terralings"</span><span class="p">,</span><span class="w"> </span><span class="s2">"exercises"</span><span class="p">,</span><span class="w"> </span><span class="s2">".git"</span><span class="p">),</span>
+</span><span id="__span-32-10"><a id="__codelineno-32-10" name="__codelineno-32-10" href="#__codelineno-32-10"></a><span class="w">      </span><span class="nv">settings</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{},</span>
+</span><span id="__span-32-11"><a id="__codelineno-32-11" name="__codelineno-32-11" href="#__codelineno-32-11"></a><span class="w">    </span><span class="p">},</span>
+</span><span id="__span-32-12"><a id="__codelineno-32-12" name="__codelineno-32-12" href="#__codelineno-32-12"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-32-13"><a id="__codelineno-32-13" name="__codelineno-32-13" href="#__codelineno-32-13"></a><span class="kr">end</span>
+</span><span id="__span-32-14"><a id="__codelineno-32-14" name="__codelineno-32-14" href="#__codelineno-32-14"></a>
+</span><span id="__span-32-15"><a id="__codelineno-32-15" name="__codelineno-32-15" href="#__codelineno-32-15"></a><span class="nv">lspconfig</span><span class="p">.</span><span class="py">terralings</span><span class="p">.</span><span class="nf">setup</span><span class="p">({</span>
+</span><span id="__span-32-16"><a id="__codelineno-32-16" name="__codelineno-32-16" href="#__codelineno-32-16"></a><span class="w">  </span><span class="nv">on_attach</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">client</span><span class="p">,</span><span class="w"> </span><span class="nv">bufnr</span><span class="p">)</span>
+</span><span id="__span-32-17"><a id="__codelineno-32-17" name="__codelineno-32-17" href="#__codelineno-32-17"></a><span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">opts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nv">buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">bufnr</span><span class="p">,</span><span class="w"> </span><span class="nv">silent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-32-18"><a id="__codelineno-32-18" name="__codelineno-32-18" href="#__codelineno-32-18"></a><span class="w">    </span><span class="nv">vim</span><span class="p">.</span><span class="py">keymap</span><span class="p">.</span><span class="nf">set</span><span class="p">(</span><span class="s2">"n"</span><span class="p">,</span><span class="w"> </span><span class="s2">"K"</span><span class="p">,</span><span class="w"> </span><span class="nv">vim</span><span class="p">.</span><span class="py">lsp</span><span class="p">.</span><span class="py">buf</span><span class="p">.</span><span class="py">hover</span><span class="p">,</span><span class="w"> </span><span class="nv">opts</span><span class="p">)</span>
+</span><span id="__span-32-19"><a id="__codelineno-32-19" name="__codelineno-32-19" href="#__codelineno-32-19"></a><span class="w">    </span><span class="nv">vim</span><span class="p">.</span><span class="py">keymap</span><span class="p">.</span><span class="nf">set</span><span class="p">(</span><span class="s2">"n"</span><span class="p">,</span><span class="w"> </span><span class="s2">"&lt;leader&gt;ca"</span><span class="p">,</span><span class="w"> </span><span class="nv">vim</span><span class="p">.</span><span class="py">lsp</span><span class="p">.</span><span class="py">buf</span><span class="p">.</span><span class="py">code_action</span><span class="p">,</span><span class="w"> </span><span class="nv">opts</span><span class="p">)</span>
+</span><span id="__span-32-20"><a id="__codelineno-32-20" name="__codelineno-32-20" href="#__codelineno-32-20"></a><span class="w">  </span><span class="kr">end</span><span class="p">,</span>
+</span><span id="__span-32-21"><a id="__codelineno-32-21" name="__codelineno-32-21" href="#__codelineno-32-21"></a><span class="p">})</span>
+</span></code></pre></div>
+<hr />
+<h3 id="helix-languagestoml">Helix (<code>languages.toml</code>)</h3>
+<p>Add Terralings as a language server in <code>~/.config/helix/languages.toml</code>:</p>
+<div class="language-toml highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="k">[language-server.terralings]</span>
+</span><span id="__span-33-2"><a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a><span class="n">command</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"terralings"</span>
+</span><span id="__span-33-3"><a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a><span class="n">args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"lsp"</span><span class="p">]</span>
+</span><span id="__span-33-4"><a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a>
+</span><span id="__span-33-5"><a id="__codelineno-33-5" name="__codelineno-33-5" href="#__codelineno-33-5"></a><span class="k">[[language]]</span>
+</span><span id="__span-33-6"><a id="__codelineno-33-6" name="__codelineno-33-6" href="#__codelineno-33-6"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"hcl"</span>
+</span><span id="__span-33-7"><a id="__codelineno-33-7" name="__codelineno-33-7" href="#__codelineno-33-7"></a><span class="n">language-servers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"terralings"</span><span class="w"> </span><span class="p">]</span>
+</span><span id="__span-33-8"><a id="__codelineno-33-8" name="__codelineno-33-8" href="#__codelineno-33-8"></a>
+</span><span id="__span-33-9"><a id="__codelineno-33-9" name="__codelineno-33-9" href="#__codelineno-33-9"></a><span class="k">[[language]]</span>
+</span><span id="__span-33-10"><a id="__codelineno-33-10" name="__codelineno-33-10" href="#__codelineno-33-10"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"terraform"</span>
+</span><span id="__span-33-11"><a id="__codelineno-33-11" name="__codelineno-33-11" href="#__codelineno-33-11"></a><span class="n">language-servers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"terralings"</span><span class="w"> </span><span class="p">]</span>
+</span></code></pre></div>
+<hr />
+<h2 id="10-curriculum-roadmap">10. Curriculum Roadmap</h2>
+<p>The complete Terralings curriculum is structured into 13 chapters containing 56 progressive exercises:</p>
+<table>
+<thead>
+<tr>
+<th>Chapter</th>
+<th>Title</th>
+<th>Focus Areas &amp; Concepts</th>
+<th style="text-align: center;">Exercises</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>01</strong></td>
+<td><strong>HCL Foundations &amp; Primitives</strong></td>
+<td><code>terraform</code> block, providers, resources, dependencies, string interpolation, heredoc syntax, lifecycles</td>
+<td style="text-align: center;">6</td>
+</tr>
+<tr>
+<td><strong>02</strong></td>
+<td><strong>Input Variables &amp; Validations</strong></td>
+<td>Primitive types, collection types (<code>list</code>, <code>map</code>, <code>set</code>), structural types (<code>object</code>, <code>tuple</code>), custom validations</td>
+<td style="text-align: center;">5</td>
+</tr>
+<tr>
+<td><strong>03</strong></td>
+<td><strong>Outputs, Locals &amp; Expressions</strong></td>
+<td>Output values, <code>sensitive</code> redaction, local values, ternary conditionals, splat expressions (<code>[*]</code>)</td>
+<td style="text-align: center;">4</td>
+</tr>
+<tr>
+<td><strong>04</strong></td>
+<td><strong>Built-in Functions &amp; Collections</strong></td>
+<td>String formatting, collection manipulation (<code>merge</code>, <code>slice</code>), JSON/YAML encoding, filesystem functions, <code>can()</code>/<code>try()</code></td>
+<td style="text-align: center;">5</td>
+</tr>
+<tr>
+<td><strong>05</strong></td>
+<td><strong>Meta-Arguments &amp; Scaling</strong></td>
+<td>Scaling with <code>count</code>, idempotent mapping with <code>for_each</code>, explicit <code>depends_on</code>, lifecycle management</td>
+<td style="text-align: center;">5</td>
+</tr>
+<tr>
+<td><strong>06</strong></td>
+<td><strong>Dynamic Blocks &amp; Nested HCL</strong></td>
+<td>Repeating nested blocks with <code>dynamic</code>, custom iterators, nested dynamic blocks, conditional generation</td>
+<td style="text-align: center;">4</td>
+</tr>
+<tr>
+<td><strong>07</strong></td>
+<td><strong>Data Sources &amp; State Querying</strong></td>
+<td><code>data</code> sources (<code>local_file</code>, <code>archive_file</code>, <code>external</code>), lifecycle <code>precondition</code> &amp; <code>postcondition</code></td>
+<td style="text-align: center;">4</td>
+</tr>
+<tr>
+<td><strong>08</strong></td>
+<td><strong>Modular Architecture</strong></td>
+<td>Child module instantiation, input passing, bubbling outputs, composition, multi-instance <code>for_each</code>, provider aliases</td>
+<td style="text-align: center;">5</td>
+</tr>
+<tr>
+<td><strong>09</strong></td>
+<td><strong>State Refactoring &amp; Surgery</strong></td>
+<td>Zero-downtime resource renaming via <code>moved</code> blocks, module extraction refactoring, <code>import</code> blocks, <code>replace_triggered_by</code></td>
+<td style="text-align: center;">4</td>
+</tr>
+<tr>
+<td><strong>10</strong></td>
+<td><strong>Native Unit &amp; Integration Tests</strong></td>
+<td><code>.tftest.hcl</code> test suites, <code>command = plan</code> / <code>apply</code>, <code>mock_provider</code> blocks, negative testing with <code>expect_failures</code></td>
+<td style="text-align: center;">4</td>
+</tr>
+<tr>
+<td><strong>11</strong></td>
+<td><strong>Production Infrastructure Patterns</strong></td>
+<td>Multi-tier composition, zero-downtime blue/green switching, tag inheritance, canary rollout patterns</td>
+<td style="text-align: center;">4</td>
+</tr>
+<tr>
+<td><strong>12</strong></td>
+<td><strong>OpenTofu Advanced Features</strong></td>
+<td>OpenTofu state file encryption (<code>key_provider</code>), early variable evaluation, custom registry mirrors</td>
+<td style="text-align: center;">3</td>
+</tr>
+<tr>
+<td><strong>13</strong></td>
+<td><strong>Governance &amp; Policy Guardrails</strong></td>
+<td>Strict naming convention enforcement, security compliance rules (TLS, encryption at rest), resource quota guardrails</td>
+<td style="text-align: center;">3</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td></td>
+<td><strong>Complete IaC Mastery</strong></td>
+<td style="text-align: center;"><strong>56</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="11-troubleshooting-faq">11. Troubleshooting &amp; FAQ</h2>
+<h3 id="q1-terralings-doctor-reports-missing-iac-engine-binary-how-do-i-install-opentofu-or-terraform">Q1: <code>terralings doctor</code> reports missing IaC engine binary. How do I install OpenTofu or Terraform?</h3>
+<p><strong>OpenTofu (Recommended):</strong>
+- <strong>macOS (Homebrew):</strong> <code>brew install opentofu</code>
+- <strong>Linux:</strong> <code>curl -fsSL https://get.opentofu.org/install-opentofu.sh | sh</code>
+- <strong>Windows (Chocolatey / Scoop):</strong> <code>choco install opentofu</code> or <code>scoop install opentofu</code></p>
+<p><strong>Terraform:</strong>
+- <strong>macOS (Homebrew):</strong> <code>brew tap hashicorp/tap &amp;&amp; brew install hashicorp/tap/terraform</code>
+- <strong>Linux:</strong> Install via HashiCorp official package repository.</p>
+<p>If the binary is in a non-standard path, specify <code>--bin /path/to/binary</code> or set <code>export TERRALINGS_BIN=/path/to/binary</code>.</p>
+<hr />
+<h3 id="q2-do-i-need-aws-gcp-or-azure-credentials-to-complete-the-exercises">Q2: Do I need AWS, GCP, or Azure credentials to complete the exercises?</h3>
+<p><strong>No.</strong> All exercises execute completely locally and offline using standard local providers (<code>local</code>, <code>random</code>, <code>archive</code>, <code>terraform_data</code>, <code>test_mock</code>) or fast in-memory execution. You will never be billed for cloud infrastructure while learning with Terralings.</p>
+<hr />
+<h3 id="q3-how-do-i-verify-all-exercises-at-once">Q3: How do I verify all exercises at once?</h3>
+<p>Run <code>terralings verify</code>:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>terralings<span class="w"> </span>verify
+</span></code></pre></div>
+<p>This sequentially evaluates every exercise across all 13 chapters and displays a complete curriculum completion report.</p>
+<hr />
+<h3 id="q4-my-editor-is-not-showing-error-diagnostics-how-do-i-troubleshoot-terralings-lsp">Q4: My editor is not showing error diagnostics. How do I troubleshoot <code>terralings lsp</code>?</h3>
+<ol>
+<li>Ensure <code>terralings</code> is accessible in your system <code>$PATH</code>.</li>
+<li>Verify that your editor root is set to the directory containing the <code>exercises/</code> folder and <code>.terralings/</code> directory.</li>
+<li>Start <code>terralings lsp</code> manually in a terminal to confirm it initializes without crashing.</li>
+</ol>
+<hr />
+<h3 id="q5-how-do-i-generate-shell-completions-for-tab-navigation">Q5: How do I generate shell completions for tab navigation?</h3>
+<p>Terralings supports automatic shell autocompletion for Bash, Zsh, Fish, and PowerShell:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-35-1"><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="c1"># Zsh (macOS / Linux)</span>
+</span><span id="__span-35-2"><a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a>terralings<span class="w"> </span>completion<span class="w"> </span>zsh<span class="w"> </span>&gt;<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">fpath</span><span class="p">[1]</span><span class="si">}</span><span class="s2">/_terralings"</span>
+</span><span id="__span-35-3"><a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a>
+</span><span id="__span-35-4"><a id="__codelineno-35-4" name="__codelineno-35-4" href="#__codelineno-35-4"></a><span class="c1"># Bash (Linux)</span>
+</span><span id="__span-35-5"><a id="__codelineno-35-5" name="__codelineno-35-5" href="#__codelineno-35-5"></a>terralings<span class="w"> </span>completion<span class="w"> </span>bash<span class="w"> </span>&gt;<span class="w"> </span>/etc/bash_completion.d/terralings
+</span><span id="__span-35-6"><a id="__codelineno-35-6" name="__codelineno-35-6" href="#__codelineno-35-6"></a>
+</span><span id="__span-35-7"><a id="__codelineno-35-7" name="__codelineno-35-7" href="#__codelineno-35-7"></a><span class="c1"># Fish</span>
+</span><span id="__span-35-8"><a id="__codelineno-35-8" name="__codelineno-35-8" href="#__codelineno-35-8"></a>terralings<span class="w"> </span>completion<span class="w"> </span>fish<span class="w"> </span>&gt;<span class="w"> </span>~/.config/fish/completions/terralings.fish
+</span><span id="__span-35-9"><a id="__codelineno-35-9" name="__codelineno-35-9" href="#__codelineno-35-9"></a>
+</span><span id="__span-35-10"><a id="__codelineno-35-10" name="__codelineno-35-10" href="#__codelineno-35-10"></a><span class="c1"># PowerShell</span>
+</span><span id="__span-35-11"><a id="__codelineno-35-11" name="__codelineno-35-11" href="#__codelineno-35-11"></a>terralings<span class="w"> </span>completion<span class="w"> </span>powershell<span class="w"> </span><span class="p">|</span><span class="w"> </span>Out-String<span class="w"> </span><span class="p">|</span><span class="w"> </span>Invoke-Expression
+</span></code></pre></div>
+<hr />
+<h3 id="q6-where-is-my-progress-saved-can-i-backup-or-transfer-it">Q6: Where is my progress saved? Can I backup or transfer it?</h3>
+<p>Your progress and metrics are stored in <code>.terralings/state.json</code>. You can back up this file or use <code>--state &lt;path&gt;</code> to specify a custom storage location. If <code>.terralings/state.json</code> is ever corrupted, Terralings automatically restores from <code>.terralings/state.json.bak</code>.</p>
+<hr />
+<p><em>Happy Learning! For bug reports, suggestions, or contributions, visit <a href="https://github.com/dnf0/terralings">github.com/dnf0/terralings</a>.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
