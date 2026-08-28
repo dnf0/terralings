@@ -41,7 +41,7 @@ These flags and environment variables apply across all Terralings commands:
 | [`terralings reset`](#terralings-reset) | `terralings reset <exercise_name> [-d <dir>]` | Reset an exercise file back to its initial template |
 | [`terralings stats`](#terralings-stats) | `terralings stats` | View completion statistics, attempt metrics, and time invested |
 | [`terralings search`](#terralings-search) | `terralings search <query>` | Full-text search across chapters, topics, hints, and exercises |
-| [`terralings list`](#terralings-list) | `terralings list` | List all curriculum chapters, exercises, and status |
+| [`terralings list`](#terralings-list) | `terralings list [--json]` | List all curriculum chapters, exercises, and status |
 | [`terralings verify`](#terralings-verify) | `terralings verify` | Run full curriculum verification pass and show progress bar |
 | [`terralings lsp`](#terralings-lsp) | `terralings lsp` | Start JSON-RPC 2.0 Language Server Protocol daemon on stdio |
 | [`terralings completion`](#terralings-completion) | `terralings completion <shell>` | Generate shell autocompletion script (`bash`, `zsh`, `fish`, `powershell`) |
@@ -244,8 +244,12 @@ terralings search "moved"
 List all 13 chapters and 56 exercises with their current completion status indicators (`[✓]` completed, `[ ]` pending).
 
 ```bash
-terralings list
+terralings list [flags]
 ```
+
+#### Flags
+
+- `--json`: Output exercise listing and completion statuses in structured JSON format.
 
 ---
 
