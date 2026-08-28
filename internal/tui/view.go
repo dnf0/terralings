@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/dnf0/terralings/internal/runner"
 	"github.com/dnf0/terralings/internal/state"
+	"github.com/dnf0/terralings/internal/version"
 )
 
 var (
@@ -151,7 +152,7 @@ func (m Model) View() string {
 }
 
 func (m Model) renderHeader(width int) string {
-	title := headerTitleStyle.Render("⚡ TERRALINGS v0.2.0")
+	title := headerTitleStyle.Render(fmt.Sprintf("⚡ TERRALINGS %s", version.String))
 
 	// Calculate overall progress
 	total := len(m.exercises)

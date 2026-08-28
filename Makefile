@@ -1,4 +1,4 @@
-.PHONY: all build build-all run test test-race lint fmt-check fmt-solutions verify check clean extension-install extension-build extension-test extension-check extension-package docs-install docs-serve docs-build
+.PHONY: all build build-all run test test-race lint fmt-check fmt-solutions verify version-check check clean extension-install extension-build extension-test extension-check extension-package docs-install docs-serve docs-build
 
 all: check build test-race extension-check extension-package
 
@@ -39,7 +39,10 @@ fmt-solutions:
 verify:
 	go mod verify
 
-check: verify fmt-check fmt-solutions lint
+version-check:
+	go test -v -run TestVersion ./test
+
+check: verify fmt-check fmt-solutions lint version-check
 
 extension-install:
 	cd extensions/vscode && npm install

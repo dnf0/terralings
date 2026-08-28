@@ -16,6 +16,7 @@ import (
 	"github.com/dnf0/terralings/internal/models"
 	"github.com/dnf0/terralings/internal/runner"
 	"github.com/dnf0/terralings/internal/state"
+	"github.com/dnf0/terralings/internal/version"
 )
 
 // Server is the Terralings JSON-RPC 2.0 Language Server.
@@ -203,7 +204,7 @@ func (s *Server) handleRawMessage(raw []byte) (bool, error) {
 			},
 			ServerInfo: &ServerInfo{
 				Name:    "terralings-lsp",
-				Version: "0.2.0",
+				Version: version.Number,
 			},
 		}
 		_ = s.sendResponse(msg.ID, res, nil)

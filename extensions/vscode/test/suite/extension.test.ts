@@ -130,4 +130,28 @@ suite('Terralings Extension Test Suite', () => {
       assert.strictEqual(typeof extension.deactivate, 'function');
     });
   });
+
+  suite('Version Consistency', () => {
+    test('package.json version matches Go version package single source of truth', () => {
+      const extensionRoot = path.resolve(__dirname, '../../../');
+      const packageJsonPath = path.join(extensionRoot, 'package.json');
+      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
+      assert.ok(packageJson.version, 'package.json must contain a version property');
+
+      const repoRoot = path.resolve(extensionRoot, '../../');
+      const goVersionPath = path.join(repoRoot, 'internal/version/version.go');
+      assert.ok(fs.existsSync(goVersionPath), `internal/version/version.go should exist at ${goVersionPath}`);
+      const goVersionContent = fs.readFileSync(goVersionPath, 'utf-8');
+
+      const match = goVersionContent.match(/Number\s*=\s*"([^"]+)"/);
+      assert.ok(match && match[1], 'Could not extract version.Number from internal/version/version.go');
+      const goVersionNumber = match[1];
+
+      assert.strictEqual(
+        packageJson.version,
+        goVersionNumber,
+        `package.json version (${packageJson.version}) must match Go version.Number (${goVersionNumber})`
+      );
+    });
+  });
 });

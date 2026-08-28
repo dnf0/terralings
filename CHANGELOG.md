@@ -5,13 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.3.0] - 2026-08-28
 
 ### Added
+- **Official VS Code Companion Extension (`terralings-vscode`)**: Rich IDE extension with embedded LSP diagnostics, interactive Exercise Explorer TreeView with real-time status badges, multi-step welcome walkthroughs, and status bar integration.
+- **Shell Autocompletion Scripts**: Multi-shell completion generators for Bash, Zsh, Fish, and PowerShell (`terralings completion <shell>`).
 - **Comprehensive Material for MkDocs Documentation Suite**: Multi-page documentation website (`mkdocs.yml`, `docs/`) with custom theme styling, instant search, navigation tabs, and syntax highlighting.
 - **Dedicated Documentation Pages**: Getting Started (`docs/getting-started.md`), Onboarding Guide (`docs/onboarding-guide.md`), Curriculum Syllabus (`docs/syllabus.md`), CLI Reference (`docs/cli-reference.md`), VS Code Companion Guide (`docs/vscode-extension.md`), and Contributing Guide (`docs/contributing.md`).
 - **Rich SVG Visual Assets**: High-fidelity terminal demo vector graphic (`assets/demo.svg` & `docs/assets/demo.svg`).
 - **Root Documentation & Guide Overhaul**: Modernized top-level `README.md` with ecosystem links, architecture flowcharts, and 56-exercise curriculum matrix, updated `CONTRIBUTING.md`, and refreshed `CHANGELOG.md`.
+
+### Changed
+- **Curriculum-Wide TODO Overhaul**: Enriched all 56 exercises across 13 chapters with structured `# TODO (What)` and `# TODO (Why)` instructions explaining IaC mechanics and architectural design rationale.
+- **Governance Validation Hardening**: Ensured deterministic evaluation for ADR-0005 policy encapsulation.
+- **Unified Centralized Versioning**: Automated CI and test gates preventing version drift between CLI and VS Code extension.
 
 ## [0.2.0] - 2026-08-27
 
