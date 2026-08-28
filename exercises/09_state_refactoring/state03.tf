@@ -18,9 +18,11 @@
 #
 # ==============================================================================
 
-# TODO: Add the import block here
+# TODO (What): Add an import block targeting 'to = terraform_data.existing_storage' with 'id = "corp-storage-vault-01"'.
+# TODO (Why): Declarative import blocks allow engineers to review import operations via standard pull requests and plan diffs.
 
-# TODO: Define resource "terraform_data" "existing_storage"
+# TODO (What): Define resource "terraform_data" "existing_storage" with input = "corp-storage-vault-01".
+# TODO (Why): The import block requires a corresponding resource configuration block in HCL to receive the imported remote resource.
 # resource "terraform_data" "existing_storage" {
 #   input = "corp-storage-vault-01"
 # }
