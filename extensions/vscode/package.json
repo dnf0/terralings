@@ -2,7 +2,7 @@
   "name": "terralings-vscode",
   "displayName": "Terralings",
   "description": "Interactive OpenTofu & Terraform CLI and Curriculum Companion for VS Code",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "license": "Apache-2.0",
   "publisher": "dnf0",
   "homepage": "https://dnf0.github.io/terralings/",

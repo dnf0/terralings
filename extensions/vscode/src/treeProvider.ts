@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 import * as fs from 'fs';
-import { getEffectiveWorkspaceRoot, resolveExercisePath } from './pathUtils';
+import { findStateJsonPath, resolveExercisePath } from './pathUtils';
 
 export type ExerciseStatus = 'passed' | 'failed' | 'in_progress' | 'not_started';
 
@@ -930,22 +929,7 @@ export class TerralingsTreeDataProvider
    */
   public refresh(): void {
     const nextStates = new Map<string, ExerciseStatus>();
-    const root = getEffectiveWorkspaceRoot();
-    let stateFile: string | undefined;
-
-    let cur = root;
-    for (let i = 0; i < 6; i++) {
-      const candidate = path.join(cur, '.terralings', 'state.json');
-      if (fs.existsSync(candidate)) {
-        stateFile = candidate;
-        break;
-      }
-      const parent = path.dirname(cur);
-      if (parent === cur) {
-        break;
-      }
-      cur = parent;
-    }
+    const stateFile = findStateJsonPath();
 
     if (stateFile) {
       try {
@@ -970,7 +954,6 @@ export class TerralingsTreeDataProvider
                 nextStates.set(name, 'not_started');
               }
             }
-            this.exerciseStates = nextStates;
           }
         }
       } catch (err) {
@@ -978,6 +961,7 @@ export class TerralingsTreeDataProvider
       }
     }
 
+    this.exerciseStates = nextStates;
     this._onDidChangeTreeData.fire();
   }
 

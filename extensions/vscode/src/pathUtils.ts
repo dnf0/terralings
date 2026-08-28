@@ -157,3 +157,80 @@ export function resolveExercisePath(exPath: string, workspaceRoot?: string): str
   // 7. Default fallback to direct path
   return directPath;
 }
+
+/**
+ * Locates the authoritative `.terralings/state.json` file across:
+ * 1. Active editor document directory & parent hierarchy (up to 8 levels)
+ * 2. Open workspace folders & parent hierarchies (up to 6 levels)
+ * 3. Effective workspace root & parent hierarchy (up to 6 levels)
+ * 4. Standard home directory repositories (~/repos/terralings, ~/terralings, etc.)
+ */
+export function findStateJsonPath(workspaceRoot?: string): string | undefined {
+  const checkHierarchy = (startDir: string, maxDepth: number = 8): string | undefined => {
+    let cur = startDir;
+    for (let i = 0; i < maxDepth; i++) {
+      const candidate = path.join(cur, '.terralings', 'state.json');
+      if (fs.existsSync(candidate)) {
+        return candidate;
+      }
+      const parent = path.dirname(cur);
+      if (parent === cur) {
+        break;
+      }
+      cur = parent;
+    }
+    return undefined;
+  };
+
+  // If explicit root provided, search it first
+  if (workspaceRoot) {
+    const foundInRoot = checkHierarchy(workspaceRoot, 8);
+    if (foundInRoot) {
+      return foundInRoot;
+    }
+  }
+
+  // 1. Check active editor document parent hierarchy
+  const activeFile = vscode.window.activeTextEditor?.document?.fileName;
+  if (activeFile) {
+    const foundInDoc = checkHierarchy(path.dirname(activeFile), 8);
+    if (foundInDoc) {
+      return foundInDoc;
+    }
+  }
+
+  // 2. Check open workspace folders
+  const wsFolders = vscode.workspace.workspaceFolders;
+  if (wsFolders && wsFolders.length > 0) {
+    for (const folder of wsFolders) {
+      const foundInWs = checkHierarchy(folder.uri.fsPath, 6);
+      if (foundInWs) {
+        return foundInWs;
+      }
+    }
+  }
+
+  // 3. Check effective root and standard home paths only if explicit root wasn't passed
+  if (!workspaceRoot) {
+    const root = getEffectiveWorkspaceRoot();
+    const foundInEffective = checkHierarchy(root, 6);
+    if (foundInEffective) {
+      return foundInEffective;
+    }
+
+    // 4. Check standard home paths
+    const standardLocations = [
+      path.join(os.homedir(), 'repos', 'terralings', '.terralings', 'state.json'),
+      path.join(os.homedir(), 'terralings', '.terralings', 'state.json'),
+      path.join(os.homedir(), 'Developer', 'terralings', '.terralings', 'state.json'),
+    ];
+    for (const loc of standardLocations) {
+      if (fs.existsSync(loc)) {
+        return loc;
+      }
+    }
+  }
+
+  return undefined;
+}
+

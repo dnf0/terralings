@@ -2,7 +2,8 @@ import * as assert from 'assert';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
-import { getEffectiveWorkspaceRoot, resolveExercisePath } from '../../src/pathUtils';
+import { findStateJsonPath, getEffectiveWorkspaceRoot, resolveExercisePath } from '../../src/pathUtils';
+import { mockState } from './mockVscode';
 
 suite('PathUtils Test Suite', () => {
   const tempDirs: string[] = [];
@@ -30,6 +31,32 @@ suite('PathUtils Test Suite', () => {
     const root = getEffectiveWorkspaceRoot('terralings');
     assert.ok(root, 'workspace root should not be empty');
     assert.notStrictEqual(root, '/', 'workspace root should never be root slash');
+  });
+
+  test('findStateJsonPath discovers state.json in root and subdirectories', () => {
+    const root = createTempDir();
+    const stateDir = path.join(root, '.terralings');
+    fs.mkdirSync(stateDir, { recursive: true });
+    const stateFile = path.join(stateDir, 'state.json');
+    fs.writeFileSync(stateFile, JSON.stringify({ version: '1.0', exercises: {} }));
+
+    // Discovers from root
+    const foundRoot = findStateJsonPath(root);
+    assert.strictEqual(foundRoot, stateFile);
+
+    // Discovers by traversing up from deeply nested subfolder
+    const deepSubdir = path.join(root, 'exercises', '01_primitives', 'sub');
+    fs.mkdirSync(deepSubdir, { recursive: true });
+    const foundSub = findStateJsonPath(deepSubdir);
+    assert.strictEqual(foundSub, stateFile);
+  });
+
+  test('findStateJsonPath returns undefined if state.json does not exist anywhere', () => {
+    const emptyDir = createTempDir();
+    mockState.activeFileName = undefined;
+    mockState.workspaceRoot = emptyDir;
+    const found = findStateJsonPath(emptyDir);
+    assert.strictEqual(found, undefined);
   });
 
   test('resolveExercisePath resolves direct file in workspace root', () => {

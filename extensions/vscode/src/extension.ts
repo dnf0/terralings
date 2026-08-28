@@ -124,6 +124,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const initialProgress = treeDataProvider.getProgress();
   statusBar.update(initialProgress.completed, initialProgress.total);
 
+  const syncUiState = () => {
+    treeDataProvider.refresh();
+    const progress = treeDataProvider.getProgress();
+    statusBar.update(progress.completed, progress.total);
+  };
+
   // 5. Register Extension Commands
   context.subscriptions.push(
     vscode.commands.registerCommand('terralings.openExercise', async (item?: unknown) => {
@@ -179,9 +185,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             try {
               await initExercises(targetDir);
               vscode.window.showInformationMessage('Terralings exercises initialized successfully! 🎉');
-              treeDataProvider.refresh();
-              const progress = treeDataProvider.getProgress();
-              statusBar.update(progress.completed, progress.total);
+              syncUiState();
               resolved = resolveExercisePath(relPath, targetDir);
             } catch (e) {
               vscode.window.showErrorMessage(
@@ -216,13 +220,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       try {
         await initExercises(targetDir);
         vscode.window.showInformationMessage(`Terralings exercises initialized successfully in ${targetDir}! 🎉`);
-        treeDataProvider.refresh();
-        const progress = treeDataProvider.getProgress();
-        statusBar.update(progress.completed, progress.total);
       } catch (err) {
         vscode.window.showErrorMessage(
           `Failed to initialize exercises: ${err instanceof Error ? err.message : String(err)}`
         );
+      } finally {
+        syncUiState();
       }
     })
   );
@@ -243,7 +246,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   context.subscriptions.push(
     vscode.commands.registerCommand('terralings.runCurrent', async (item?: unknown) => {
       const target = extractExerciseTarget(item);
-      await runCurrentExercise(target);
+      try {
+        await runCurrentExercise(target);
+      } finally {
+        syncUiState();
+      }
     })
   );
 
@@ -262,20 +269,32 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   context.subscriptions.push(
     vscode.commands.registerCommand('terralings.hint', async (item?: unknown) => {
       const target = extractExerciseTarget(item);
-      await runHint(target);
+      try {
+        await runHint(target);
+      } finally {
+        syncUiState();
+      }
     })
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand('terralings.reset', async (item?: unknown) => {
       const target = extractExerciseTarget(item);
-      await runReset(target);
+      try {
+        await runReset(target);
+      } finally {
+        syncUiState();
+      }
     })
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand('terralings.doctor', async () => {
-      await runDoctor();
+      try {
+        await runDoctor();
+      } finally {
+        syncUiState();
+      }
     })
   );
 
@@ -291,9 +310,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
   context.subscriptions.push(
     vscode.commands.registerCommand('terralings.refreshTree', () => {
-      treeDataProvider.refresh();
-      const progress = treeDataProvider.getProgress();
-      statusBar.update(progress.completed, progress.total);
+      syncUiState();
     })
   );
 
