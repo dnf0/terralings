@@ -208,9 +208,9 @@ jobs:
         run: make extension-install
 
       - name: Publish to Marketplace
-        if: ${{ secrets.VSCE_PAT != '' }}
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
         run: |
           make extension-package
-          npx @vscode/vsce publish --packagePath dist/terralings-vscode.vsix --skip-duplicate -p "$VSCE_PAT"
+          npx @vscode/vsce publish --packagePath dist/terralings-vscode.vsix --skip-duplicate --pat "$VSCE_PAT"
+
