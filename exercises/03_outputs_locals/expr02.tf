@@ -23,8 +23,11 @@ locals {
     { hostname = "db-01", ip_address = "10.0.2.20", role = "db" },
   ]
 
-  # TODO: Define all_ips = local.servers[*].ip_address
-  # TODO: Define all_hostnames = local.servers[*].hostname
+  # TODO (What): Define all_ips = local.servers[*].ip_address.
+  # TODO (Why): The splat expression [*] projects a single attribute across all elements of a list without verbose for loops.
+
+  # TODO (What): Define all_hostnames = local.servers[*].hostname.
+  # TODO (Why): Splat projections provide clean, idiomatic attribute extraction over collections of uniform objects.
 }
 
 resource "terraform_data" "network_directory" {

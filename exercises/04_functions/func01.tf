@@ -39,19 +39,24 @@ variable "app_tags" {
 }
 
 locals {
-  # TODO: Compute normalized_env using lower()
+  # TODO (What): Compute normalized_env = lower(var.environment).
+  # TODO (Why): lower() standardizes uppercase environment inputs to prevent casing mismatches in naming conventions.
   normalized_env = ""
 
-  # TODO: Compute clean_service using lower() and trimspace()
+  # TODO (What): Compute clean_service = lower(trimspace(var.service_name)).
+  # TODO (Why): trimspace() strips leading/trailing whitespace before lowercasing, preventing invalid DNS hostnames.
   clean_service = ""
 
-  # TODO: Compute hostname using format("%s-%s.internal.net", ...)
+  # TODO (What): Compute hostname = format("%s-%s.internal.net", local.clean_service, local.normalized_env).
+  # TODO (Why): format() provides printf-style string construction for predictable domain names and endpoint URIs.
   hostname = ""
 
-  # TODO: Compute tag_csv using join(",", ...)
+  # TODO (What): Compute tag_csv = join(",", var.app_tags).
+  # TODO (Why): join() serializes string lists into delimited string representations required by legacy environments and headers.
   tag_csv = ""
 
-  # TODO: Compute slug using replace(..., ".", "-")
+  # TODO (What): Compute slug = replace(local.hostname, ".", "-").
+  # TODO (Why): replace() substitutes target characters (such as dots to hyphens) to produce valid filesystem or cloud resource identifier slugs.
   slug = ""
 }
 

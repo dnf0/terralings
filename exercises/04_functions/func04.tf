@@ -25,16 +25,20 @@ terraform {
 locals {
   target_file = "${path.module}/func04.tf"
 
-  # TODO: Check if local.target_file exists using fileexists()
+  # TODO (What): Compute file_present = fileexists(local.target_file).
+  # TODO (Why): fileexists() tests disk presence without failing if the file is absent, enabling conditional logic.
   file_present = false
 
-  # TODO: List all *.tf files using fileset(path.module, "*.tf")
+  # TODO (What): Compute tf_files = fileset(path.module, "*.tf").
+  # TODO (Why): fileset() discovers matching files dynamically across directories for bulk template rendering or file deployment.
   tf_files = []
 
-  # TODO: Extract file name using basename(local.target_file)
+  # TODO (What): Compute file_name = basename(local.target_file).
+  # TODO (Why): basename() isolates the filename from directory paths for logging and output keys.
   file_name = ""
 
-  # TODO: Calculate content length using length(file(local.target_file))
+  # TODO (What): Compute file_length = length(file(local.target_file)).
+  # TODO (Why): file() reads raw content into memory, allowing length() to calculate size or verify non-empty file contents.
   file_length = 0
 }
 

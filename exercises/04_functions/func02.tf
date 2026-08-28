@@ -62,22 +62,28 @@ variable "values_list" {
 }
 
 locals {
-  # TODO: Compute merged_tags using merge()
+  # TODO (What): Compute merged_tags = merge(var.default_tags, var.custom_tags).
+  # TODO (Why): merge() overlays right-hand maps over left-hand maps, allowing callers to override defaults cleanly.
   merged_tags = {}
 
-  # TODO: Compute owner using lookup(local.merged_tags, "Owner", "Platform")
+  # TODO (What): Compute owner = lookup(local.merged_tags, "Owner", "Platform").
+  # TODO (Why): lookup() safely extracts a map entry or returns a specified fallback when the key is missing without raising an error.
   owner = ""
 
-  # TODO: Compute unique_zones using distinct()
+  # TODO (What): Compute unique_zones = distinct(var.raw_zones).
+  # TODO (Why): distinct() eliminates redundant entries from input lists, ensuring idempotency when provisioning multi-zone resources.
   unique_zones = []
 
-  # TODO: Compute primary_zones using slice(local.unique_zones, 0, 2)
+  # TODO (What): Compute primary_zones = slice(local.unique_zones, 0, 2).
+  # TODO (Why): slice() selects a sub-range [start, end) from a list, allowing configuration to target a fixed subset of zones.
   primary_zones = []
 
-  # TODO: Compute flat_subnets using flatten()
+  # TODO (What): Compute flat_subnets = flatten(var.nested_subnets).
+  # TODO (Why): flatten() collapses nested list hierarchies into a single linear list suitable for resource count or for_each loops.
   flat_subnets = []
 
-  # TODO: Compute config_map using zipmap()
+  # TODO (What): Compute config_map = zipmap(var.keys_list, var.values_list).
+  # TODO (Why): zipmap() pairs parallel lists of keys and values into a single map object dynamically.
   config_map = {}
 }
 

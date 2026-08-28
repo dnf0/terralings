@@ -26,10 +26,12 @@ resource "terraform_data" "credentials" {
 
 output "username" {
   description = "Public admin username"
-  # TODO: Set value = terraform_data.credentials.input.username
+  # TODO (What): Add value = terraform_data.credentials.input.username.
+  # TODO (Why): Output blocks expose resource attributes to the CLI output and allow parent modules to consume child outputs.
 }
 
 output "api_key" {
   description = "Sensitive API access key"
-  # TODO: Set value = terraform_data.credentials.input.api_key and sensitive = true
+  # TODO (What): Add value = terraform_data.credentials.input.api_key and sensitive = true.
+  # TODO (Why): Setting sensitive = true redacts secret values in stdout and console logs to prevent accidental credential leakage.
 }
