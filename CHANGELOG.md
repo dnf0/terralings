@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-08-28
+
+### Added
+- **Intelligent Multi-Depth Path Resolution (`pathUtils.ts`)**: VS Code extension seamlessly handles root directory workspaces, `exercises/` subfolders, individual chapter directories, and performs recursive parent directory traversal up to 6 levels.
+- **1-Click Workspace Auto-Initialization UX**: When an exercise is opened in an uninitialized directory, VS Code prompts the user with a 1-click **"Initialize Exercises"** action that executes `terralings init` and opens the exercise immediately.
+- **Command Palette & Sidebar Shortcuts**: Added `terralings.initExercises` ("Terralings: Initialize Exercises in Workspace") and `terralings.openNextExercise` ("Terralings: Open Next Exercise") with inline navigation actions.
+- **JSON Output & State Awareness for `terralings list`**: Added `--json` output flag to `terralings list` for machine consumption, tool integration, and real-time completion state reflection.
+- **Enhanced Core Engine Marker & Blank Detection**: Extended `CheckMarker` evaluation to check both comment markers (`# I AM NOT DONE`, `// I AM NOT DONE`, `<!-- I AM NOT DONE -->`) and unfilled blanks (`___`, `/* ??? */`, `<!-- ANSWER -->`).
+
+### Changed
+- **Workspace Fallback Safety**: Replaced unsafe root directory (`/`) fallbacks with user home directory resolution (`os.homedir()`), preventing read-only file system errors (`os error 30` / `EROFS`).
+
 ## [0.3.0] - 2026-08-28
 
 ### Added

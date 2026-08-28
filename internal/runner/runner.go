@@ -21,7 +21,8 @@ const NotDoneMarker = "I AM NOT DONE"
 // DefaultTimeout is the default execution timeout per exercise command.
 const DefaultTimeout = 30 * time.Second
 
-var markerRegex = regexp.MustCompile(`(?i)i\s+am\s+not\s+done`)
+var notDoneCommentRegex = regexp.MustCompile(`(?i)(<!--\s*i\s+am\s+not\s+done\s*-->|//\s*i\s+am\s+not\s+done|#\s*i\s+am\s+not\s+done|i\s+am\s+not\s+done)`)
+var unfilledBlankRegex = regexp.MustCompile(`(___|\/\*\s*\?\?\?\s*\*\/|<!--\s*ANSWER\s*-->)`)
 
 // RunResult contains the execution and evaluation outcome for an exercise.
 type RunResult struct {
@@ -63,8 +64,8 @@ func NewRunner(binaryPath string) *Runner {
 	}
 }
 
-// CheckMarker inspects a file or directory for the 'I AM NOT DONE' marker (case-insensitive with whitespace variations).
-// Returns false if the marker is absent or if the path cannot be read.
+// CheckMarker inspects a file or directory for 'I AM NOT DONE' comment markers or unfilled placeholders (e.g. ___, /* ??? */, <!-- ANSWER -->).
+// Returns false if no marker is present or if the path cannot be read.
 func CheckMarker(path string) bool {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -75,7 +76,7 @@ func CheckMarker(path string) bool {
 		_ = filepath.Walk(path, func(p string, i os.FileInfo, walkErr error) error {
 			if walkErr == nil && !i.IsDir() && (strings.HasSuffix(p, ".tf") || strings.HasSuffix(p, ".hcl") || strings.HasSuffix(p, ".tftest.hcl")) {
 				if data, readErr := os.ReadFile(p); readErr == nil {
-					if markerRegex.Match(data) {
+					if notDoneCommentRegex.Match(data) || unfilledBlankRegex.Match(data) {
 						hasMarker = true
 						return filepath.SkipAll
 					}
@@ -89,7 +90,7 @@ func CheckMarker(path string) bool {
 	if err != nil {
 		return false
 	}
-	return markerRegex.Match(data)
+	return notDoneCommentRegex.Match(data) || unfilledBlankRegex.Match(data)
 }
 
 func copyFile(src, dst string) error {

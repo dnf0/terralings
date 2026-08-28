@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import { getEffectiveWorkspaceRoot, resolveExercisePath } from './pathUtils';
 
 export type ExerciseStatus = 'passed' | 'failed' | 'in_progress' | 'not_started';
 
@@ -789,18 +790,8 @@ export function findChapter(nameOrNumber: string | number): ChapterDefinition | 
  * Resolves the absolute file or directory path for an exercise.
  */
 export function resolveExerciseUri(exercisePath: string, workspaceRoot?: string): vscode.Uri {
-  const root = workspaceRoot ?? vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-  let fullPath = exercisePath;
-  if (root && !path.isAbsolute(fullPath)) {
-    fullPath = path.join(root, fullPath);
-  }
-  if (!fullPath.endsWith('.tf') && !fullPath.endsWith('.hcl')) {
-    const mainTf = path.join(fullPath, 'main.tf');
-    if (fs.existsSync(mainTf)) {
-      fullPath = mainTf;
-    }
-  }
-  return vscode.Uri.file(fullPath);
+  const resolved = resolveExercisePath(exercisePath, workspaceRoot);
+  return vscode.Uri.file(resolved);
 }
 
 export type TreeItemType = 'chapter' | 'exercise';
@@ -939,19 +930,21 @@ export class TerralingsTreeDataProvider
    */
   public refresh(): void {
     const nextStates = new Map<string, ExerciseStatus>();
-    const folders = vscode.workspace.workspaceFolders || [];
+    const root = getEffectiveWorkspaceRoot();
     let stateFile: string | undefined;
 
-    for (const folder of folders) {
-      const candidate = path.join(folder.uri.fsPath, '.terralings', 'state.json');
+    let cur = root;
+    for (let i = 0; i < 6; i++) {
+      const candidate = path.join(cur, '.terralings', 'state.json');
       if (fs.existsSync(candidate)) {
         stateFile = candidate;
         break;
       }
-      const exercisesDir = path.join(folder.uri.fsPath, 'exercises');
-      if (fs.existsSync(exercisesDir)) {
-        stateFile = candidate;
+      const parent = path.dirname(cur);
+      if (parent === cur) {
+        break;
       }
+      cur = parent;
     }
 
     if (stateFile) {

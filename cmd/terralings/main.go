@@ -39,6 +39,7 @@ var (
 	tourNonInteractive bool
 	tourJSON           bool
 	doctorJSON         bool
+	listJSON           bool
 )
 
 // NewRootCmd constructs and returns the root Cobra command and its subcommands.
@@ -178,12 +179,68 @@ func NewRootCmd() *cobra.Command {
 	listCmd := &cobra.Command{
 		Use:   "list",
 		Short: "List all curriculum chapters and exercises",
-		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Fprintln(cmd.OutOrStdout(), ui.FormatBanner())
+		RunE: func(cmd *cobra.Command, args []string) error {
 			m := manifest.GetManifest()
-			fmt.Fprint(cmd.OutOrStdout(), ui.FormatChapterList(m, nil))
+			var statuses map[string]models.ExerciseStatus
+
+			store, err := state.NewStore(stateOverride)
+			if err == nil {
+				statuses = make(map[string]models.ExerciseStatus)
+				for _, ch := range m.Chapters {
+					for _, ex := range ch.Exercises {
+						if exState := store.GetExerciseState(ex.Name); exState != nil {
+							switch exState.Status {
+							case state.StatusPassed:
+								statuses[ex.Name] = models.StatusCompleted
+							case state.StatusInProgress:
+								statuses[ex.Name] = models.StatusInProgress
+							default:
+								statuses[ex.Name] = models.StatusNotStarted
+							}
+						} else {
+							statuses[ex.Name] = models.StatusNotStarted
+						}
+					}
+				}
+			}
+
+			if listJSON {
+				type jsonExercise struct {
+					Name    string `json:"name"`
+					Title   string `json:"title"`
+					Chapter string `json:"chapter"`
+					Path    string `json:"path"`
+					Mode    string `json:"mode"`
+					Status  string `json:"status"`
+				}
+				var list []jsonExercise
+				for _, ch := range m.Chapters {
+					for _, ex := range ch.Exercises {
+						st := "not_started"
+						if s, ok := statuses[ex.Name]; ok {
+							st = string(s)
+						}
+						list = append(list, jsonExercise{
+							Name:    ex.Name,
+							Title:   ex.Title,
+							Chapter: ex.ChapterName,
+							Path:    ex.Path,
+							Mode:    string(ex.Mode),
+							Status:  st,
+						})
+					}
+				}
+				enc := json.NewEncoder(cmd.OutOrStdout())
+				enc.SetIndent("", "  ")
+				return enc.Encode(list)
+			}
+
+			fmt.Fprintln(cmd.OutOrStdout(), ui.FormatBanner())
+			fmt.Fprint(cmd.OutOrStdout(), ui.FormatChapterList(m, statuses))
+			return nil
 		},
 	}
+	listCmd.Flags().BoolVar(&listJSON, "json", false, "Output exercise listing as JSON")
 
 	// verify command
 	verifyCmd := &cobra.Command{
