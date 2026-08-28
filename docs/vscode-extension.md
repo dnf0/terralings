@@ -17,9 +17,19 @@ The **Terralings Companion Extension for Visual Studio Code** provides a seamles
 
 ## Installation
 
-### Method 1: Install from VSIX Package (Recommended)
+### Method 1: Install from VS Code Marketplace (Recommended)
 
-You can install the packaged extension directly from the repository build or downloaded `.vsix` file:
+Install the official extension directly from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=dnf0.terralings-vscode):
+
+```bash
+code --install-extension dnf0.terralings-vscode
+```
+
+Alternatively, open the Extensions view in VS Code (`Cmd+Shift+X` / `Ctrl+Shift+X`), search for **Terralings**, and click **Install**.
+
+### Method 2: Install from VSIX Package
+
+You can also install the packaged extension directly from the repository build or downloaded `.vsix` file:
 
 ```bash
 # Build the VSIX locally from the repo root
@@ -32,7 +42,7 @@ npx @vscode/vsce package -o ../../dist/terralings-vscode.vsix
 code --install-extension ../../dist/terralings-vscode.vsix
 ```
 
-### Method 2: Manual Installation via VS Code UI
+### Method 3: Manual Installation via VS Code UI
 
 1. Open Visual Studio Code.
 2. Open the **Extensions** view (`Cmd+Shift+X` on macOS, `Ctrl+Shift+X` on Linux/Windows).

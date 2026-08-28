@@ -32,19 +32,24 @@ locals {
     maintainers = ["devops", "platform"]
   }
 
-  # TODO: jsonencode local.app_config
+  # TODO (What): Compute json_config = jsonencode(local.app_config).
+  # TODO (Why): jsonencode() transforms native HCL maps and lists into valid JSON strings without manual string formatting.
   json_config = ""
 
-  # TODO: yamlencode local.app_config
+  # TODO (What): Compute yaml_config = yamlencode(local.app_config).
+  # TODO (Why): yamlencode() converts structured data into canonical YAML format required by Kubernetes manifests and CI configs.
   yaml_config = ""
 
-  # TODO: base64encode local.json_config
+  # TODO (What): Compute b64_json = base64encode(local.json_config).
+  # TODO (Why): base64encode() encodes string payloads for cloud APIs, userdata initialization scripts, and binary secrets.
   b64_json = ""
 
-  # TODO: jsondecode local.json_config
+  # TODO (What): Compute parsed_json = jsondecode(local.json_config).
+  # TODO (Why): jsondecode() parses external JSON payloads back into navigable HCL maps and objects.
   parsed_json = {}
 
-  # TODO: base64decode local.b64_json
+  # TODO (What): Compute decoded_b64 = base64decode(local.b64_json).
+  # TODO (Why): base64decode() retrieves original plaintext data from encoded base64 strings.
   decoded_b64 = ""
 }
 

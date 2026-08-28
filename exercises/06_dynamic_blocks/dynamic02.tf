@@ -46,7 +46,8 @@ data "archive_file" "docs" {
   type        = "zip"
   output_path = "${path.module}/docs.zip"
 
-  # TODO: Declare dynamic "source" with iterator = doc
+  # TODO (What): Declare dynamic "source" with iterator = doc, for_each = var.documentation_pages, and content with filename = doc.value.filename and content = doc.value.markdown.
+  # TODO (Why): The iterator argument overrides the default block-name iterator variable to provide clean, readable symbol names in nested scopes.
   # dynamic "source" {
   #   iterator = doc
   #   for_each = var.documentation_pages

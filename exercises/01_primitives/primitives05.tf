@@ -14,7 +14,8 @@ terraform {
   required_version = ">= 1.6.0"
 }
 
-# TODO: Fix the syntax errors below (block declaration and string quote style)
+# TODO (What): Remove the comma separating block labels ("terraform_data" "formatted") and wrap the string in double quotes ("clean canonical hcl").
+# TODO (Why): HCL syntax uses whitespace to separate block type and name labels, and standard HCL strings only accept double quotes.
 resource "terraform_data", "formatted" {
   input = 'clean canonical hcl'
 }

@@ -29,13 +29,17 @@ variable "environment" {
 }
 
 locals {
-  # TODO: Define service_prefix = "${var.project}-${var.environment}"
-  # TODO: Define common_tags map
+  # TODO (What): Define service_prefix = "${var.project}-${var.environment}".
+  # TODO (Why): Centralizing naming prefixes in locals prevents string duplication and simplifies naming policy updates.
+
+  # TODO (What): Define common_tags map with Project = var.project, Environment = var.environment, and ManagedBy = "terralings".
+  # TODO (Why): Standardizing metadata tags in locals guarantees consistent resource tracking and cost allocation tags across infrastructure.
 }
 
 resource "terraform_data" "service_instance" {
   input = {
-    # TODO: Use "${local.service_prefix}-backend"
+    # TODO (What): Reference local.service_prefix and local.common_tags in this resource.
+    # TODO (Why): Referencing local values keeps resource declarations declarative and maintainable.
     name = "${local.service_prefix}-backend"
     tags = local.common_tags
   }

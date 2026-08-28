@@ -39,11 +39,16 @@ variable "allowed_ips" {
 
 resource "terraform_data" "config_summary" {
   input = {
-    # TODO: Index the first availability zone using [0]
+    # TODO (What): Index the first availability zone using var.availability_zones[0].
+    # TODO (Why): Lists are 0-indexed; referencing an index out of bounds ([99]) causes evaluation errors.
     primary_zone = var.availability_zones[99]
-    # TODO: Index the "project" key from tags using ["project"]
+
+    # TODO (What): Index the "project" key using var.tags["project"] (or var.tags.project).
+    # TODO (Why): Maps are key-value structures; passing the entire map when a string tag is expected violates structure expectations.
     project_tag = var.tags
-    # TODO: Compute count of allowed_ips using length()
+
+    # TODO (What): Calculate the number of items in allowed_ips using length(var.allowed_ips).
+    # TODO (Why): Sets are unordered collections of unique elements whose cardinality is retrieved via length().
     ip_count = 0
   }
 }

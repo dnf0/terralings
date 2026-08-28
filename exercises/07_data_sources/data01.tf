@@ -24,12 +24,14 @@ terraform {
   }
 }
 
-# TODO: Declare data "local_file" "manifest" reading "${path.module}/data01.tf"
+# TODO (What): Declare data "local_file" "manifest" reading filename = "${path.module}/data01.tf".
+# TODO (Why): Data sources query read-only information from external providers or disk without managing resource lifecycle creation/deletion.
 # data "local_file" "manifest" {
 #   filename = "${path.module}/data01.tf"
 # }
 
 output "manifest_content_length" {
-  # TODO: Output length of data.local_file.manifest.content
+  # TODO (What): Set value = length(data.local_file.manifest.content).
+  # TODO (Why): Referencing data.local_file.manifest.content accesses the read-only attribute exported by the data source.
   value = length(data.local_file.manifest.content)
 }

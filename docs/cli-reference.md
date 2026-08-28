@@ -292,6 +292,6 @@ terralings version
 #### Output Example
 
 ```text
-terralings v0.2.0
+terralings v0.3.0
 Detected binary: /usr/local/bin/tofu (OpenTofu v1.8.0)
 ```

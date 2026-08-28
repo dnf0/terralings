@@ -56,14 +56,16 @@ locals {
     Environment = var.environment
   }
 
-  # TODO: Merge local.base_tags and local.env_tags
+  # TODO (What): Merge local.base_tags and local.env_tags using merge().
+  # TODO (Why): Centralizing standardized baseline tags in locals enforces consistent cloud governance across all resources.
   standard_tags = {}
 }
 
 resource "terraform_data" "payment_api" {
   input = {
     service_name = "payment-api"
-    # TODO: Merge local.standard_tags, var.custom_tags, and { Component = "payment-gateway" }
+    # TODO (What): Merge local.standard_tags, var.custom_tags, and { Component = "payment-gateway" }.
+    # TODO (Why): Multi-layer merge allows module callers to supply custom tags while preserving organizational governance defaults.
     tags = merge(
       local.standard_tags,
       var.custom_tags,
@@ -75,7 +77,8 @@ resource "terraform_data" "payment_api" {
 }
 
 output "managed_by_tag" {
-  # TODO: Reference ManagedBy tag from terraform_data.payment_api.input.tags
+  # TODO (What): Reference ManagedBy tag from terraform_data.payment_api.input.tags["ManagedBy"].
+  # TODO (Why): Validates that merged governance tags are properly populated on the resource.
   value = terraform_data.payment_api.input.tags["ManagedBy"]
 }
 

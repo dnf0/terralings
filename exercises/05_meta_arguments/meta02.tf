@@ -45,9 +45,11 @@ variable "microservices" {
 }
 
 resource "terraform_data" "service" {
-  # TODO: Set for_each = var.microservices
+  # TODO (What): Add for_each = var.microservices.
+  # TODO (Why): for_each identifies instances by stable string keys (e.g. "auth", "payment"), preventing instance recreation when array items are reordered.
 
-  # TODO: Set input using each.key and each.value
+  # TODO (What): Populate input using each.key for the name, and each.value.port and each.value.tier for attributes.
+  # TODO (Why): Inside a for_each block, each.key references the map key and each.value references the corresponding map element.
   input = {
     name = each.key
     port = each.value.port
@@ -56,6 +58,7 @@ resource "terraform_data" "service" {
 }
 
 output "service_keys" {
-  # TODO: Output keys(terraform_data.service)
+  # TODO (What): Set value = keys(terraform_data.service).
+  # TODO (Why): Resources declared with for_each evaluate to a map of instances keyed by the for_each map keys.
   value = keys(terraform_data.service)
 }

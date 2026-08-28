@@ -3,7 +3,17 @@
   "displayName": "Terralings",
   "description": "Interactive OpenTofu & Terraform learning companion for VS Code",
   "version": "0.3.0",
+  "license": "Apache-2.0",
   "publisher": "dnf0",
+  "homepage": "https://dnf0.github.io/terralings/",
+  "bugs": {
+    "url": "https://github.com/dnf0/terralings/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dnf0/terralings.git",
+    "directory": "extensions/vscode"
+  },
   "engines": {
     "vscode": "^1.80.0"
   },
@@ -23,7 +33,7 @@
     "learning"
   ],
   "main": "./dist/extension.js",
-  "icon": "icons/terralings.svg",
+  "icon": "icons/icon.png",
   "activationEvents": [
     "onLanguage:terraform",
     "onLanguage:hcl",

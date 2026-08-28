@@ -45,7 +45,8 @@ variable "service_configs" {
 }
 
 locals {
-  # TODO: Flatten nested var.service_configs into a 1D list of { path = "...", body = "..." }
+  # TODO (What): Flatten nested var.service_configs into a 1D list of { path = "${s_name}/${f.name}", body = f.content }.
+  # TODO (Why): Dynamic blocks require flat iterable collections; combining flatten() with nested for comprehensions projects deep data into clean block inputs.
   all_sources = []
 }
 
@@ -53,7 +54,8 @@ data "archive_file" "multi_service" {
   type        = "zip"
   output_path = "${path.module}/services.zip"
 
-  # TODO: Declare dynamic "source" over local.all_sources
+  # TODO (What): Declare dynamic "source" over local.all_sources with filename = source.value.path and content = source.value.body.
+  # TODO (Why): The dynamic source block iterates through the flattened list to package multi-service artifacts into an archive.
   # dynamic "source" {
   #   for_each = local.all_sources
   #   content {

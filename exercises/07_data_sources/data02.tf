@@ -28,7 +28,8 @@ terraform {
   }
 }
 
-# TODO: Declare data "archive_file" "package"
+# TODO (What): Declare data "archive_file" "package" with type = "zip", output_path = "${path.module}/package.zip", and a source block containing index.js.
+# TODO (Why): Generating zip archives via data sources automates lambda package builds and asset bundling deterministically in Terraform's DAG.
 # data "archive_file" "package" {
 #   type        = "zip"
 #   output_path = "${path.module}/package.zip"
@@ -39,7 +40,8 @@ terraform {
 # }
 
 output "archive_info" {
-  # TODO: Output object with sha = data.archive_file.package.output_sha and size = data.archive_file.package.output_size
+  # TODO (What): Expose sha = data.archive_file.package.output_sha and size = data.archive_file.package.output_size.
+  # TODO (Why): Exposing output_sha allows downstream resources (e.g. AWS Lambda source_code_hash) to trigger replacements when package contents change.
   value = {
     sha  = data.archive_file.package.output_sha
     size = data.archive_file.package.output_size

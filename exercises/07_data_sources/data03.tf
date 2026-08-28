@@ -24,12 +24,14 @@ terraform {
   }
 }
 
-# TODO: Declare data "external" "system_info"
+# TODO (What): Declare data "external" "system_info" with program = ["echo", "{\"status\": \"ready\", \"engine\": \"terralings\"}"].
+# TODO (Why): The external data source bridges external CLI scripts into Terraform, expecting a JSON object with string values on stdout.
 # data "external" "system_info" {
 #   program = ["echo", "{\"status\": \"ready\", \"engine\": \"terralings\"}"]
 # }
 
 output "system_status" {
-  # TODO: Output data.external.system_info.result["status"]
+  # TODO (What): Set value = data.external.system_info.result["status"].
+  # TODO (Why): The external data source stores parsed script JSON output in its .result map attribute.
   value = data.external.system_info.result["status"]
 }

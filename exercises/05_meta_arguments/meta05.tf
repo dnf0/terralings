@@ -27,7 +27,8 @@ resource "terraform_data" "managed_resource" {
   }
 
   lifecycle {
-    # TODO: Set ignore_changes = [triggers_replace]
+    # TODO (What): Update ignore_changes = [triggers_replace].
+    # TODO (Why): ignore_changes instructs the plan engine to ignore differences between remote state and configuration for the specified attributes.
     ignore_changes = [missing_attribute]
   }
 }

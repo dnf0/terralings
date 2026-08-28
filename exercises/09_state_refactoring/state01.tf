@@ -23,12 +23,14 @@
 # ==============================================================================
 
 moved {
-  # TODO: Fix move destination to terraform_data.redis_cache
+  # TODO (What): Update 'to' address to terraform_data.redis_cache.
+  # TODO (Why): Declarative moved blocks migrate state addresses automatically during plan/apply, preventing accidental destruction of live infrastructure.
   from = terraform_data.legacy_cache
   to   = terraform_data.missing_cache
 }
 
-# TODO: Rename this resource from legacy_cache to redis_cache
+# TODO (What): Rename this resource from legacy_cache to redis_cache.
+# TODO (Why): Renaming the resource definition completes the refactoring target matched by the moved block.
 resource "terraform_data" "legacy_cache" {
   input = {
     host = "redis-cluster.internal"
@@ -37,6 +39,7 @@ resource "terraform_data" "legacy_cache" {
 }
 
 output "cache_host" {
-  # TODO: Reference the new resource address
+  # TODO (What): Update reference to terraform_data.redis_cache.output.host.
+  # TODO (Why): Downstream references must target the updated resource identifier.
   value = terraform_data.legacy_cache.output.host
 }

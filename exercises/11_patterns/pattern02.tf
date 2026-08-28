@@ -47,10 +47,12 @@ resource "terraform_data" "primary_cluster" {
 }
 
 resource "terraform_data" "dr_vault" {
-  # TODO: Use count with var.enable_disaster_recovery to conditionally provision this resource
+  # TODO (What): Set count = var.enable_disaster_recovery ? 1 : 0.
+  # TODO (Why): The count ternary idiom conditionally provisions or skips optional resources based on boolean flags.
   count = 0
 
-  # TODO: Set target_region and primary_cluster inputs
+  # TODO (What): Set input = { target_region = var.dr_region, primary_cluster = terraform_data.primary_cluster.output.cluster_id }.
+  # TODO (Why): Linking primary_cluster establishes an implicit DAG dependency on the primary infrastructure.
   input = {}
 }
 
@@ -59,6 +61,7 @@ output "primary_id" {
 }
 
 output "dr_vault_region" {
-  # TODO: Safely access dr_vault target_region, fallback to "disabled" if count is 0
+  # TODO (What): Use try(terraform_data.dr_vault[0].output.target_region, "disabled") or one() to safely access optional resources.
+  # TODO (Why): When count is 0, indexing [0] panics; try() or one() provides safe default handling for conditional components.
   value = terraform_data.dr_vault[0].output.target_region
 }

@@ -23,14 +23,16 @@ resource "terraform_data" "worker_fleet" {
   input = "fleet-runner"
 
   lifecycle {
-    # TODO: Set replace_triggered_by = [terraform_data.app_version]
+    # TODO (What): Update replace_triggered_by = [terraform_data.app_version].
+    # TODO (Why): replace_triggered_by establishes explicit replacement dependencies so instances recreate when dependent assets (like image tags or config hashes) change.
     replace_triggered_by = [
       terraform_data.missing_version
     ]
   }
 }
 
-# TODO: Add removed block for legacy_queue
+# TODO (What): Add a removed block: removed { from = terraform_data.legacy_queue lifecycle { destroy = false } }.
+# TODO (Why): Removed blocks cleanly unmanage retired resources from state without triggering unmanaged resource errors.
 # removed {
 #   from = terraform_data.legacy_queue
 # }

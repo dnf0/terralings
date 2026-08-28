@@ -47,20 +47,21 @@ locals {
 resource "terraform_data" "iam_role" {
   input = {
     role_name = "${var.service_name}-execution-role"
-    # TODO: Map secret_read and kms_decrypt to their exported managed policy ARNs
+    # TODO (What): Set policy_arns = { secret_read = local.secret_module.read_only_policy_arn, kms_decrypt = local.kms_module.decrypt_policy_arn }.
+    # TODO (Why): ADR-0005: The module that owns the resource owns the policies that talk to it. Attaching exported managed policy ARNs avoids inline wildcard permissions.
     policy_arns = {}
   }
 
   lifecycle {
     postcondition {
-      condition     = lookup(lookup(self.output, "policy_arns", {}), "secret_read", "") == local.secret_module.read_only_policy_arn && lookup(lookup(self.output, "policy_arns", {}), "kms_decrypt", "") == local.kms_module.decrypt_policy_arn
+      condition     = try(self.input.policy_arns.secret_read, "") == local.secret_module.read_only_policy_arn && try(self.input.policy_arns.kms_decrypt, "") == local.kms_module.decrypt_policy_arn
       error_message = "IAM role must attach managed policy ARNs exported by the secret and KMS modules."
     }
-  }
   }
 }
 
 output "attached_policies" {
-  # TODO: Reference terraform_data.iam_role.output.policy_arns
+  # TODO (What): Reference terraform_data.iam_role.output.policy_arns.
+  # TODO (Why): Exposes the attached managed policies map for security auditing and compliance verification.
   value = terraform_data.iam_role.output.policy_arns
 }

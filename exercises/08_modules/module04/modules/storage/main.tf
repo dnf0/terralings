@@ -3,7 +3,8 @@ terraform {
     local = {
       source  = "hashicorp/local"
       version = ">= 2.0.0"
-      # TODO: Add configuration_aliases = [local.target]
+      # TODO (What): Add configuration_aliases = [local.target].
+      # TODO (Why): Declaring configuration_aliases informs the engine that this child module expects an explicit provider alias passed by parent modules.
     }
   }
 }

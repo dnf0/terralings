@@ -25,8 +25,11 @@ variable "is_production" {
 }
 
 locals {
-  # TODO: Define instance_type = var.is_production ? "m5.large" : "t3.micro"
-  # TODO: Define replica_count = var.is_production ? 3 : 1
+  # TODO (What): Define instance_type = var.is_production ? "m5.large" : "t3.micro".
+  # TODO (Why): Ternary expressions allow dynamic value selection based on boolean flags while keeping type schemas uniform.
+
+  # TODO (What): Define replica_count = var.is_production ? 3 : 1.
+  # TODO (Why): Dynamic sizing via conditionals lets a single configuration scale gracefully between dev and prod tiers.
 }
 
 resource "terraform_data" "cluster_config" {

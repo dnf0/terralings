@@ -18,21 +18,24 @@ terraform {
 
 variable "environment" {
   type        = string
-  # TODO: Fix default value to match type string ("development")
+  # TODO (What): Change default to a string value like "development".
+  # TODO (Why): The type constraint is 'string'; assigning a numeric literal (12345) violates HCL type safety.
   default     = 12345
   description = "Deployment target environment"
 }
 
 variable "port" {
   type        = number
-  # TODO: Fix default value to match type number (8080)
+  # TODO (What): Change default to a number value like 8080.
+  # TODO (Why): The type constraint is 'number'; assigning an unparsable string violates HCL type checking.
   default     = "not-a-number"
   description = "Application server listening port"
 }
 
 variable "debug_mode" {
   type        = bool
-  # TODO: Fix default value to match type bool (false)
+  # TODO (What): Change default to a boolean literal (false or true).
+  # TODO (Why): The type constraint is 'bool'; booleans in HCL must evaluate directly to true or false.
   default     = "not-a-bool"
   description = "Flag to toggle verbose logging"
 }

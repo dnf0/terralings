@@ -1,6 +1,6 @@
-.PHONY: all build build-all run test test-race lint fmt-check fmt-solutions verify check clean extension-install extension-build extension-test extension-check docs-install docs-serve docs-build
+.PHONY: all build build-all run test test-race lint fmt-check fmt-solutions verify version-check check clean extension-install extension-build extension-test extension-check extension-package docs-install docs-serve docs-build
 
-all: check build test-race extension-check
+all: check build test-race extension-check extension-package
 
 build:
 	go build -o bin/terralings ./cmd/terralings
@@ -39,7 +39,10 @@ fmt-solutions:
 verify:
 	go mod verify
 
-check: verify fmt-check fmt-solutions lint
+version-check:
+	go test -v -run TestVersion ./test
+
+check: verify fmt-check fmt-solutions lint version-check
 
 extension-install:
 	cd extensions/vscode && npm install
@@ -52,6 +55,10 @@ extension-test:
 
 extension-check:
 	cd extensions/vscode && npm run check-types && npm test
+
+extension-package: extension-build
+	mkdir -p dist
+	cd extensions/vscode && npx @vscode/vsce package --no-dependencies -o ../../dist/terralings-vscode.vsix
 
 docs-install:
 	uv pip install mkdocs-material || pip install mkdocs-material

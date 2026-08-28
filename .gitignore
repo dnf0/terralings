@@ -23,6 +23,10 @@ crash.*.log
 .roborev/
 .claude/
 .gemini/
-.cursor/
 graphify-out/
 .smellcheck-cache/
+
+# Environment files
+.env
+.env.*
+.env.local

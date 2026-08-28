@@ -357,12 +357,13 @@ terralings completion powershell | Out-String | Invoke-Expression
 
 ---
 
-## Official VS Code Companion Extension
-
-Terralings includes an official companion extension located in [`extensions/vscode`](extensions/vscode):
+### Official VS Code Companion Extension
+ 
+Terralings includes an official companion extension published on the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=dnf0.terralings-vscode) and located in [`extensions/vscode`](extensions/vscode):
 
 <p align="center">
-  <img src="https://img.shields.io/badge/VS%20Code-Companion%20Extension-007ACC?logo=visualstudiocode&logoColor=white" alt="VS Code Extension">
+  <a href="https://marketplace.visualstudio.com/items?itemName=dnf0.terralings-vscode"><img src="https://img.shields.io/badge/VS%20Code%20Marketplace-Terralings-007ACC?logo=visualstudiocode&logoColor=white" alt="VS Code Marketplace"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=dnf0.terralings-vscode"><img src="https://img.shields.io/visual-studio-marketplace/v/dnf0.terralings-vscode?color=blue&label=Marketplace%20Version" alt="Marketplace Version"></a>
 </p>
 
 - **Curriculum & Exercise Explorer**: Dedicated Activity Bar sidebar displaying all 13 chapters and 56 exercises with real-time status badges (`Passed`, `Failed`, `In Progress`, `Not Started`), chapter progress counters (`5/5`), and one-click file navigation.
@@ -371,7 +372,14 @@ Terralings includes an official companion extension located in [`extensions/vsco
 - **Terminal & TUI Integration**: Direct command palette launchers for continuous watch mode (`terralings watch`) and the full-screen terminal dashboard (`terralings tui`).
 - **Live Status Bar**: Real-time curriculum progress indicator with quick-jump search.
 
-### Local Installation
+### Installation
+
+```bash
+# Install directly from the VS Code Marketplace
+code --install-extension dnf0.terralings-vscode
+```
+
+Or install from local source:
 
 ```bash
 cd extensions/vscode

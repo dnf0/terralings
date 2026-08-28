@@ -15,7 +15,8 @@
 #
 # ==============================================================================
 
-# TODO: Complete the module call and root output
+# TODO (What): Call the child module passing service_name = "auth-service" and port = 8080.
+# TODO (Why): Relative source paths ("./modules/service") instantiate child modules, which evaluate their encapsulated resources with the passed inputs.
 module "auth" {
   source = "./modules/service"
 
@@ -24,6 +25,8 @@ module "auth" {
 }
 
 output "endpoint" {
+  # TODO (What): Expose the child module output with value = module.auth.service_url.
+  # TODO (Why): Accessing module.<MODULE_NAME>.<OUTPUT_NAME> wires outputs across module boundaries in Terraform's DAG.
   # value = module.auth.service_url
   value = ""
 }

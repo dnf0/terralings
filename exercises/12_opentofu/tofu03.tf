@@ -18,7 +18,8 @@ terraform {
   required_version = ">= 1.6.0"
 
   required_providers {
-    # TODO: Add local provider requirement with source = "hashicorp/local" and version = "~> 2.0"
+    # TODO (What): Configure local provider with source = "hashicorp/local" and version = "~> 2.0".
+    # TODO (Why): Explicit source and pessimistic version constraints (~> 2.0) ensure reproducible provider downloads across environments.
     local = {
       source = ""
     }
@@ -26,7 +27,8 @@ terraform {
 }
 
 resource "terraform_data" "registry_status" {
-  # TODO: Set input map with status = "verified"
+  # TODO (What): Set input = { status = "verified" }.
+  # TODO (Why): Resource inputs record state values that verify successful provider and registry evaluation.
   input = {}
 }
 

@@ -35,16 +35,20 @@ variable "raw_data" {
 }
 
 locals {
-  # TODO: Compute safe_port with fallback 8080 using try()
+  # TODO (What): Compute safe_port = try(var.raw_data.network.port, 8080).
+  # TODO (Why): try() evaluates expressions sequentially and catches missing attribute errors, safely applying a default value.
   safe_port = 0
 
-  # TODO: Compute parsed_timeout with fallback 30 using try(tonumber(...), 30)
+  # TODO (What): Compute parsed_timeout = try(tonumber(var.raw_data.timeout_str), 30).
+  # TODO (Why): tonumber() fails when parsing non-numeric strings; wrapping it in try() guarantees a valid numeric fallback.
   parsed_timeout = 0
 
-  # TODO: Check if var.raw_data.database exists using can()
+  # TODO (What): Compute has_database = can(var.raw_data.database).
+  # TODO (Why): can() tests if an attribute access expression evaluates without error, returning a clean boolean for feature gating.
   has_database = false
 
-  # TODO: Check if var.raw_data.payload_json is valid JSON using can(jsondecode(...))
+  # TODO (What): Compute is_valid_json = can(jsondecode(var.raw_data.payload_json)).
+  # TODO (Why): can(jsondecode(...)) performs schema/syntax validation on JSON payloads without terminating plan execution if invalid.
   is_valid_json = false
 }
 

@@ -50,12 +50,14 @@ variable "services" {
 }
 
 locals {
-  # TODO: Filter var.services for enabled == true
+  # TODO (What): Filter var.services for enabled == true using a for comprehension with an if clause.
+  # TODO (Why): Filtering maps in locals separates active resource selection from resource declaration logic.
   active_services = {
     for name, svc in var.services : name => svc if svc.enabled
   }
 
-  # TODO: Construct map of service name to formatted endpoint "https://<name>.internal:<port>"
+  # TODO (What): Construct routing_table = { for name, svc in local.active_services : name => format("https://%s.internal:%d", name, svc.port) }.
+  # TODO (Why): Formatting uniform service discovery endpoints in locals maintains centralized routing conventions.
   routing_table = {}
 }
 
@@ -70,6 +72,7 @@ resource "terraform_data" "service_route" {
 }
 
 output "routes" {
-  # TODO: Map registered service names to their planned endpoints
+  # TODO (What): Map registered service names to their planned endpoints using value = { for k, v in terraform_data.service_route : k => v.output.endpoint }.
+  # TODO (Why): Comprehensions project resource instance map outputs into consumable service discovery dictionaries.
   value = { for k, v in terraform_data.service_route : k => v.output.endpoint }
 }

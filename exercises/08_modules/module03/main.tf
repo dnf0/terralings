@@ -26,14 +26,16 @@ variable "workers" {
 module "workers" {
   source = "./modules/worker"
 
-  # TODO: Add for_each and pass arguments
+  # TODO (What): Add for_each = var.workers, passing worker_name = each.key and concurrency = each.value.
+  # TODO (Why): Using for_each on modules scales whole architectural sub-stacks with clean key-addressable module instances (module.workers["crawler"]).
   # for_each    = var.workers
   # worker_name = each.key
   # concurrency = each.value
 }
 
 output "worker_ids" {
-  # TODO: Build map of worker_id outputs
+  # TODO (What): Build map of worker_id outputs using value = { for k, w in module.workers : k => w.worker_id }.
+  # TODO (Why): For comprehensions project keyed child module instance outputs into consolidated parent maps.
   # value = { for k, w in module.workers : k => w.worker_id }
   value = {}
 }

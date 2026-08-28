@@ -19,12 +19,13 @@ import (
 	"github.com/dnf0/terralings/internal/tour"
 	"github.com/dnf0/terralings/internal/tui"
 	"github.com/dnf0/terralings/internal/ui"
+	"github.com/dnf0/terralings/internal/version"
 	"github.com/dnf0/terralings/internal/watcher"
 	"github.com/spf13/cobra"
 )
 
 // Version is the current release version of terralings.
-const Version = "v0.2.0"
+const Version = version.String
 
 var (
 	binOverride        string

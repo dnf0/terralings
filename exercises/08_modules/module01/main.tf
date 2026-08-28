@@ -22,6 +22,7 @@
 module "app_config" {
   source = "./modules/app_config"
 
-  # TODO: Pass the required app_name argument
+  # TODO (What): Pass app_name = "terralings" into the child module invocation.
+  # TODO (Why): Child modules encapsulate functionality behind explicit input arguments, making configurations reusable.
   # app_name = "terralings"
 }

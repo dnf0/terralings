@@ -29,7 +29,8 @@ resource "terraform_data" "zero_downtime_app" {
   input = var.app_version
 
   lifecycle {
-    # TODO: Set create_before_destroy = true (must be literal boolean true)
+    # TODO (What): Set create_before_destroy = true.
+    # TODO (Why): create_before_destroy modifies the default destroy-then-create replacement sequence to eliminate service downtime during immutable updates.
     create_before_destroy = var.app_version
   }
 }

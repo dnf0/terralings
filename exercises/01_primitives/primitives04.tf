@@ -22,7 +22,9 @@ terraform {
 
 resource "local_file" "motd" {
   filename = "${path.module}/motd.txt"
-  # TODO: Fix the heredoc opening and closing delimiters below
+  # TODO (What): Close the multi-line heredoc string with the 'EOT' delimiter on a dedicated line.
+  # TODO (Why): Indented heredocs (<<-EOT) strip leading whitespace for clean formatting, but HCL's parser
+  #             requires the matching terminator (EOT) to know where the string payload ends.
   content  = <<-EOT
     ==============================
     Terralings System Status
