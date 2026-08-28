@@ -1,9 +1,20 @@
 # Terralings for Visual Studio Code
 
 [![Visual Studio Code](https://img.shields.io/badge/VS%20Code-v1.80.0+-blue.svg)](https://code.visualstudio.com/)
+[![Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/dnf0.terralings-vscode?color=blue&label=Marketplace%20Version)](https://marketplace.visualstudio.com/items?itemName=dnf0.terralings-vscode)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
 The official **Terralings** companion extension for Visual Studio Code. Learn, practice, and master Terraform and OpenTofu through hands-on exercises with real-time feedback, interactive sidebar navigation, embedded Language Server Protocol diagnostics, and terminal dashboard integration.
+
+---
+
+## Installation
+
+Install directly from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=dnf0.terralings-vscode):
+
+```bash
+code --install-extension dnf0.terralings-vscode
+```
 
 ---
 
