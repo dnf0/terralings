@@ -37,7 +37,8 @@ resource "terraform_data" "cluster" {
 
   lifecycle {
     precondition {
-      # TODO: Fix condition to var.cluster_size >= 3
+      # TODO (What): Change condition to var.cluster_size >= 3.
+      # TODO (Why): Preconditions validate input assumptions before resource creation, halting execution early with actionable errors if quorum requirements are unmet.
       condition     = var.cluster_size >= 10
       error_message = "Cluster size must be at least 3 for quorum."
     }

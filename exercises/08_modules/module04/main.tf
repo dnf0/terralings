@@ -33,7 +33,8 @@ module "backup_storage" {
   source    = "./modules/storage"
   file_name = "backup.log"
 
-  # TODO: Pass the aliased provider to the child module
+  # TODO (What): Pass the aliased provider map: providers = { local.target = local.backup }.
+  # TODO (Why): The providers map in module calls routes specific provider configurations to child module configuration aliases.
   # providers = {
   #   local.target = local.backup
   # }

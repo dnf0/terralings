@@ -16,7 +16,8 @@
 #
 # ==============================================================================
 
-# TODO: Coordinate module.database and module.app
+# TODO (What): Configure module "database" with db_name = "orders", and module "app" with app_name = "orders-api" and db_host = module.database.endpoint.
+# TODO (Why): Decoupling sibling modules and passing outputs through the root module enforces modular encapsulation and explicit DAG dependencies.
 module "database" {
   source = "./modules/database"
   # db_name = ...
@@ -29,6 +30,8 @@ module "app" {
 }
 
 output "app_connection" {
+  # TODO (What): Set value = module.app.connection_string.
+  # TODO (Why): Root outputs expose the fully wired composition contract to operators.
   # value = module.app.connection_string
   value = ""
 }
