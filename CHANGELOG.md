@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2026-08-28
+
+### Fixed
+- **Real-Time Sidebar & Status Bar Progress Synchronization**: Upgraded the VS Code extension's state tracking architecture to a robust 4-layer synchronization system:
+  1. Direct Node `fs.watchFile` polling on `.terralings/state.json` bypassing VS Code dot-folder and gitignore file watcher exclusions.
+  2. 1-second background polling heartbeat ensuring terminal and external CLI runs (`terralings watch`, `terralings tui`, `terralings run`) immediately update progress.
+  3. Integrated VS Code lifecycle event triggers on document saves, active editor tab switches, and window focus transitions.
+  4. Synchronous UI refresh hooks across all interactive commands (`terralings.runCurrent`, `terralings.reset`, `terralings.initExercises`, `terralings.hint`, `terralings.doctor`).
+- **Comprehensive State File Discovery (`findStateJsonPath`)**: Intelligently locates `.terralings/state.json` across active editor document hierarchies, open workspace roots, parent folders, and standard candidate directories.
+
 ## [0.4.0] - 2026-08-28
 
 ### Added

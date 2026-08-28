@@ -1,5 +1,8 @@
 import * as assert from 'assert';
-import { setupMockVscode, resetMockState } from './mockVscode';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as os from 'os';
+import { setupMockVscode, resetMockState, mockState } from './mockVscode';
 
 // Ensure mock is initialized before imports
 setupMockVscode();
@@ -228,6 +231,46 @@ suite('Terralings TreeDataProvider & Curriculum Test Suite', () => {
       assert.strictEqual(item.description, '');
       const icon = item.iconPath as { id: string };
       assert.strictEqual(icon.id, 'circle-outline');
+    });
+  });
+
+  suite('State Synchronization & Progress Loading', () => {
+    test('refresh parses passed and failed states and accurately updates progress', () => {
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'terralings-tree-sync-'));
+      try {
+        const stateDir = path.join(tempDir, '.terralings');
+        fs.mkdirSync(stateDir, { recursive: true });
+        const stateFile = path.join(stateDir, 'state.json');
+        fs.writeFileSync(
+          stateFile,
+          JSON.stringify({
+            version: '1.0',
+            exercises: {
+              primitives01: { status: 'passed', attempts: 1 },
+              primitives02: { status: 'passed', attempts: 2 },
+              variables01: { status: 'failed', attempts: 1 },
+              variables02: { status: 'in_progress', attempts: 1 }
+            }
+          })
+        );
+
+        mockState.workspaceRoot = tempDir;
+        mockState.activeFileName = path.join(tempDir, 'exercises', '01_primitives', 'primitives01.tf');
+
+        provider.refresh();
+        const progress = provider.getProgress();
+        assert.strictEqual(progress.total, 56);
+        assert.strictEqual(progress.completed, 2);
+        assert.strictEqual(progress.percentage, 4);
+
+        assert.strictEqual(provider.getExerciseStatus('primitives01'), 'passed');
+        assert.strictEqual(provider.getExerciseStatus('primitives02'), 'passed');
+        assert.strictEqual(provider.getExerciseStatus('variables01'), 'failed');
+        assert.strictEqual(provider.getExerciseStatus('variables02'), 'in_progress');
+        assert.strictEqual(provider.getExerciseStatus('variables03'), 'not_started');
+      } finally {
+        fs.rmSync(tempDir, { recursive: true, force: true });
+      }
     });
   });
 });
