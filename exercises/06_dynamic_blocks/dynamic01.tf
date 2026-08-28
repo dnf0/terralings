@@ -39,7 +39,8 @@ data "archive_file" "bundle" {
   type        = "zip"
   output_path = "${path.module}/bundle.zip"
 
-  # TODO: Declare dynamic "source" block
+  # TODO (What): Declare a dynamic "source" block iterating over var.files with filename = source.key and content = source.value.
+  # TODO (Why): Dynamic blocks generate repeating nested HCL blocks from collections programmatically without hardcoding each block.
   # dynamic "source" {
   #   for_each = var.files
   #   content {

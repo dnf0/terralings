@@ -23,7 +23,8 @@ resource "terraform_data" "database_migration" {
 resource "terraform_data" "web_api" {
   input = "web_api_v2_ready"
 
-  # TODO: Declare explicit dependency on terraform_data.database_migration
+  # TODO (What): Update depends_on to [terraform_data.database_migration].
+  # TODO (Why): Explicit depends_on establishes graph dependency edges when resources do not share direct attribute references (e.g. schema migration before app startup).
   depends_on = [terraform_data.missing_migration]
 }
 

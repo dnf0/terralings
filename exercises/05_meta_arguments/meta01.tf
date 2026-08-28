@@ -25,13 +25,16 @@ variable "replica_count" {
 }
 
 resource "terraform_data" "worker" {
-  # TODO: Set count = var.replica_count
+  # TODO (What): Add count = var.replica_count to create multiple resource instances.
+  # TODO (Why): The count meta-argument replicates resources based on an integer value, exposing count.index inside each instance.
 
-  # TODO: Set input = format("worker-%d.internal", count.index + 1)
+  # TODO (What): Set input = format("worker-%d.internal", count.index + 1).
+  # TODO (Why): Using count.index enables distinct instance naming and numbering in sequential clusters.
   input = format("worker-%d.internal", count.index + 1)
 }
 
 output "worker_hostnames" {
-  # TODO: Extract the inputs of all worker instances using splat expression: terraform_data.worker[*].input
+  # TODO (What): Set value = terraform_data.worker[*].input.
+  # TODO (Why): When count is used on a resource, referencing it requires splat [*] or indexing [i] because the resource address resolves to a list of instances.
   value = terraform_data.worker[*].input
 }
