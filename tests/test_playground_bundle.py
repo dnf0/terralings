@@ -15,10 +15,10 @@ def test_generate_bundle_structure():
     assert "validator_code" in bundle
     assert "stats" in bundle
 
-    assert len(bundle["chapters"]) == 13
-    assert bundle["stats"]["totalChapters"] == 13
-    assert bundle["stats"]["totalExercises"] == 56
-    assert len(bundle["exercises"]) == 56
+    assert len(bundle["chapters"]) == 15
+    assert bundle["stats"]["totalChapters"] == 15
+    assert bundle["stats"]["totalExercises"] == 68
+    assert len(bundle["exercises"]) == 68
 
 
 def test_sample_exercises_have_required_fields():
@@ -36,10 +36,10 @@ def test_bundle_file_exists_and_valid_json():
     assert os.path.exists(BUNDLE_OUTPUT_PATH)
     with open(BUNDLE_OUTPUT_PATH, "r", encoding="utf-8") as f:
         data = json.load(f)
-        assert len(data["exercises"]) == 56
+        assert len(data["exercises"]) == 68
 
 
-def test_all_56_reference_solutions_pass_validation():
+def test_all_68_reference_solutions_pass_validation():
     bundle = generate_bundle()
     failures = []
     for ex_id, ex in bundle["exercises"].items():
@@ -62,4 +62,4 @@ def test_all_starter_templates_fail_validation_if_incomplete():
             failed_starters += 1
 
     # Most starter templates contain TODOs or placeholders and must fail
-    assert failed_starters >= 50, f"Expected most starter templates to fail due to markers, but only {failed_starters} failed"
+    assert failed_starters >= 60, f"Expected most starter templates to fail due to markers, but only {failed_starters} failed"

@@ -735,39 +735,153 @@ func buildManifest() *models.Manifest {
 				},
 			},
 		},
+			{
+				Number:      14,
+				Name:        "14_aws",
+				Title:       "AWS Infrastructure & Production Blueprints",
+				Description: "VPC Multi-AZ networking, compute scaling, serverless microservices, and IAM zero-trust",
+				Exercises: []models.Exercise{
+					{
+						Name:        "aws01",
+						Title:       "Multi-AZ VPC Networking",
+						Path:        "exercises/14_aws/aws01.tf",
+						ChapterName: "14_aws",
+						Hints: []string{
+						"Set cidr_block = "10.0.0.0/16" and enable_dns_hostnames = true on aws_vpc",
+						"Create public subnet with map_public_ip_on_launch = true and associate with internet gateway route table",
+						},
+						Mode: models.ModePlan,
+					},
+					{
+						Name:        "aws02",
+						Title:       "Resilient Compute & Load Balancing",
+						Path:        "exercises/14_aws/aws02.tf",
+						ChapterName: "14_aws",
+						Hints: []string{
+						"Define aws_launch_template with instance_type = "t3.medium"",
+						"Configure aws_autoscaling_group with min_size = 2 and max_size = 10",
+						},
+						Mode: models.ModePlan,
+					},
+					{
+						Name:        "aws03",
+						Title:       "Serverless Microservice Pipeline",
+						Path:        "exercises/14_aws/aws03.tf",
+						ChapterName: "14_aws",
+						Hints: []string{
+						"Set runtime = "python3.12" and handler = "index.handler" on aws_lambda_function",
+						"Create aws_apigatewayv2_api with protocol_type = "HTTP"",
+						},
+						Mode: models.ModePlan,
+					},
+					{
+						Name:        "aws04",
+						Title:       "Event-Driven Async Decoupling",
+						Path:        "exercises/14_aws/aws04.tf",
+						ChapterName: "14_aws",
+						Hints: []string{
+						"Configure aws_sqs_queue with fifo_queue = true",
+						"Create dead-letter queue and link redrive_policy",
+						},
+						Mode: models.ModePlan,
+					},
+					{
+						Name:        "aws05",
+						Title:       "Zero-Trust IAM & Security Hardening",
+						Path:        "exercises/14_aws/aws05.tf",
+						ChapterName: "14_aws",
+						Hints: []string{
+						"Define aws_iam_role with sts:AssumeRole trust policy for lambda.amazonaws.com",
+						"Configure aws_security_group ingress HTTPS on port 443",
+						},
+						Mode: models.ModePlan,
+					},
+					{
+						Name:        "aws06",
+						Title:       "Storage & Data Tier Architecture",
+						Path:        "exercises/14_aws/aws06.tf",
+						ChapterName: "14_aws",
+						Hints: []string{
+						"Set block_public_acls and restrict_public_buckets = true on aws_s3_bucket_public_access_block",
+						"Set billing_mode = "PAY_PER_REQUEST" on aws_dynamodb_table",
+						},
+						Mode: models.ModePlan,
+					},
+				},
+			},
+			{
+				Number:      15,
+				Name:        "15_gcp",
+				Title:       "Google Cloud (GCP) Architecture Blueprints",
+				Description: "Custom VPCs, firewalls, managed instance groups, Cloud Run v2, and Workload Identity",
+				Exercises: []models.Exercise{
+					{
+						Name:        "gcp01",
+						Title:       "Custom VPC Networking & Firewall Rules",
+						Path:        "exercises/15_gcp/gcp01.tf",
+						ChapterName: "15_gcp",
+						Hints: []string{
+						"Set auto_create_subnetworks = false on google_compute_network",
+						"Define google_compute_subnetwork with private_ip_google_access = true",
+						},
+						Mode: models.ModePlan,
+					},
+					{
+						Name:        "gcp02",
+						Title:       "Managed Instance Groups & Load Balancing",
+						Path:        "exercises/15_gcp/gcp02.tf",
+						ChapterName: "15_gcp",
+						Hints: []string{
+						"Configure google_compute_instance_template with machine_type = "e2-standard-4"",
+						"Set target_size = 3 on google_compute_region_instance_group_manager",
+						},
+						Mode: models.ModePlan,
+					},
+					{
+						Name:        "gcp03",
+						Title:       "Serverless Cloud Run Services",
+						Path:        "exercises/15_gcp/gcp03.tf",
+						ChapterName: "15_gcp",
+						Hints: []string{
+						"Define google_cloud_run_v2_service with scaling max_instance_count = 20",
+						"Configure traffic allocation with percent = 100",
+						},
+						Mode: models.ModePlan,
+					},
+					{
+						Name:        "gcp04",
+						Title:       "Pub/Sub Event Pipelines",
+						Path:        "exercises/15_gcp/gcp04.tf",
+						ChapterName: "15_gcp",
+						Hints: []string{
+						"Create google_pubsub_topic for event ingestion",
+						"Attach dead_letter_policy with max_delivery_attempts = 5 on google_pubsub_subscription",
+						},
+						Mode: models.ModePlan,
+					},
+					{
+						Name:        "gcp05",
+						Title:       "Workload Identity & IAM Federation",
+						Path:        "exercises/15_gcp/gcp05.tf",
+						ChapterName: "15_gcp",
+						Hints: []string{
+						"Declare google_service_account with account_id",
+						"Grant scoped permissions using google_project_iam_member with roles/run.invoker",
+						},
+						Mode: models.ModePlan,
+					},
+					{
+						Name:        "gcp06",
+						Title:       "Resilient Storage & Cloud Databases",
+						Path:        "exercises/15_gcp/gcp06.tf",
+						ChapterName: "15_gcp",
+						Hints: []string{
+						"Set uniform_bucket_level_access = true on google_storage_bucket",
+						"Enable versioning on the Cloud Storage bucket",
+						},
+						Mode: models.ModePlan,
+					},
+				},
+			},
 	}
-}
-
-// GetManifest returns the singleton curriculum manifest instance.
-func GetManifest() *models.Manifest {
-	once.Do(func() {
-		manifestInstance = buildManifest()
-	})
-	return manifestInstance
-}
-
-// GetExerciseByName finds an exercise by its short name or relative file path.
-func GetExerciseByName(name string) *models.Exercise {
-	for _, ex := range GetManifest().AllExercises() {
-		if ex.Name == name || ex.Path == name {
-			e := ex
-			return &e
-		}
-	}
-	return nil
-}
-
-// GetNextExercise returns the next sequential exercise after currentName, or nil if at the end.
-func GetNextExercise(currentName string) *models.Exercise {
-	all := GetManifest().AllExercises()
-	for i, ex := range all {
-		if ex.Name == currentName || ex.Path == currentName {
-			if i+1 < len(all) {
-				next := all[i+1]
-				return &next
-			}
-			return nil
-		}
-	}
-	return nil
 }
