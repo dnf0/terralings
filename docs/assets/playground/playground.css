@@ -1,0 +1,585 @@
+/**
+ * Stylesheet for Terralings In-Browser Pyodide Learning Platform.
+ */
+
+:root {
+  --tl-bg: #ffffff;
+  --tl-surface: #f8fafc;
+  --tl-border: #e2e8f0;
+  --tl-text: #0f172a;
+  --tl-text-muted: #64748b;
+  --tl-primary: #7c3aed; /* Terraform purple / vibrant violet */
+  --tl-primary-hover: #6d28d9;
+  --tl-success: #10b981;
+  --tl-error: #ef4444;
+  --tl-warning: #f59e0b;
+  --tl-term-bg: #0d1117;
+  --tl-term-text: #c9d1d9;
+}
+
+[data-md-color-scheme="slate"] {
+  --tl-bg: #0f172a;
+  --tl-surface: #1e293b;
+  --tl-border: #334155;
+  --tl-text: #f8fafc;
+  --tl-text-muted: #94a3b8;
+  --tl-primary: #8b5cf6;
+  --tl-primary-hover: #a78bfa;
+  --tl-term-bg: #090d16;
+  --tl-term-text: #e2e8f0;
+}
+
+/* Base Wrapper */
+.terralings-wrapper {
+  display: flex;
+  height: 800px;
+  max-height: 85vh;
+  border: 1px solid var(--tl-border);
+  border-radius: 8px;
+  background-color: var(--tl-bg);
+  color: var(--tl-text);
+  overflow: hidden;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin: 1.5rem 0;
+}
+
+/* Fullscreen Mode */
+.terralings-wrapper.terralings-fullscreen {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  max-width: 100vw !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  z-index: 99999 !important;
+}
+
+/* Left Syllabus Sidebar (320px) */
+.terralings-sidebar {
+  width: 320px;
+  min-width: 320px;
+  background-color: var(--tl-surface);
+  border-right: 1px solid var(--tl-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.terralings-sidebar-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--tl-border);
+}
+
+.terralings-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.terralings-brand h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--tl-primary);
+}
+
+.terralings-progress-bar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.terralings-progress-text {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--tl-text-muted);
+  font-weight: 500;
+}
+
+.progress-badge {
+  background: var(--tl-primary);
+  color: #fff;
+  padding: 1px 6px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.terralings-progress-track {
+  width: 100%;
+  height: 6px;
+  background-color: var(--tl-border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.terralings-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--tl-primary), #38bdf8);
+  transition: width 0.3s ease;
+}
+
+.terralings-storage-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.icon-btn {
+  flex: 1;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  border: 1px solid var(--tl-border);
+  background: var(--tl-bg);
+  color: var(--tl-text);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.icon-btn:hover {
+  border-color: var(--tl-primary);
+  color: var(--tl-primary);
+}
+
+.icon-btn.danger-icon:hover {
+  border-color: var(--tl-error);
+  color: var(--tl-error);
+}
+
+.terralings-search-box {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--tl-border);
+}
+
+.terralings-search-box input {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  border: 1px solid var(--tl-border);
+  border-radius: 4px;
+  background: var(--tl-bg);
+  color: var(--tl-text);
+  box-sizing: border-box;
+}
+
+.terralings-filter-tabs {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.filter-tab {
+  flex: 1;
+  padding: 3px 0;
+  font-size: 0.75rem;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--tl-text-muted);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.filter-tab.active {
+  background: var(--tl-bg);
+  border-color: var(--tl-border);
+  color: var(--tl-primary);
+  font-weight: 600;
+}
+
+.terralings-syllabus-tree {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+/* Chapter Accordions */
+.syllabus-chapter {
+  margin-bottom: 2px;
+}
+
+.chapter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--tl-text);
+  user-select: none;
+}
+
+.chapter-header:hover {
+  background: rgba(124, 58, 237, 0.08);
+}
+
+.chapter-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accordion-arrow {
+  display: inline-block;
+  font-size: 0.7rem;
+  transition: transform 0.2s;
+}
+
+.syllabus-chapter.open .accordion-arrow {
+  transform: rotate(90deg);
+}
+
+.chapter-number {
+  color: var(--tl-primary);
+  font-weight: 700;
+}
+
+.chapter-count-badge {
+  font-size: 0.7rem;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: var(--tl-border);
+  color: var(--tl-text-muted);
+}
+
+.chapter-count-badge.all-done {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--tl-success);
+}
+
+.exercise-list {
+  display: none;
+  padding-left: 12px;
+}
+
+.syllabus-chapter.open .exercise-list {
+  display: block;
+}
+
+.exercise-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  border-radius: 4px;
+  margin: 1px 8px;
+  transition: all 0.15s;
+}
+
+.exercise-item:hover {
+  background: rgba(124, 58, 237, 0.12);
+}
+
+.exercise-item.active {
+  background: var(--tl-primary);
+  color: #fff !important;
+}
+
+.exercise-item.active .exercise-label,
+.exercise-item.active .exercise-name,
+.exercise-item.active .exercise-status-icon {
+  color: #fff !important;
+}
+
+.exercise-status-icon {
+  font-size: 0.85rem;
+  width: 14px;
+  text-align: center;
+}
+
+.exercise-item.completed .exercise-status-icon {
+  color: var(--tl-success);
+}
+
+.exercise-name {
+  font-family: monospace;
+  font-weight: 600;
+}
+
+.exercise-label {
+  color: var(--tl-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.75rem;
+}
+
+/* Main Area */
+.terralings-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--tl-bg);
+}
+
+.terralings-header {
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--tl-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--tl-surface);
+}
+
+.terralings-exercise-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chapter-badge {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(124, 58, 237, 0.15);
+  color: var(--tl-primary);
+  font-weight: 600;
+}
+
+.terralings-exercise-info h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.status-indicator {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: var(--tl-border);
+  color: var(--tl-text-muted);
+  font-weight: 600;
+}
+
+.status-indicator.completed {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--tl-success);
+}
+
+.status-indicator.in_progress {
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--tl-warning);
+}
+
+.terralings-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.primary-btn {
+  background: var(--tl-primary);
+  color: #fff;
+}
+
+.primary-btn:hover {
+  background: var(--tl-primary-hover);
+}
+
+.secondary-btn {
+  background: var(--tl-bg);
+  border-color: var(--tl-border);
+  color: var(--tl-text);
+}
+
+.secondary-btn:hover {
+  border-color: var(--tl-primary);
+  color: var(--tl-primary);
+}
+
+.terralings-toolbar {
+  padding: 8px 18px;
+  border-bottom: 1px solid var(--tl-border);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  background: var(--tl-bg);
+}
+
+/* Hint Drawer */
+.terralings-hint-drawer {
+  padding: 12px 18px;
+  background: rgba(245, 158, 11, 0.08);
+  border-bottom: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.hint-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.hint-header h4 {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--tl-warning);
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: var(--tl-text-muted);
+  cursor: pointer;
+}
+
+.hint-item {
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+}
+
+.hint-item strong {
+  color: var(--tl-warning);
+}
+
+.hint-item p {
+  margin: 2px 0 0 0;
+  color: var(--tl-text);
+}
+
+/* Monaco Editor Container */
+.terralings-editor-container {
+  flex: 1;
+  position: relative;
+  min-height: 250px;
+  border-bottom: 1px solid var(--tl-border);
+}
+
+.editor-pane {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Diagnostics Terminal */
+.terralings-terminal {
+  height: 180px;
+  min-height: 140px;
+  background: var(--tl-term-bg);
+  color: var(--tl-term-text);
+  display: flex;
+  flex-direction: column;
+}
+
+.terminal-header {
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+}
+
+.terminal-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.terminal-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+.terminal-status {
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.terminal-status.success {
+  background: rgba(16, 185, 129, 0.2);
+  color: #4ade80;
+}
+
+.terminal-status.error {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+.terminal-status.loading {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+}
+
+.terminal-body {
+  flex: 1;
+  margin: 0;
+  padding: 12px 14px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.term-pass {
+  color: #4ade80;
+}
+
+.term-fail {
+  color: #f87171;
+  font-weight: bold;
+}
+
+.term-dim {
+  color: #8b949e;
+}
+
+/* Loading & Error Screens */
+.terralings-loading-screen,
+.terralings-error-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  gap: 16px;
+  font-size: 1rem;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--tl-border);
+  border-top-color: var(--tl-primary);
+  border-radius: 50%;
+  animation: tl-spin 0.8s linear infinite;
+}
+
+@keyframes tl-spin {
+  to { transform: rotate(360deg); }
+}
