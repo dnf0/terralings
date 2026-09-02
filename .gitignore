@@ -4,6 +4,11 @@ dist/
 site/
 /terralings
 node_modules/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
 
 # Terraform & OpenTofu
 .terraform/
