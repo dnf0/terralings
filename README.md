@@ -6,6 +6,7 @@
   <a href="https://go.dev/"><img src="https://img.shields.io/badge/Go-1.22+-00ADD8.svg?logo=go" alt="Go: 1.22+"></a>
   <a href="https://opentofu.org/"><img src="https://img.shields.io/badge/OpenTofu-%E2%89%A51.6-FFDA63?logo=opentofu" alt="OpenTofu"></a>
   <a href="https://www.terraform.io/"><img src="https://img.shields.io/badge/Terraform-%E2%89%A51.5-844FBA?logo=terraform" alt="Terraform"></a>
+  <a href="https://dnf0.github.io/terralings/playground/"><img src="https://img.shields.io/badge/Playground-WebAssembly-orange?logo=webassembly" alt="WebAssembly Playground"></a>
   <a href="https://github.com/dnf0/terralings/tree/main/extensions/vscode"><img src="https://img.shields.io/badge/VS%20Code-Extension-blue?logo=visualstudiocode" alt="VS Code Extension"></a>
   <a href="https://dnf0.github.io/terralings/"><img src="https://img.shields.io/badge/Docs-Material%20for%20MkDocs-526cfe?logo=materialformkdocs" alt="Docs"></a>
 </p>
@@ -16,9 +17,21 @@
 
 > **Master Terraform and OpenTofu from scratch through small, interactive, hands-on terminal exercises.**
 
-`terralings` guides you through fixing broken configurations, writing declarative Infrastructure as Code (IaC), mastering HCL expressions and built-in functions, refactoring state with `moved` blocks, authoring `.tftest.hcl` unit and integration tests, configuring OpenTofu state encryption, and applying enterprise architecture governance standards.
+`terralings` guides you through fixing broken configurations, writing declarative Infrastructure as Code (IaC), mastering HCL expressions and built-in functions, refactoring state with `moved` blocks, authoring `.tftest.hcl` unit and integration tests, configuring OpenTofu state encryption, building multi-cloud AWS and GCP production blueprints, and applying enterprise architecture governance standards.
 
 Inspired by [`rustlings`](https://github.com/rust-lang/rustlings), [`ziglings`](https://github.com/ziglings/exercises), [`spanglings`](https://github.com/dnf0/spanglings), and [`raylings`](https://github.com/dnf0/raylings).
+
+---
+
+## ⚡ Try in Browser: WebAssembly Playground
+
+Want to try Terralings immediately without installing Go, OpenTofu, or Terraform?
+
+Explore the **[Terralings Web Playground](https://dnf0.github.io/terralings/playground/)** — a 100% client-side in-browser learning environment powered by:
+- 🖋️ **Monaco Editor**: Rich HCL syntax highlighting, auto-closing brackets, and line diagnostics.
+- ⚙️ **Pyodide WebAssembly Engine**: In-browser AST parsing, topological dependency graph simulation, and chapter validators.
+- 📺 **xterm.js Interactive Terminal**: Real-time evaluation output, hint rendering, and progress tracking.
+- 🔗 **Bidirectional Guide Linking**: Seamless jump between reference documentation chapters and live playground exercises.
 
 ---
 
@@ -36,7 +49,7 @@ Terralings is built on five core educational pillars:
 
 ## Architecture Overview
 
-Terralings is engineered in Go for extreme performance, offline reliability, and zero cloud credential requirements. The complete 56-exercise curriculum is embedded directly in the standalone binary.
+Terralings is engineered in Go for extreme performance, offline reliability, and zero cloud credential requirements. The complete 68-exercise curriculum is embedded directly in the standalone binary and mirrored in the WebAssembly playground.
 
 ```
                             +-----------------------+
@@ -48,31 +61,31 @@ Terralings is engineered in Go for extreme performance, offline reliability, and
                             |  Terralings CLI (Go)  |
                             +-----------+-----------+
                                         |
-               +------------------------+------------------------+
-               |                                                 |
-               v                                                 v
-   +-----------------------+                         +-----------------------+
-   |  File Watcher Engine  |                         |  Bubble Tea TUI & UI  |
-   |       (fsnotify)      |                         | (diagnostics / tree)  |
-   +-----------+-----------+                         +-----------------------+
-               |
-               v
-   +-----------------------+
-   |  Curriculum Manifest  |  (13 Chapters / 56 Exercises)
-   +-----------+-----------+
-               |
-               v
-   +-----------------------+
-   |   Exercise Runner     |
-   +-----------+-----------+
-               |
-   +-----------+-----------+
-   |                       |
-   v                       v
-+---------------+   +------------------+
-|  OpenTofu CLI |   |  Terraform CLI   |
-| (tofu binary) |   | (terraform bin)  |
-+---------------+   +------------------+
+                +------------------------+------------------------+
+                |                                                 |
+                v                                                 v
+    +-----------------------+                         +-----------------------+
+    |  File Watcher Engine  |                         |  Bubble Tea TUI & UI  |
+    |       (fsnotify)      |                         | (diagnostics / tree)  |
+    +-----------+-----------+                         +-----------------------+
+                |
+                v
+    +-----------------------+
+    |  Curriculum Manifest  |  (15 Chapters / 68 Exercises)
+    +-----------+-----------+
+                |
+                v
+    +-----------------------+
+    |   Exercise Runner     |
+    +-----------+-----------+
+                |
+    +-----------+-----------+
+    |                       |
+    v                       v
+ +---------------+   +------------------+
+ |  OpenTofu CLI |   |  Terraform CLI   |
+ | (tofu binary) |   | (terraform bin)  |
+ +---------------+   +------------------+
 ```
 
 ---
@@ -216,7 +229,7 @@ terralings doctor [--json]
 🩺 Terralings Doctor Diagnostic Report
 ────────────────────────────────────────────────────────────
  ✓ IaC Engine Binary       Found opentofu at /usr/local/bin/tofu (OpenTofu v1.8.0)
- ✓ Curriculum Scaffold     Exercises directory present (56 configuration files found)
+ ✓ Curriculum Scaffold     Exercises directory present (68 configuration files found)
  ✓ Provider Plugin Cache   Plugin cache directory ready at ~/.terralings/plugin-cache
  ✓ Git Ignore Integration  .terralings directory is properly git-ignored.
  ✓ Progress Store          State store healthy at .terralings/state.json
@@ -273,7 +286,7 @@ terralings search "state encryption"
 
 ### 9. `terralings list`
 
-List all 13 curriculum chapters and 56 exercises with their current completion status indicators (`✓` passed, `•` in progress, `·` not started).
+List all 15 curriculum chapters and 68 exercises with their current completion status indicators (`✓` passed, `•` in progress, `·` not started).
 
 ```bash
 terralings list
@@ -290,7 +303,7 @@ terralings verify
 ```
 
 ```text
-Progress: [████████████████████████████████████████] 56/56 (100.0%)
+Progress: [████████████████████████████████████████] 68/68 (100.0%)
 
 🎉 Congratulations! You have completed all Terralings exercises! 🎉
 ```
@@ -308,10 +321,10 @@ terralings stats
 ```text
 📊 TERRALINGS LEARNING ANALYTICS
 
-Overall Progress: [████████████░░░░░░░░] 60% (34/56 completed)
-Time Invested:    1h 45m
-Total Attempts:   82 (avg 1.5 per exercise)
-Hints Consulted:  12
+Overall Progress: [████████████░░░░░░░░] 70% (48/68 completed)
+Time Invested:    2h 15m
+Total Attempts:   98 (avg 1.4 per exercise)
+Hints Consulted:  14
 ```
 
 ---
@@ -366,7 +379,7 @@ Terralings includes an official companion extension published on the [Visual Stu
   <a href="https://marketplace.visualstudio.com/items?itemName=dnf0.terralings-vscode"><img src="https://img.shields.io/visual-studio-marketplace/v/dnf0.terralings-vscode?color=blue&label=Marketplace%20Version" alt="Marketplace Version"></a>
 </p>
 
-- **Curriculum & Exercise Explorer**: Dedicated Activity Bar sidebar displaying all 13 chapters and 56 exercises with real-time status badges (`Passed`, `Failed`, `In Progress`, `Not Started`), chapter progress counters (`5/5`), and one-click file navigation.
+- **Curriculum & Exercise Explorer**: Dedicated Activity Bar sidebar displaying all 15 chapters and 68 exercises with real-time status badges (`Passed`, `Failed`, `In Progress`, `Not Started`), chapter progress counters (`5/5`), and one-click file navigation.
 - **Embedded Language Server (LSP)**: Automatic connection to `terralings lsp` for live diagnostics, markdown hover documentation with exercise objectives and progressive hints, and code actions.
 - **Interactive Guided Walkthroughs**: 5-step native onboarding tour introducing IaC philosophy, exercise anatomy, watch mode, TUI dashboard, and LSP capabilities.
 - **Terminal & TUI Integration**: Direct command palette launchers for continuous watch mode (`terralings watch`) and the full-screen terminal dashboard (`terralings tui`).
@@ -395,7 +408,7 @@ code --install-extension terralings-vscode-0.3.0.vsix
 
 ## Curriculum Matrix
 
-The curriculum spans **13 structured chapters** containing **56 exercises**:
+The curriculum spans **15 structured chapters** containing **68 exercises**:
 
 | Chapter | Exercise ID | Title | Mode | Key Concepts Tested |
 |---|---|---|:---:|---|
@@ -455,6 +468,18 @@ The curriculum spans **13 structured chapters** containing **56 exercises**:
 | **13 Governance** | `gov01` | Root Module Encapsulation | `plan` | Zero loose resources in root environments, modular workload encapsulation |
 | | `gov02` | Policy Encapsulation (ADR-0005) | `plan` | Resource-owned policy ARNs, eliminating inline IAM wildcard grants |
 | | `gov03` | Ephemeral Workload Isolation | `plan` | Encapsulating batch/tooling compute to prevent root state pollution |
+| **14 AWS Architecture** | `aws01` | Multi-AZ VPC Networking | `plan` | Public/private subnet tiers, route tables, internet & NAT gateways |
+| | `aws02` | Resilient Compute & Load Balancing | `plan` | ALBs, target groups, launch templates, autoscaling groups |
+| | `aws03` | Serverless Microservice Pipeline | `plan` | HTTP API Gateway v2, Lambda integrations, log groups |
+| | `aws04` | Event-Driven Async Decoupling | `plan` | SNS topics, SQS FIFO queues, dead-letter queues (DLQs) |
+| | `aws05` | Zero-Trust IAM & Security Hardening | `plan` | Scoped IAM roles, resource policies, S3 public access blocks |
+| | `aws06` | Storage & Data Tier Architecture | `plan` | KMS CMEK keys, S3 lifecycle, DynamoDB PITR & billing modes |
+| **15 GCP Architecture** | `gcp01` | Custom VPC Networking & Firewall Rules | `plan` | Custom VPCs, regional subnets, tag-scoped firewall rules |
+| | `gcp02` | Managed Instance Groups & Load Balancing | `plan` | Instance templates, regional MIGs, health checks, HTTP load balancers |
+| | `gcp03` | Serverless Cloud Run Services | `plan` | Cloud Run v2, container concurrency, serverless VPC access |
+| | `gcp04` | Pub/Sub Event Pipelines | `plan` | Pub/Sub topics, push/pull subscriptions, dead-letter topics |
+| | `gcp05` | Workload Identity & IAM Federation | `plan` | Keyless OIDC federation, service account bindings, zero static keys |
+| | `gcp06` | Resilient Storage & Cloud Databases | `plan` | GCS uniform IAM, Cloud SQL HA, private services access (PSA) |
 
 ---
 
