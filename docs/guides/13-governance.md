@@ -16,43 +16,37 @@ Enterprise-scale Infrastructure as Code requires rigorous architectural governan
 
 ```mermaid
 flowchart TD
-    subgraph GovernanceArchitecture["Architecture Governance Standards"]
-        direction TB
-        
-        subgraph RootBoundary["1. Root Module Encapsulation Boundary (envs/prod)"]
-            Root["🏢 Root Orchestrator (main.tf)"]
-            NetMod["📦 module 'networking'"]
-            DBMod["📦 module 'database'"]
-            AppMod["📦 module 'compute'"]
-            
-            Root --> NetMod
-            Root --> DBMod
-            Root --> AppMod
-        end
-
-        subgraph PolicyEncapsulation["2. ADR-0005: Policy Encapsulation Standard"]
-            direction TB
-            ResourceNode["🏗️ Resource Boundary<br/><i>(aws_s3_bucket.data)</i>"]
-            PolicyNode["🛡️ Integrated IAM Policy<br/><i>(Least-Privilege Scoped Document)</i>"]
-            ExportedPolicy["📤 Output: read_policy_arn"]
-            
-            ResourceNode --> PolicyNode --> ExportedPolicy
-        end
-
-        subgraph Enforcement["3. Anti-Pattern Prevention Gate"]
-            Anti1["❌ NO loose resource blocks in root"]
-            Anti2["❌ NO wildcard IAM policies (*:*) in root"]
-            Anti3["❌ NO unmanaged ephemeral test resources"]
-        end
+    subgraph Root["1. Root Orchestrator (envs/prod)"]
+        Main["🏢 Root Orchestrator (main.tf)"]
+        NetMod["📦 module 'networking'"]
+        DBMod["📦 module 'database'"]
+        AppMod["📦 module 'compute'"]
+        Main --> NetMod & DBMod & AppMod
     end
 
-    AppMod -.->|"Attaches Scoped Policy"| ExportedPolicy
+    subgraph Policy["2. ADR-0005 Policy Encapsulation"]
+        Res["🏗️ Resource (aws_s3_bucket)"] --> IAM["🛡️ Least-Privilege IAM Policy"]
+        IAM --> Output["📤 output 'read_policy_arn'"]
+    end
+
+    subgraph Rules["3. Architectural Guardrails"]
+        NoRoot["❌ No loose resources in root"]
+        NoWild["❌ No wildcard (*:*) policies"]
+    end
+
+    AppMod -.->|"Attaches Scoped Policy"| Output
 ```
 
-Core Architectural Standards:
-1. **Zero Loose Root Resources**: The root module serves exclusively as an orchestrator of cohesive child modules. No loose `resource` blocks should exist in environment roots.
-2. **Policy Encapsulation (ADR-0005)**: Security boundaries and IAM policies are defined directly inside the child module that manages the resource, exporting strictly scoped policy documents to consumers.
-3. **Ephemeral Workload Isolation**: Dynamic batch jobs and transient tooling workloads are isolated into short-lived workspaces or independent state boundaries to prevent state locking and bloat.
+### 🔍 Diagram Concept Breakdown
+
+- **Root Orchestration Cleanliness**:
+  - The root configuration file (`envs/prod/main.tf`) functions exclusively as an orchestrator that passes configuration arguments to discrete, single-purpose child modules (`networking`, `database`, `compute`).
+  - **Zero Loose Root Resources Rule**: Direct `resource` declarations in the root namespace are strictly forbidden to prevent monolith sprawl and blast radius expansion.
+- **ADR-0005 Policy Encapsulation**:
+  - Security policies and IAM roles are declared in the same module that provisions the underlying resource (e.g. S3 module creates bucket + read-only IAM policy).
+  - Child modules export scoped policy ARNs (`output "read_policy_arn"`), allowing downstream compute modules to attach least-privilege permissions without creating broad, insecure wildcard policies.
+- **Continuous Architectural Guardrails**:
+  - Automated CI linters and policy engines reject wildcard IAM statements (`Action = "*"`, `Resource = "*"`) and enforce ephemeral workload isolation to prevent state file bloat.
 
 ---
 

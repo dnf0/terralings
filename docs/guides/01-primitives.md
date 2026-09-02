@@ -16,27 +16,24 @@ In Terraform and OpenTofu, **HashiCorp Configuration Language (HCL)** is a decla
 
 ```mermaid
 flowchart TD
-    subgraph Pipeline["HCL Engine Execution Pipeline"]
-        Config["📄 Root Config (*.tf)"] --> Lexer["🔍 Lexer & AST Parser"]
-        Lexer --> AST["🌳 In-Memory HCL AST"]
-        
-        Providers["🔌 Provider RPC Plugins<br/><i>(local, aws, google)</i>"] --> Schema["📋 Schema Sync & Type Check"]
-        
-        AST --> DAG["🕸️ Directed Acyclic Graph (DAG) Engine"]
-        Schema --> DAG
-        
-        subgraph GraphWalker["Graph Walk & Planner"]
-            DAG --> Topo["⚡ Topological Ordering & Cycle Detection"]
-            Topo --> Exec["🚀 Concurrent Plan / Apply Operations"]
-        end
-    end
+    Files["📄 Config Files (*.tf)"] --> Lexer["🔍 Lexer & Parser"]
+    Lexer --> AST["🌳 In-Memory HCL AST"]
+    
+    Providers["🔌 Provider Plugins"] --> Schema["📋 Provider Schema Sync"]
+    
+    AST --> DAG["🕸️ Dependency Graph (DAG)"]
+    Schema --> DAG
+    
+    DAG --> Plan["⚡ Topological Execution (Plan & Apply)"]
 ```
 
-When configuration files are evaluated:
-1. The lexer and parser read all `.tf` files in the directory concurrently into a single memory scope.
-2. The engine analyzes attribute references (e.g. `local_file.config.id`) to construct dependency vertices in the DAG.
-3. Provider plugins are initialized via gRPC handshake to fetch resource schemas.
-4. The execution planner walks the DAG in topological order, running independent vertices concurrently while sequencing dependent nodes.
+### 🔍 Diagram Concept Breakdown
+
+- **Configuration Files (`*.tf`)**: All Terraform/OpenTofu source files within a working directory are parsed together as a single unified root configuration namespace.
+- **Lexer, Parser & In-Memory AST**: Translates declarative HCL text into an Abstract Syntax Tree (AST), tokenizing blocks, attributes, expressions, and string interpolations.
+- **Provider Plugins & Schema Sync**: External provider binaries (AWS, Google, Local, etc.) communicate over gRPC to supply resource schemas, validating attribute types, required constraints, and default values against the AST.
+- **Dependency Graph (DAG)**: Constructs a Directed Acyclic Graph where vertices represent configuration nodes (resources, modules, outputs) and directed edges represent data dependencies (such as `local_file.config.id`).
+- **Topological Execution Walk**: The core engine evaluates the DAG in topological order, parallelizing independent resources while strictly serializing dependent resources during `terraform plan` and `terraform apply`.
 
 ---
 

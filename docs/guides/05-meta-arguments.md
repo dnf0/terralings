@@ -16,36 +16,39 @@ In Terraform and OpenTofu, **Meta-Arguments** are engine-level directives applic
 
 ```mermaid
 flowchart TD
-    subgraph ResourceBlock["Resource Definition"]
-        Decl["📦 resource 'type' 'name'"]
+    Resource["📦 resource 'type' 'name'"]
+
+    subgraph Scaling["1. Scaling Strategy"]
+        Count["🔢 count = N (Index-based)"]
+        ForEach["🗺️ for_each = map / set (Key-based)"]
     end
 
-    subgraph ScalingStrategies["Scaling & Instantiation Strategy"]
-        direction TB
-        CountNode["🔢 count = N<br/><i>• Index Addressing: res[0], res[1]<br/>⚠️ Shifting Index on Deletions</i>"]
-        ForEachNode["🗺️ for_each = toset() / map<br/><i>• Key Addressing: res['web'], res['db']<br/>✅ Safe, Idempotent Mutations</i>"]
+    subgraph Lifecycle["2. Lifecycle Controls"]
+        CBD["⚡ create_before_destroy"]
+        PD["🛡️ prevent_destroy"]
+        IC["👁️ ignore_changes"]
     end
 
-    subgraph LifecycleEngine["Lifecycle Control & Hook Engine"]
-        CBD["⚡ create_before_destroy<br/><i>Zero-Downtime Provisioning</i>"]
-        PD["🛡️ prevent_destroy<br/><i>Accidental Deletion Guard</i>"]
-        IC["👁️ ignore_changes<br/><i>External Drift Suppression</i>"]
-        RTB["🔄 replace_triggered_by<br/><i>Explicit State Recreation</i>"]
+    subgraph Dependency["3. Explicit Graph Order"]
+        DO["🔗 depends_on = [...]"]
     end
 
-    subgraph DAGOrder["Graph Dependency"]
-        DO["🔗 depends_on = [...]<br/><i>Explicit DAG Edge Injection</i>"]
-    end
-
-    Decl --> ScalingStrategies
-    Decl --> LifecycleEngine
-    Decl --> DAGOrder
+    Resource --> Scaling
+    Resource --> Lifecycle
+    Resource --> Dependency
 ```
 
-Core Mechanics:
-1. **`count`**: Replicates resources based on an integer count. Instances are addressed as `resource.name[index]`. Removing an element from the middle of a list shifts subsequent indices, causing destructive recreation of downstream resources.
-2. **`for_each`**: Maps instances by distinct set or map keys. Instances are addressed as `resource.name["key"]`. Adding or removing keys modifies only the specific target instance.
-3. **`lifecycle`**: Modifies the default plan calculation sequence to guarantee zero downtime or lock critical assets.
+### 🔍 Diagram Concept Breakdown
+
+- **Scaling Strategy (`count` vs `for_each`)**:
+  - **`count = N`**: Replicates resources based on an integer count. Addresses resources as `type.name[index]`. Useful for simple boolean toggles (`count = var.enabled ? 1 : 0`), but removing items from lists shifts indices, causing destructive recreations.
+  - **`for_each = map/set`**: Replicates resources based on unique map or set keys. Addresses resources as `type.name["key"]`. Adding, modifying, or removing items isolates changes strictly to that key without affecting peers.
+- **Lifecycle Controls**:
+  - **`create_before_destroy = true`**: Reverses the default destroy-then-create replacement order, creating the replacement resource first to ensure zero-downtime infrastructure updates.
+  - **`prevent_destroy = true`**: Guardrail that causes `terraform plan` / `terraform apply` to exit with an error if a destroy operation is detected (protecting production databases and storage).
+  - **`ignore_changes = [...]`**: Instructs the plan engine to ignore differences between state and real-world attributes (e.g. autoscale instance counts or external tags) to eliminate perpetual drift diffs.
+- **Explicit Graph Ordering (`depends_on`)**:
+  - Injects a strict directed edge into the DAG when hidden or out-of-band dependencies exist (such as waiting for an IAM role policy attachment to propagate before creating an EKS cluster).
 
 ---
 

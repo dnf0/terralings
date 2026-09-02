@@ -16,48 +16,40 @@ Google Cloud Platform (GCP) structures infrastructure through an explicit organi
 
 ```mermaid
 flowchart TD
-    Internet(["🌐 Global Public Clients"]) --> GCLB["⚖️ External HTTPS Cloud Load Balancer<br/><i>(google_compute_global_forwarding_rule)</i>"]
+    Internet(["🌐 Global Clients"]) --> GCLB["⚖️ HTTPS Cloud Load Balancer"]
+    GCLB --> Armor["🛡️ Cloud Armor Security Policy"]
 
-    subgraph OrgHierarchy["Google Cloud Resource Hierarchy (Org -> Project)"]
-        direction TB
-
-        subgraph GlobalVPC["Global VPC Network (auto_create_subnetworks = false)"]
-            direction TB
-
-            subgraph RegionUS["Region: us-central1 (Subnet: 10.10.0.0/20)"]
-                direction LR
-                MIG["⚙️ Regional Managed Instance Group<br/><i>(google_compute_region_instance_group_manager)</i>"]
-                CloudSQL[("🗄️ Cloud SQL HA Instance<br/><i>(Private Service Access IP)</i>")]
-                MIG --> CloudSQL
-            end
-
-            subgraph RegionEU["Region: europe-west1 (Subnet: 10.20.0.0/20)"]
-                direction LR
-                CloudRun["⚡ Cloud Run v2 Microservices<br/><i>(google_cloud_run_v2_service)</i>"]
-                PubSub["📨 Cloud Pub/Sub Topic + DLQ<br/><i>(google_pubsub_topic)</i>"]
-                CloudRun --> PubSub
-            end
-        end
-
-        subgraph SecurityIdentity["Security, Identity & Data Layer"]
-            direction LR
-            WIF["🛡️ Workload Identity Federation<br/><i>(Keyless OIDC Authentication)</i>"]
-            GCS[("🪣 Cloud Storage (Uniform IAM)<br/><i>(google_storage_bucket)</i>")]
-            Armor["🛡️ Cloud Armor Security Policy"]
-        end
+    subgraph GlobalVPC["Global VPC Network"]
+        Armor --> MIG["⚙️ Regional MIG (us-central1)"]
+        MIG --> CloudSQL[("🗄️ Cloud SQL HA Instance")]
+        
+        Armor --> CloudRun["⚡ Cloud Run v2 (europe-west1)"]
+        CloudRun --> PubSub["📨 Cloud Pub/Sub Topic"]
     end
 
-    GCLB --> Armor
-    Armor --> MIG
-    Armor --> CloudRun
-    WIF -.->|"Federates CI/CD Permissions"| OrgHierarchy
+    subgraph SecurityStorage["Security & Storage"]
+        WIF["🛡️ Workload Identity Federation"]
+        GCS[("🪣 Cloud Storage (Uniform IAM)")]
+    end
+
+    CloudRun & MIG --> GCS
+    WIF -.->|"Keyless OIDC"| GlobalVPC
 ```
 
-Core Tenets:
-1. **Custom Mode VPC Networks**: Always set `auto_create_subnetworks = false` to prevent default wide-open IP allocations across unused regions.
-2. **Tag-Driven Firewall Boundaries**: Scope ingress and egress firewall rules strictly using `target_tags` and `source_tags`.
-3. **Container-Native Serverless**: Deploy autoscaling microservices on Cloud Run v2 with concurrency limits and VPC egress connectors.
-4. **Keyless Authentication via Workload Identity**: Federate external CI/CD runners (GitHub Actions, GitLab) without generating long-lived service account keys.
+### 🔍 Diagram Concept Breakdown
+
+- **Global Ingress & Edge Protection Tier**:
+  - Global External HTTPS Cloud Load Balancer (GCLB) routes anycast client traffic to the closest Google edge Point of Presence (PoP).
+  - Google Cloud Armor filters malicious traffic with Layer 7 DDoS mitigation, IP allowlists, and WAF rule sets before packets reach internal workloads.
+- **Global VPC Network Topology**:
+  - A single Global VPC spans multiple regions (`us-central1`, `europe-west1`), avoiding complex multi-region peering tunnels.
+  - Regional Managed Instance Groups (MIG) deliver auto-healing VM fleets across multiple zones.
+  - Cloud Run v2 executes containerized microservices that communicate with private backend services via Serverless VPC Access Connectors.
+  - Highly available Cloud SQL instances connect over Private Services Access (PSA) using internal RFC 1918 IP addresses.
+  - Cloud Pub/Sub decouples event-driven microservices across regions.
+- **Security & Storage Fabric**:
+  - Google Cloud Storage (GCS) enforces Uniform Bucket-Level Access, CMEK encryption, and object lifecycle transitions.
+  - Keyless Workload Identity Federation (WIF) allows GitHub Actions / CI runners to exchange OIDC tokens for ephemeral GCP access tokens, completely eliminating static service account JSON keys.
 
 ---
 

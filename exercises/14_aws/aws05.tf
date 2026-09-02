@@ -50,14 +50,7 @@ resource "aws_iam_policy" "s3_reader" {
 
   # TODO (What): Define policy document granting Action = ["s3:GetObject"] on Resource = "arn:aws:s3:::corp-audit-vault/*".
   # TODO (Why): Principle of least privilege prohibits wildcard (*) actions on global resources.
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect   = "Allow"
-      Action   = []
-      Resource = ""
-    }]
-  })
+  policy = ""
 }
 
 resource "aws_iam_role_policy_attachment" "s3_attach" {

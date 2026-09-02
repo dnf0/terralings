@@ -16,32 +16,35 @@ In Terraform and OpenTofu, **Built-in Functions** provide a deterministic, side-
 
 ```mermaid
 flowchart TD
-    subgraph StandardLibrary["HCL Built-in Standard Library"]
-        direction TB
-        subgraph Domains["Function Domains"]
-            Str["🔤 Strings & Formats<br/><code>format, join, split, replace</code>"]
-            Coll["🗂️ Collections & Maps<br/><code>merge, flatten, lookup, zipmap</code>"]
-            Enc["🔐 Encodings & Serialization<br/><code>jsonencode, yamlencode, base64</code>"]
-            FS["📁 Filesystem & Templates<br/><code>file, templatefile, fileset</code>"]
-        end
+    subgraph Domains["1. Function Domains"]
+        Str["🔤 Strings & Formats"]
+        Coll["🗂️ Collections & Maps"]
+        Enc["🔐 Encodings (JSON/YAML)"]
+        FS["📁 Filesystem & Templates"]
     end
 
-    subgraph EvalEngine["Evaluation & Guard Pipeline"]
-        RawExpr["📥 Expression Input"] --> Exec{"⚡ Evaluate Function"}
-        Exec -->|"Success"| Result["✅ Transformed Value"]
-        Exec -->|"Evaluation Error"| GuardCheck{"🛡️ Wrapped in try() / can()?"}
-        GuardCheck -->|"try(expr, fallback)"| Fallback["🔄 Graceful Fallback Value"]
-        GuardCheck -->|"can(expr)"| BoolOut["🔲 Returns false (boolean)"]
-        GuardCheck -->|"Unprotected"| Fatal["❌ Halt Plan / Fatal HCL Error"]
+    subgraph Guards["2. Defensive Guard Clauses"]
+        Try["🛡️ try(expr, fallback) &rarr; Safe Fallback"]
+        Can["🛡️ can(expr) &rarr; Boolean Result"]
     end
 
-    Domains --> Exec
+    Domains --> Execute["⚡ Built-in Engine Execution"]
+    Execute --> Guards
+    Guards --> Result["✅ Transformed Output"]
 ```
 
-Function characteristics:
-1. **Deterministic Execution**: All functions are purely functional and idempotent. Calling a function with identical inputs always produces identical outputs.
-2. **Compile-Time Safety**: When inputs are statically known, function evaluation occurs during the validation and planning phases.
-3. **Safe Evaluation Guards**: `try()` and `can()` allow graceful handling of unknown attributes, dynamic maps, or type mismatches without terminating execution.
+### 🔍 Diagram Concept Breakdown
+
+- **Core Function Domains**: Categorizes the built-in standard library into specialized manipulation engines:
+  - **Strings & Formats**: `lower()`, `upper()`, `trimprefix()`, `format()`, and `regex()`.
+  - **Collections & Maps**: `merge()`, `flatten()`, `lookup()`, `slice()`, `concat()`, and `distinct()`.
+  - **Encodings**: `jsonencode()`, `jsondecode()`, `yamlencode()`, `base64encode()`, and `sha256()`.
+  - **Filesystem & Templates**: `file()`, `fileset()`, `fileexists()`, and `templatefile()`.
+- **Built-in Engine Execution**: Executes transformations deterministically without network calls or external side effects during the compile/plan phases.
+- **Defensive Guard Clauses**:
+  - **`try(expr, fallback)`**: Evaluates an expression that might fail (such as accessing an optional map key or parsing a variable structure), falling back gracefully to a default value without terminating execution.
+  - **`can(expr)`**: Safely evaluates an expression to determine if it produces an error, returning `true` or `false` (invaluable for `variable` validation blocks and preconditions).
+- **Transformed Output**: Produces pristine, validated data structures ready for consumption by downstream resource definitions.
 
 ---
 

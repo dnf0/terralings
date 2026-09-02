@@ -16,42 +16,27 @@ In Terraform and OpenTofu, **Outputs, Locals & Expressions** manage data flow an
 
 ```mermaid
 flowchart TD
-    subgraph Upstream["Upstream Inputs & Attributes"]
-        Vars["📥 Input Variables<br/><code>var.environment</code>"]
-        Attrs["📦 Resource Attributes<br/><code>local_file.config.id</code>"]
+    Vars["📥 Input Variables"] --> Locals["⚙️ locals Scope (Transformations & Projections)"]
+    Attrs["📦 Resource Attributes"] --> Locals
+    
+    Locals --> Resources["🏗️ Downstream Resources"]
+    Locals --> Outputs["📤 output Block"]
+    
+    subgraph OutputMasking["Output Redaction Pipeline"]
+        Outputs --> Sensitive{"🔒 sensitive = true?"}
+        Sensitive -->|"Yes"| Masked["🛡️ Redacted in CLI"]
+        Sensitive -->|"No"| Plain["👁️ Plaintext in CLI"]
     end
-
-    subgraph Intermediate["Intermediate Locals Scope"]
-        Locals["⚙️ locals Block<br/><i>• Normalization & Ternaries<br/>• Tagging Factories<br/>• Splat Projections</i>"]
-    end
-
-    subgraph Downstream["Downstream Consumers"]
-        Resources["🏗️ Dependent Resources<br/><code>terraform_data.audit</code>"]
-        
-        subgraph OutputsPipe["Output Pipeline"]
-            RawOut["📤 output Block"]
-            SensCheck{"🔒 sensitive = true?"}
-            Masked["🛡️ (sensitive value) Redacted in CLI"]
-            Plain["👁️ Plaintext CLI Display"]
-            StatePersist["💾 Persisted in State File"]
-            
-            RawOut --> SensCheck
-            SensCheck -->|"Yes"| Masked --> StatePersist
-            SensCheck -->|"No"| Plain --> StatePersist
-        end
-    end
-
-    Vars --> Locals
-    Attrs --> Locals
-    Locals --> Resources
-    Locals --> RawOut
 ```
 
-Expressions are evaluated during graph resolution:
-1. **Locals Scope**: Evaluated dynamically and cached for repeated references within the same module scope.
-2. **Conditional Expressions**: `condition ? true_val : false_val` evaluate lazily, returning a single type-unified value.
-3. **Splat Operators**: `[*]`, legacy `.*`, and `[for x in list : x.attr]` project nested list attributes into flat collections.
-4. **Output Masking**: Outputs marked with `sensitive = true` are redacted from CLI output and plan summaries, but remain unencrypted in state files.
+### 🔍 Diagram Concept Breakdown
+
+- **Data Inputs (Variables & Resource Attributes)**: Aggregates external module inputs (`var.*`) and dynamic runtime attributes (`aws_instance.web.private_ip`) into a unified intermediate scope.
+- **`locals` Scope (Transformations & Projections)**: Acts as an in-memory transformation layer to normalize, reshape, merge, and project data structures using `for` expressions, conditional operators (`? :`), and splat syntax (`[*]`). Local values eliminate code duplication (DRY) and isolate complex expressions.
+- **Downstream Resource Propagation**: Transformed local values flow directly into resource block arguments, maintaining clear implicit DAG dependencies.
+- **Output Exposure & Redaction Pipeline**: When exporting values across module boundaries or to the CLI via `output` blocks:
+  - `sensitive = true` flags trigger automatic redaction (`(sensitive value)`) in console logs, terminal outputs, and plan diffs.
+  - Non-sensitive outputs render in plaintext for operator inspection and downstream module parameterization.
 
 ---
 

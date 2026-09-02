@@ -16,38 +16,30 @@ In Terraform and OpenTofu, the **State File** binds declarative HCL resource add
 
 ```mermaid
 flowchart TD
-    subgraph DeclarativeState["Declarative State Surgery Engine"]
-        direction TB
-        
-        subgraph Renaming["Resource & Module Renaming"]
-            OldAddr["📦 Old State Key<br/><code>local_file.legacy</code>"]
-            MovedBlock["🔄 moved {<br/>&nbsp;&nbsp;from = local_file.legacy<br/>&nbsp;&nbsp;to = local_file.v2<br/>}"]
-            NewAddr["✨ New Address<br/><code>local_file.v2</code>"]
-            
-            OldAddr --> MovedBlock --> NewAddr
-        end
-
-        subgraph Importing["Cloud Resource Onboarding"]
-            CloudRes["☁️ Real Cloud Asset<br/><code>ID: 'i-0abcdef1234567890'</code>"]
-            ImportBlock["📥 import {<br/>&nbsp;&nbsp;to = aws_instance.web<br/>&nbsp;&nbsp;id = 'i-0abcdef1234567890'<br/>}"]
-            ImportState["💾 Managed Resource State"]
-            
-            CloudRes --> ImportBlock --> ImportState
-        end
-
-        subgraph PlanOutcome["Plan & Apply Execution"]
-            ZeroDowntime["✅ In-Place State Key Rebinding<br/>• 0 Resources Destroyed<br/>• 0 Resources Recreated<br/>• Zero Downtime"]
-        end
+    subgraph Refactor["1. Declarative Resource Renaming"]
+        Old["📦 Old Address: local_file.legacy"] --> Moved["🔄 moved { from ... to ... }"]
+        Moved --> New["✨ New Address: local_file.v2"]
     end
 
-    NewAddr --> ZeroDowntime
-    ImportState --> ZeroDowntime
+    subgraph Import["2. Declarative Resource Onboarding"]
+        Cloud["☁️ Existing Cloud Asset (ID)"] --> ImportBlock["📥 import { to ... id ... }"]
+        ImportBlock --> State["💾 Managed State"]
+    end
+
+    New --> PlanApply["⚡ Zero-Downtime State Rebinding (0 Recreations)"]
+    State --> PlanApply
 ```
 
-Refactoring Capabilities:
-1. **`moved` Blocks**: Rebind state keys during `plan` generation without destroying or recreating target infrastructure.
-2. **`import` Blocks**: Bring unmanaged existing cloud resources into state declaratively as part of continuous integration.
-3. **Controlled Replacement**: Use `replace_triggered_by` to trigger cascade replacements deterministically.
+### 🔍 Diagram Concept Breakdown
+
+- **Declarative Resource Renaming (`moved` blocks)**:
+  - Records address transitions in code (e.g. `from = aws_instance.old` to `to = aws_instance.new` or moving into a module `to = module.app.aws_instance.web`).
+  - The plan engine automatically migrates state keys in memory during `terraform plan` without generating destroy/recreate actions.
+- **Declarative Resource Onboarding (`import` blocks)**:
+  - Links an unmanaged existing cloud infrastructure ID (e.g. `vpc-0123456789`) directly to a target resource address in code (`to = aws_vpc.imported`).
+  - Allows full code generation (`-generate-config-out`) and CI-driven onboarding without manual imperative CLI commands.
+- **Zero-Downtime State Rebinding**:
+  - State surgery operations are version-controlled, auditable in pull requests, and executed with guaranteed zero downtime and zero unwanted resource churn.
 
 ---
 

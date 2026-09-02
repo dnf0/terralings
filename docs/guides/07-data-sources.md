@@ -16,43 +16,26 @@ In Terraform and OpenTofu, **Data Sources** allow configurations to query inform
 
 ```mermaid
 flowchart TD
-    subgraph External["External Reality & External State"]
-        API["☁️ Cloud Provider APIs"]
-        FS["📁 Local Filesystem / Archive"]
-        Remote["🌐 Remote Terraform State"]
+    Sources["☁️ Cloud APIs / State / Files"] --> Query["🔍 data 'type' 'name'"]
+    
+    subgraph Lifecycle["Validation & Query Lifecycle"]
+        Query --> Pre["🛡️ precondition { condition }"]
+        Pre --> Fetch["⚡ Fetch External Attributes"]
+        Fetch --> Post["⚖️ postcondition { condition }"]
     end
 
-    subgraph DataQuery["Data Source Query & Contract Gate"]
-        Block["🔍 data 'type' 'name' Block"]
-        PreCond{"🛡️ precondition { condition }"}
-        PostCond{"⚖️ postcondition { condition }"}
-        
-        Block --> PreCond
-        PreCond -->|"Passes"| Fetch["⚡ Fetch & Parse External Attributes"]
-        PreCond -->|"Fails"| PreErr["❌ Abort Query Execution"]
-        Fetch --> PostCond
-        PostCond -->|"Passes"| ValidData["✅ Read-Only State In-Scope"]
-        PostCond -->|"Fails"| PostErr["❌ Abort Plan / Validation Error"]
-    end
-
-    subgraph Downstream["Downstream Graph Consumers"]
-        Res["🏗️ Managed Resources<br/><code>resource 'type' 'name'</code>"]
-        Loc["⚙️ locals Block"]
-        Out["📤 output Block"]
-    end
-
-    API --> Fetch
-    FS --> Fetch
-    Remote --> Fetch
-    ValidData --> Res
-    ValidData --> Loc
-    ValidData --> Out
+    Post --> Consumers["🏗️ Resources / Locals / Outputs"]
 ```
 
-Query Phases:
-1. **Static Data Sources**: Queries with known inputs execute immediately during the plan phase.
-2. **Dynamic Data Sources**: Queries that depend on computed resource attributes are deferred to the apply phase.
-3. **Contract Enforcement**: `precondition` and `postcondition` blocks guarantee that external assumptions remain valid before and after queries execute.
+### 🔍 Diagram Concept Breakdown
+
+- **External Data Providers (`Sources`)**: Interfaces with external systems such as cloud provider control planes (AWS, GCP, Azure), remote backend state files (`terraform_remote_state`), or local disk artifacts.
+- **Data Source Declaration (`data "<type>" "<name>"`)**: Defines a read-only query contract without declaring resource ownership or lifecycle management.
+- **Validation & Query Lifecycle**:
+  - **`precondition` gate**: Validates assumptions about input query arguments *before* the external API call is dispatched.
+  - **Fetch External Attributes**: The provider issues read calls during `terraform refresh` / `terraform plan` (or defers to `apply` if arguments depend on pending resource attributes).
+  - **`postcondition` gate**: Validates assertions against the retrieved attributes (e.g., verifying that returned AMI images have virtualization type `hvm` and state `available`) before exposing data downstream.
+- **Downstream Consumers**: Supplies safe, validated, read-only attributes to downstream managed resources, `locals`, and `output` blocks.
 
 ---
 

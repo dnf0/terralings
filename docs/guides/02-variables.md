@@ -16,30 +16,33 @@ In modern Terraform and OpenTofu, **Input Variables** define the external parame
 
 ```mermaid
 flowchart TD
-    subgraph Inputs["Input Sources (Precedence Order)"]
-        direction TB
-        P1["1. CLI Flags: -var / -var-file"]
-        P2["2. Auto Files: *.auto.tfvars"]
-        P3["3. Default File: terraform.tfvars"]
-        P4["4. Environment: TF_VAR_*"]
-        P5["5. HCL Schema: default value"]
-        P1 --> P2 --> P3 --> P4 --> P5
+    subgraph Precedence["1. Input Value Precedence"]
+        CLI["1. CLI Flags (-var)"] --> Auto["2. *.auto.tfvars"]
+        Auto --> DefaultFile["3. terraform.tfvars"]
+        DefaultFile --> EnvVar["4. TF_VAR_*"]
+        EnvVar --> SchemaDef["5. Schema Default"]
     end
 
-    subgraph TypeEngine["Type & Validation Engine"]
-        P5 --> Schema["🔍 Schema Type Match<br/><i>(primitive, list, map, object)</i>"]
-        Schema --> NullGuard{"🛡️ nullable = false?"}
-        NullGuard -->|"Passed"| CustomVal{"⚖️ validation { condition }"}
-        NullGuard -->|"Null Received"| NullErr["❌ Reject Null Input"]
-        CustomVal -->|"true"| ValidState["✅ Validated Variable in Scope"]
-        CustomVal -->|"false"| CustomErr["❌ Emit error_message"]
+    subgraph Validation["2. Validation Pipeline"]
+        SchemaDef --> TypeCheck["🔍 Type Constraint Check"]
+        TypeCheck --> NullGuard{"🛡️ nullable = false?"}
+        NullGuard --> CustomVal{"⚖️ validation { condition }"}
+        CustomVal --> Valid["✅ Validated Variable in Scope"]
     end
 ```
 
-When variable values are passed via CLI flags (`-var`), `.tfvars` files, or environment variables (`TF_VAR_name`), the engine executes a three-stage validation pipeline:
-1. **Type Constraint Matching**: Ensures values strictly conform to primitive, collection, or object constraints.
-2. **Nullability Checks**: If `nullable = false` is defined, the engine rejects `null` inputs and falls back to default values.
-3. **Custom Validation Predicates**: Executes all `condition` expressions inside `validation` blocks, raising custom `error_message` strings if a condition evaluates to `false`.
+### 🔍 Diagram Concept Breakdown
+
+- **Input Value Precedence (Hierarchy of Overrides)**: Resolves variable values from highest to lowest precedence:
+  1. CLI flags (`-var` / `-var-file`) explicitly override all other sources.
+  2. Files matching `*.auto.tfvars` or `*.auto.tfvars.json` loaded lexicographically.
+  3. Default `terraform.tfvars` or `terraform.tfvars.json` files.
+  4. Environment variables formatted as `TF_VAR_<variable_name>`.
+  5. Manifest `default` value defined in the `variable` block.
+- **Type Constraint Check**: Enforces static and structural types (`string`, `number`, `bool`, `list`, `map`, `object({ ... })`). Mismatched types trigger compile-time errors before graph creation.
+- **Nullability Guard (`nullable = false`)**: Defends against explicit `null` inputs. When set to `false`, any `null` value is rejected or replaced by the default value.
+- **Custom Validation Predicates**: Evaluates custom HCL expressions in `validation { condition = ... }` blocks (e.g., regex matching, port range checks), aborting execution with custom `error_message` strings if violated.
+- **Validated Variable in Scope**: Provides guaranteed type-safe and validated inputs to downstream `locals`, `resource`, and `module` blocks.
 
 ---
 

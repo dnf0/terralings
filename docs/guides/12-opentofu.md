@@ -16,38 +16,30 @@
 
 ```mermaid
 flowchart TD
-    subgraph TofuInnovations["OpenTofu Architectural Innovations"]
-        direction TB
-        
-        subgraph EncryptionPipeline["1. Client-Side State Encryption Engine"]
-            direction LR
-            RawState["📄 In-Memory State AST<br/><i>(Plaintext Secrets)</i>"]
-            AES["🔐 AES-GCM Encryption Engine<br/><code>key_provider 'pbkdf2' / 'kms'</code>"]
-            EncryptedState["🛡️ Encrypted State Payload<br/><i>(Zero Secrets at Rest)</i>"]
-            RemoteStorage[("☁️ Remote Backend<br/><i>S3 / GCS / Azure Blob</i>")]
-            
-            RawState --> AES --> EncryptedState --> RemoteStorage
-        end
+    subgraph Encryption["1. Client-Side State Encryption"]
+        State["📄 In-Memory State"] --> AES["🔐 AES-GCM / KMS Engine"]
+        AES --> Backend[("☁️ Encrypted Remote Backend (S3/GCS)")]
+    end
 
-        subgraph EarlyEval["2. Early Variable Evaluation Engine"]
-            VarInputs["📥 Input Variables (var.region, var.bucket)"]
-            BackendBlock["🗄️ backend 's3' { bucket = var.bucket }"]
-            ProviderBlock["🔌 provider 'aws' { region = var.region }"]
-            
-            VarInputs --> BackendBlock
-            VarInputs --> ProviderBlock
-        end
+    subgraph EarlyEval["2. Early Variable Evaluation"]
+        Vars["📥 Input Variables"] --> BackConf["🗄️ backend 's3' { bucket = var.b }"]
+        Vars --> ProvConf["🔌 provider 'aws' { region = var.r }"]
+    end
 
-        subgraph OpenRegistry["3. Decentralized Registry Ecosystem"]
-            OpenReg["🌐 get.opentofu.org<br/><i>Decentralized, Open-Source Provider Mirror</i>"]
-        end
+    subgraph Registry["3. Decentralized Registry"]
+        OpenReg["🌐 get.opentofu.org (Open Source Mirror)"]
     end
 ```
 
-Key Architectural Innovations:
-1. **Native Client-Side State Encryption**: Encrypts sensitive state files, plan files, and state caches locally using AES-GCM or KMS key providers before any data is sent to remote backends.
-2. **Early Variable Evaluation**: Allows input variables to be referenced directly inside `backend` and `provider` configuration blocks without requiring external wrapper scripts (e.g. Terragrunt).
-3. **Open Registry Interoperability**: Seamlessly pulls provider plugins from the OpenTofu registry with automated fallback to community registries.
+### 🔍 Diagram Concept Breakdown
+
+- **Client-Side State Encryption**:
+  - Encrypts in-memory state data, plan files, and disk caches *prior* to writing to remote backend stores (such as S3, GCS, or Azure Blob).
+  - Supports AES-GCM (via PBKDF2 passphrases) and cloud KMS key providers (AWS KMS, GCP Cloud KMS, HashiCorp Vault), ensuring that even cloud backend administrators cannot inspect plaintext credentials stored in state.
+- **Early Variable Evaluation**:
+  - Evaluates input variables *before* initializing backends and provider plugins, enabling dynamic backend configurations (`bucket = var.state_bucket`) and provider parameters (`region = var.aws_region`) directly in pure HCL without external wrapper tooling.
+- **Decentralized Open Source Registry**:
+  - Connects to `get.opentofu.org`, an open-source, highly available provider registry backed by the Linux Foundation with automatic failover and cryptographic checksum validation.
 
 ---
 

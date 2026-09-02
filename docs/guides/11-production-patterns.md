@@ -16,39 +16,36 @@ In production Infrastructure as Code, codebases scale to support hundreds of eng
 
 ```mermaid
 flowchart TD
-    subgraph EnterprisePatterns["Enterprise Design Pattern Architecture"]
-        direction TB
-        
-        subgraph Pattern1["1. Environment Configuration Matrix"]
-            EnvLookup["🏢 var.environment<br/><i>(dev | staging | prod)</i>"]
-            MatrixMap["🗺️ local.env_config = {<br/>&nbsp;&nbsp;dev = { tier = 't4g.nano', replicas = 1 },<br/>&nbsp;&nbsp;prod = { tier = 'r6g.xlarge', replicas = 5 }<br/>}"]
-            SelectedConfig["🎯 local.active_config"]
-            EnvLookup --> MatrixMap --> SelectedConfig
-        end
-
-        subgraph Pattern2["2. Hierarchical Tagging Factory"]
-            direction LR
-            GlobalTags["🏷️ Global Org Tags"] --> EnvTags["🏷️ Env Tags"] --> ResTags["🏷️ Resource Tags"]
-            ResTags --> FinalTags["🛡️ merge(global, env, res)"]
-        end
-
-        subgraph Pattern3["3. Self-Service Sanitization & Toggles"]
-            DevInput["📋 Developer Input Spec"] --> Sanitize["🔍 Schema Validation & Sanitizer"]
-            Sanitize --> Toggle{"⚡ Feature Toggle (count 0/1)"}
-            Toggle -->|"Enabled"| Provision["🚀 Resource Provisioned with one() output"]
-            Toggle -->|"Disabled"| NoOp["⏹️ Zero Resources Created"]
-        end
+    subgraph Matrix["1. Environment Matrix"]
+        Env["🏢 var.environment"] --> Lookup["🗺️ local.env_config[var.env]"]
+        Lookup --> Sizing["🎯 Tier & Replica Sizing"]
     end
 
-    SelectedConfig --> Pattern2
-    FinalTags --> Pattern3
+    subgraph Tagging["2. Tagging Factory"]
+        Global["🏷️ Org Tags"] --> Merge["🛡️ merge(org, env, res)"]
+        EnvTags["🏷️ Env Tags"] --> Merge
+        ResTags["🏷️ Res Tags"] --> Merge
+    end
+
+    subgraph Toggles["3. Feature Toggles & one()"]
+        Toggle{"⚡ Feature Enabled?"}
+        Toggle -->|"count = 1"| Resource["🚀 Provisioned Resource"]
+        Toggle -->|"count = 0"| Null["⏹️ Null Resource"]
+        Resource --> One["🔍 one(resource.*) Safe Output"]
+    end
 ```
 
-Core Enterprise Patterns:
-1. **Environment Configuration Matrix**: Centralizes per-environment sizing, feature flags, and topology in structured maps inside `locals`.
-2. **Deterministic Tagging Factory**: Uses layered `merge()` calls to guarantee required compliance tags are always attached.
-3. **Safe Feature Toggles**: Implements clean 0/1 conditional patterns with safe scalar extraction via `one()`.
-4. **Self-Service Input Contracts**: Validates, normalizes, and filters complex developer specifications into safe infrastructure blueprints.
+### 🔍 Diagram Concept Breakdown
+
+- **Environment Configuration Matrix**:
+  - Replaces scattered, brittle `condition ? a : b` ternaries with a single, centralized lookup map in `locals` keyed by environment name (`dev`, `staging`, `prod`).
+  - Standardizes cluster sizes, replica counts, instance tiers, and backup retention rules across all deployments.
+- **Deterministic Tagging Factory**:
+  - Enforces continuous governance and FinOps cost allocation by layering tags hierarchically: `merge(local.org_tags, local.env_tags, var.resource_tags)`.
+  - Guarantees mandatory tags (`CostCenter`, `Environment`, `SecurityTier`, `ManagedBy`) are present on every resource without manual developer intervention.
+- **Safe Feature Toggles & `one()` Pattern**:
+  - Implements optional infrastructure components via `count = var.enable_waf ? 1 : 0`.
+  - Uses `one(aws_wafv2_web_acl.main[*].arn)` to safely project either the single ARN (when enabled) or `null` (when disabled) into downstream inputs without crashing on empty list index lookups (`[0]`).
 
 ---
 

@@ -16,46 +16,36 @@ In modern Terraform and OpenTofu, **Native Testing** executes via `.tftest.hcl` 
 
 ```mermaid
 flowchart TD
-    subgraph TestHarness["Native .tftest.hcl Test Engine"]
-        direction TB
-        
-        subgraph Setup["Test Setup & Isolation"]
-            TFTest["🧪 .tftest.hcl Harness"]
-            Mock["🎭 mock_provider 'aws' / 'google'<br/><i>Zero Real Cloud Credentials Required</i>"]
-            Overrides["⚙️ override_resource / override_data"]
-            TFTest --> Mock --> Overrides
-        end
-
-        subgraph RunBlocks["Sequential run Blocks"]
-            direction TB
-            PlanRun["📋 run 'plan_verification'<br/><code>command = plan</code><br/><i>In-Memory Static Plan Verification</i>"]
-            ApplyRun["🚀 run 'apply_integration'<br/><code>command = apply</code><br/><i>Ephemeral State Execution</i>"]
-            PlanRun --> ApplyRun
-        end
-
-        subgraph Assertions["Assertion & Negative Testing Gates"]
-            AssertGate{"⚖️ assert { condition }"}
-            NegGate{"🛡️ expect_failures = [...]"}
-            
-            Pass["✅ Test Step Passed"]
-            Fail["❌ Test Step Failed (Emit error_message)"]
-            
-            AssertGate -->|"condition = true"| Pass
-            AssertGate -->|"condition = false"| Fail
-            NegGate -->|"Expected Error Caught"| Pass
-            NegGate -->|"No Error Raised"| Fail
-        end
+    subgraph Setup["1. Setup & Isolation"]
+        TFTest["🧪 .tftest.hcl Harness"] --> Mock["🎭 mock_provider (Zero Credentials)"]
+        Mock --> Overrides["⚙️ override_resource / override_data"]
     end
 
-    Overrides --> RunBlocks
-    RunBlocks --> Assertions
+    subgraph Execution["2. Test Execution Stages"]
+        Plan["📋 run { command = plan }"] --> Apply["🚀 run { command = apply }"]
+    end
+
+    subgraph Gates["3. Verification & Assertions"]
+        Assert["⚖️ assert { condition }"]
+        NegTest["🛡️ expect_failures = [...]"]
+    end
+
+    Overrides --> Plan
+    Apply --> Assert & NegTest
 ```
 
-Testing Modes:
-1. **`command = plan` (Unit Testing)**: Validates variable validations, locals, and planned resource values in memory without issuing cloud API calls.
-2. **`command = apply` (Integration Testing)**: Provisions real or mocked resources to test computed output contracts.
-3. **`mock_provider`**: Intercepts provider API calls and returns synthetic mock attributes for fast, deterministic unit test execution.
-4. **`expect_failures`**: Asserts that invalid input configurations fail validation as expected.
+### 🔍 Diagram Concept Breakdown
+
+- **Setup & Mocking Isolation**:
+  - **`.tftest.hcl` Test Files**: Declarative test suites orchestrated natively by `tofu test` / `terraform test`.
+  - **`mock_provider`**: Intercepts external provider operations, returning synthetic attributes (such as mock AWS VPC IDs or GCP zones) to execute tests instantly without cloud credentials or network access.
+  - **`override_resource` / `override_data`**: Stubs specific upstream data sources or resources with fixed test fixtures.
+- **Test Execution Stages**:
+  - **`run { command = plan }`**: Fast, in-memory unit testing that validates variable validation rules, local transformations, and planned attributes.
+  - **`run { command = apply }`**: Integration testing that creates state in an isolated ephemeral workspace, evaluating computed attributes across multi-step deployments.
+- **Verification & Assertions**:
+  - **`assert { condition, error_message }`**: Verifies post-execution state against expected conditions (e.g. `assert { condition = aws_s3_bucket.logs.bucket_prefix == "prod-logs-" }`).
+  - **`expect_failures = [var.port]`**: Negative testing asserting that invalid configurations trigger expected validation errors without halting the test harness.
 
 ---
 

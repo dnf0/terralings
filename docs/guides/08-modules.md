@@ -16,33 +16,33 @@ In Terraform and OpenTofu, **Modules** are the foundational unit of abstraction,
 
 ```mermaid
 flowchart TD
-    subgraph RootModule["Root Module Scope (Caller)"]
-        direction TB
-        Vars["📥 Root Variables<br/><code>var.vpc_cidr</code>"]
-        DefProv["🔌 Default Providers<br/><code>provider 'aws'</code>"]
-        AliasProv["🔌 Alias Provider<br/><code>provider 'aws' { alias = 'west' }</code>"]
+    subgraph RootModule["Root Orchestration Scope"]
+        Vars["📥 var.vpc_cidr"]
+        Prov["🔌 provider 'aws'"]
     end
 
-    subgraph ChildVPC["Child Module: module.network (./modules/vpc)"]
-        direction TB
-        VPCInputs["📥 Inputs: cidr"] --> VPCRes["🏗️ aws_vpc.main"] --> VPCOutputs["📤 Outputs: vpc_id, subnet_ids"]
+    subgraph NetworkMod["module.network (./modules/vpc)"]
+        NetRes["🏗️ aws_vpc.main"] --> NetOut["📤 module.network.vpc_id"]
     end
 
-    subgraph ChildApp["Child Module: module.app (./modules/app)"]
-        direction TB
-        AppInputs["📥 Inputs: vpc_id"] --> AppRes["🏗️ aws_instance.web"] --> AppOutputs["📤 Outputs: app_url"]
+    subgraph AppMod["module.app (./modules/app)"]
+        AppRes["🏗️ aws_instance.web"]
     end
 
-    Vars -->|"Pass Argument"| VPCInputs
-    DefProv -.->|"Inherit Provider"| ChildVPC
-    AliasProv -.->|"providers = { aws = aws.west }"| ChildApp
-    VPCOutputs -->|"module.network.vpc_id"| AppInputs
+    Vars --> NetworkMod
+    Prov -.-> NetworkMod & AppMod
+    NetOut -->|"Pass vpc_id"| AppMod
 ```
 
-Core Architectural Rules:
-1. **Encapsulation Boundary**: Child modules cannot access variables or resources from the parent scope unless passed explicitly as input arguments.
-2. **Provider Aliases**: Reusable child modules must declare `configuration_aliases` inside `terraform.required_providers` when requiring caller-supplied provider configurations.
-3. **Flat Composition over Deep Nesting**: Prefer flat sibling composition in the root module over deeply nested multi-tier module hierarchies.
+### 🔍 Diagram Concept Breakdown
+
+- **Root Orchestration Scope**: Acts as the central integration layer, managing environment input variables, root state backends, and provider instantiations.
+- **Child Module Encapsulation Boundaries**:
+  - `module.network` and `module.app` are isolated namespaces. Resources inside `module.network` cannot be directly referenced by `module.app`.
+  - Encapsulation guarantees that internal refactorings inside a module do not break caller contracts.
+- **Explicit Output-to-Input Binding**: The root module binds `module.network.vpc_id` into the input parameters of `module.app`, creating a clear, deterministic dependency edge in the engine's execution graph.
+- **Provider Inheritance & Aliasing**: Provider configurations defined in the root module flow into child modules automatically or via explicit `providers = { aws = aws.us_east }` maps when `configuration_aliases` are declared.
+- **Flat Sibling Composition**: Sibling modules composed horizontally at the root layer promote reusability, testability, and clear architectural boundaries over deeply nested monoliths.
 
 ---
 

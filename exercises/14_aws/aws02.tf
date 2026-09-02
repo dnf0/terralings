@@ -44,8 +44,10 @@ resource "aws_launch_template" "app" {
 
 resource "aws_lb_target_group" "app" {
   name     = "app-tg"
-  port     = 80
-  protocol = "HTTP"
+  # TODO (What): Set port = 80 and protocol = "HTTP".
+  # TODO (Why): Target groups route traffic to healthy backend instances on the application service port.
+  port     = 0
+  protocol = ""
   vpc_id   = "vpc-12345678"
 
   health_check {
