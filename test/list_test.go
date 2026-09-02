@@ -13,13 +13,13 @@ import (
 
 func TestListJSONStructure(t *testing.T) {
 	m := manifest.GetManifest()
-	if len(m.Chapters) != 13 {
-		t.Fatalf("expected 13 chapters, got %d", len(m.Chapters))
+	if len(m.Chapters) != 15 {
+		t.Fatalf("expected 15 chapters, got %d", len(m.Chapters))
 	}
 
 	all := m.AllExercises()
-	if len(all) != 56 {
-		t.Fatalf("expected 56 exercises, got %d", len(all))
+	if len(all) != 68 {
+		t.Fatalf("expected 68 exercises, got %d", len(all))
 	}
 
 	type jsonExercise struct {
@@ -55,8 +55,8 @@ func TestListJSONStructure(t *testing.T) {
 		t.Fatalf("failed to unmarshal json list: %v", err)
 	}
 
-	if len(parsed) != 56 {
-		t.Fatalf("expected 56 parsed exercises, got %d", len(parsed))
+	if len(parsed) != 68 {
+		t.Fatalf("expected 68 parsed exercises, got %d", len(parsed))
 	}
 }
 
