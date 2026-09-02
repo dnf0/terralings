@@ -81,10 +81,14 @@
       border-color: #475569;
     }
     #standalone-playground-root {
-      width: 100vw;
+      width: 100%;
       height: calc(100vh - 48px);
+      height: calc(100dvh - 48px);
       display: flex;
       flex-direction: column;
+      min-height: 0;
+      min-width: 0;
+      overflow: hidden;
     }
     .terralings-playground {
       width: 100% !important;
@@ -94,11 +98,19 @@
       border-radius: 0 !important;
       border: none !important;
       box-shadow: none !important;
+      display: flex !important;
+      flex-direction: column !important;
+      flex: 1 1 auto !important;
+      min-height: 0 !important;
+      min-width: 0 !important;
+      overflow: hidden !important;
     }
     .playground-split-layout {
       height: 100% !important;
       max-height: 100% !important;
       border-radius: 0 !important;
+      min-height: 0 !important;
+      min-width: 0 !important;
     }
     /* Light mode support */
     html[data-theme="light"],
@@ -149,7 +161,7 @@
     <div id="terralings-playground" class="terralings-playground"></div>
   </main>
 
-  <script src="../assets/playground/playground.js"></script>
+  <script src="../assets/playground/playground.js?v=2"></script>
   <script>
     // Standalone theme toggle handling
     const themeBtn = document.getElementById("theme-toggle-btn");

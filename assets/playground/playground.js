@@ -1137,7 +1137,7 @@ ${hasNext ? `<button id="pg-next-ex-inline-btn" class="term-inline-btn">Next Exe
 
     // Fetch curriculum bundle
     try {
-      const bundleUrl = resolveAssetUrl("playground-bundle.json");
+      const bundleUrl = resolveAssetUrl("playground-bundle.json") + "?t=" + Date.now();
       const resp = await fetch(bundleUrl);
       if (!resp.ok) {
         throw new Error(`HTTP ${resp.status} ${resp.statusText}`);
