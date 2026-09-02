@@ -523,6 +523,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; Data Flow Mechanics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1216,6 +1233,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; Data Flow Mechanics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1351,40 +1385,26 @@
 <h2 id="1-architectural-overview-data-flow-mechanics">1. Architectural Overview &amp; Data Flow Mechanics</h2>
 <p>In Terraform and OpenTofu, <strong>Outputs, Locals &amp; Expressions</strong> manage data flow and transformations across resource boundaries. While <code>output</code> blocks expose state to callers and CLI consumers, <code>locals</code> blocks encapsulate intermediate computations to keep configurations DRY (Don't Repeat Yourself).</p>
 <pre class="mermaid"><code>flowchart TD
-    subgraph Upstream["Upstream Inputs &amp; Attributes"]
-        Vars["📥 Input Variables&lt;br/&gt;&lt;code&gt;var.environment&lt;/code&gt;"]
-        Attrs["📦 Resource Attributes&lt;br/&gt;&lt;code&gt;local_file.config.id&lt;/code&gt;"]
-    end
+    Vars["📥 Input Variables"] --&gt; Locals["⚙️ locals Scope (Transformations &amp; Projections)"]
+    Attrs["📦 Resource Attributes"] --&gt; Locals
 
-    subgraph Intermediate["Intermediate Locals Scope"]
-        Locals["⚙️ locals Block&lt;br/&gt;&lt;i&gt;• Normalization &amp; Ternaries&lt;br/&gt;• Tagging Factories&lt;br/&gt;• Splat Projections&lt;/i&gt;"]
-    end
+    Locals --&gt; Resources["🏗️ Downstream Resources"]
+    Locals --&gt; Outputs["📤 output Block"]
 
-    subgraph Downstream["Downstream Consumers"]
-        Resources["🏗️ Dependent Resources&lt;br/&gt;&lt;code&gt;terraform_data.audit&lt;/code&gt;"]
-
-        subgraph OutputsPipe["Output Pipeline"]
-            RawOut["📤 output Block"]
-            SensCheck{"🔒 sensitive = true?"}
-            Masked["🛡️ (sensitive value) Redacted in CLI"]
-            Plain["👁️ Plaintext CLI Display"]
-            StatePersist["💾 Persisted in State File"]
-
-            RawOut --&gt; SensCheck
-            SensCheck --&gt;|"Yes"| Masked --&gt; StatePersist
-            SensCheck --&gt;|"No"| Plain --&gt; StatePersist
-        end
-    end
-
-    Vars --&gt; Locals
-    Attrs --&gt; Locals
-    Locals --&gt; Resources
-    Locals --&gt; RawOut</code></pre>
-<p>Expressions are evaluated during graph resolution:
-1. <strong>Locals Scope</strong>: Evaluated dynamically and cached for repeated references within the same module scope.
-2. <strong>Conditional Expressions</strong>: <code>condition ? true_val : false_val</code> evaluate lazily, returning a single type-unified value.
-3. <strong>Splat Operators</strong>: <code>[*]</code>, legacy <code>.*</code>, and <code>[for x in list : x.attr]</code> project nested list attributes into flat collections.
-4. <strong>Output Masking</strong>: Outputs marked with <code>sensitive = true</code> are redacted from CLI output and plan summaries, but remain unencrypted in state files.</p>
+    subgraph OutputMasking["Output Redaction Pipeline"]
+        Outputs --&gt; Sensitive{"🔒 sensitive = true?"}
+        Sensitive --&gt;|"Yes"| Masked["🛡️ Redacted in CLI"]
+        Sensitive --&gt;|"No"| Plain["👁️ Plaintext in CLI"]
+    end</code></pre>
+<h3 id="diagram-concept-breakdown">🔍 Diagram Concept Breakdown</h3>
+<ul>
+<li><strong>Data Inputs (Variables &amp; Resource Attributes)</strong>: Aggregates external module inputs (<code>var.*</code>) and dynamic runtime attributes (<code>aws_instance.web.private_ip</code>) into a unified intermediate scope.</li>
+<li><strong><code>locals</code> Scope (Transformations &amp; Projections)</strong>: Acts as an in-memory transformation layer to normalize, reshape, merge, and project data structures using <code>for</code> expressions, conditional operators (<code>? :</code>), and splat syntax (<code>[*]</code>). Local values eliminate code duplication (DRY) and isolate complex expressions.</li>
+<li><strong>Downstream Resource Propagation</strong>: Transformed local values flow directly into resource block arguments, maintaining clear implicit DAG dependencies.</li>
+<li><strong>Output Exposure &amp; Redaction Pipeline</strong>: When exporting values across module boundaries or to the CLI via <code>output</code> blocks:</li>
+<li><code>sensitive = true</code> flags trigger automatic redaction (<code>(sensitive value)</code>) in console logs, terminal outputs, and plan diffs.</li>
+<li>Non-sensitive outputs render in plaintext for operator inspection and downstream module parameterization.</li>
+</ul>
 <hr />
 <h2 id="2-annotated-production-hcl-anatomy-field-reference">2. Annotated Production HCL Anatomy &amp; Field Reference</h2>
 <p>Below is a production-grade configuration demonstrating intermediate local computations, sensitive output masking, and conditional expressions:</p>

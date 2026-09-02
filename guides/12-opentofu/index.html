@@ -893,6 +893,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; OpenTofu Engine Innovations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1216,6 +1233,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; OpenTofu Engine Innovations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1351,36 +1385,29 @@
 <h2 id="1-architectural-overview-opentofu-engine-innovations">1. Architectural Overview &amp; OpenTofu Engine Innovations</h2>
 <p><strong>OpenTofu</strong> is an open-source, community-driven Infrastructure as Code engine under the Linux Foundation. OpenTofu introduces foundational architectural innovations including <strong>End-to-End State Encryption at Rest</strong>, <strong>Early Variable Evaluation</strong> in providers and backends, and an open, decentralized provider registry ecosystem.</p>
 <pre class="mermaid"><code>flowchart TD
-    subgraph TofuInnovations["OpenTofu Architectural Innovations"]
-        direction TB
+    subgraph Encryption["1. Client-Side State Encryption"]
+        State["📄 In-Memory State"] --&gt; AES["🔐 AES-GCM / KMS Engine"]
+        AES --&gt; Backend[("☁️ Encrypted Remote Backend (S3/GCS)")]
+    end
 
-        subgraph EncryptionPipeline["1. Client-Side State Encryption Engine"]
-            direction LR
-            RawState["📄 In-Memory State AST&lt;br/&gt;&lt;i&gt;(Plaintext Secrets)&lt;/i&gt;"]
-            AES["🔐 AES-GCM Encryption Engine&lt;br/&gt;&lt;code&gt;key_provider 'pbkdf2' / 'kms'&lt;/code&gt;"]
-            EncryptedState["🛡️ Encrypted State Payload&lt;br/&gt;&lt;i&gt;(Zero Secrets at Rest)&lt;/i&gt;"]
-            RemoteStorage[("☁️ Remote Backend&lt;br/&gt;&lt;i&gt;S3 / GCS / Azure Blob&lt;/i&gt;")]
+    subgraph EarlyEval["2. Early Variable Evaluation"]
+        Vars["📥 Input Variables"] --&gt; BackConf["🗄️ backend 's3' { bucket = var.b }"]
+        Vars --&gt; ProvConf["🔌 provider 'aws' { region = var.r }"]
+    end
 
-            RawState --&gt; AES --&gt; EncryptedState --&gt; RemoteStorage
-        end
-
-        subgraph EarlyEval["2. Early Variable Evaluation Engine"]
-            VarInputs["📥 Input Variables (var.region, var.bucket)"]
-            BackendBlock["🗄️ backend 's3' { bucket = var.bucket }"]
-            ProviderBlock["🔌 provider 'aws' { region = var.region }"]
-
-            VarInputs --&gt; BackendBlock
-            VarInputs --&gt; ProviderBlock
-        end
-
-        subgraph OpenRegistry["3. Decentralized Registry Ecosystem"]
-            OpenReg["🌐 get.opentofu.org&lt;br/&gt;&lt;i&gt;Decentralized, Open-Source Provider Mirror&lt;/i&gt;"]
-        end
+    subgraph Registry["3. Decentralized Registry"]
+        OpenReg["🌐 get.opentofu.org (Open Source Mirror)"]
     end</code></pre>
-<p>Key Architectural Innovations:
-1. <strong>Native Client-Side State Encryption</strong>: Encrypts sensitive state files, plan files, and state caches locally using AES-GCM or KMS key providers before any data is sent to remote backends.
-2. <strong>Early Variable Evaluation</strong>: Allows input variables to be referenced directly inside <code>backend</code> and <code>provider</code> configuration blocks without requiring external wrapper scripts (e.g. Terragrunt).
-3. <strong>Open Registry Interoperability</strong>: Seamlessly pulls provider plugins from the OpenTofu registry with automated fallback to community registries.</p>
+<h3 id="diagram-concept-breakdown">🔍 Diagram Concept Breakdown</h3>
+<ul>
+<li><strong>Client-Side State Encryption</strong>:</li>
+<li>Encrypts in-memory state data, plan files, and disk caches <em>prior</em> to writing to remote backend stores (such as S3, GCS, or Azure Blob).</li>
+<li>Supports AES-GCM (via PBKDF2 passphrases) and cloud KMS key providers (AWS KMS, GCP Cloud KMS, HashiCorp Vault), ensuring that even cloud backend administrators cannot inspect plaintext credentials stored in state.</li>
+<li><strong>Early Variable Evaluation</strong>:</li>
+<li>Evaluates input variables <em>before</em> initializing backends and provider plugins, enabling dynamic backend configurations (<code>bucket = var.state_bucket</code>) and provider parameters (<code>region = var.aws_region</code>) directly in pure HCL without external wrapper tooling.</li>
+<li><strong>Decentralized Open Source Registry</strong>:</li>
+<li>Connects to <code>get.opentofu.org</code>, an open-source, highly available provider registry backed by the Linux Foundation with automatic failover and cryptographic checksum validation.</li>
+</ul>
 <hr />
 <h2 id="2-annotated-production-hcl-anatomy-field-reference">2. Annotated Production HCL Anatomy &amp; Field Reference</h2>
 <p>Below is a production-grade OpenTofu configuration demonstrating native client-side state encryption with PBKDF2 and AES-GCM:</p>

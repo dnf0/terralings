@@ -1036,6 +1036,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; GCP Resource Hierarchy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1216,6 +1233,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; GCP Resource Hierarchy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1351,46 +1385,39 @@
 <h2 id="1-architectural-overview-gcp-resource-hierarchy">1. Architectural Overview &amp; GCP Resource Hierarchy</h2>
 <p>Google Cloud Platform (GCP) structures infrastructure through an explicit organizational resource hierarchy (<strong>Organization &rarr; Folder &rarr; Project &rarr; Regional Resources</strong>). In GCP, Virtual Private Clouds (VPCs) are global software-defined networks with regional subnet allocations and tag-based firewall enforcement.</p>
 <pre class="mermaid"><code>flowchart TD
-    Internet(["🌐 Global Public Clients"]) --&gt; GCLB["⚖️ External HTTPS Cloud Load Balancer&lt;br/&gt;&lt;i&gt;(google_compute_global_forwarding_rule)&lt;/i&gt;"]
+    Internet(["🌐 Global Clients"]) --&gt; GCLB["⚖️ HTTPS Cloud Load Balancer"]
+    GCLB --&gt; Armor["🛡️ Cloud Armor Security Policy"]
 
-    subgraph OrgHierarchy["Google Cloud Resource Hierarchy (Org -&gt; Project)"]
-        direction TB
+    subgraph GlobalVPC["Global VPC Network"]
+        Armor --&gt; MIG["⚙️ Regional MIG (us-central1)"]
+        MIG --&gt; CloudSQL[("🗄️ Cloud SQL HA Instance")]
 
-        subgraph GlobalVPC["Global VPC Network (auto_create_subnetworks = false)"]
-            direction TB
-
-            subgraph RegionUS["Region: us-central1 (Subnet: 10.10.0.0/20)"]
-                direction LR
-                MIG["⚙️ Regional Managed Instance Group&lt;br/&gt;&lt;i&gt;(google_compute_region_instance_group_manager)&lt;/i&gt;"]
-                CloudSQL[("🗄️ Cloud SQL HA Instance&lt;br/&gt;&lt;i&gt;(Private Service Access IP)&lt;/i&gt;")]
-                MIG --&gt; CloudSQL
-            end
-
-            subgraph RegionEU["Region: europe-west1 (Subnet: 10.20.0.0/20)"]
-                direction LR
-                CloudRun["⚡ Cloud Run v2 Microservices&lt;br/&gt;&lt;i&gt;(google_cloud_run_v2_service)&lt;/i&gt;"]
-                PubSub["📨 Cloud Pub/Sub Topic + DLQ&lt;br/&gt;&lt;i&gt;(google_pubsub_topic)&lt;/i&gt;"]
-                CloudRun --&gt; PubSub
-            end
-        end
-
-        subgraph SecurityIdentity["Security, Identity &amp; Data Layer"]
-            direction LR
-            WIF["🛡️ Workload Identity Federation&lt;br/&gt;&lt;i&gt;(Keyless OIDC Authentication)&lt;/i&gt;"]
-            GCS[("🪣 Cloud Storage (Uniform IAM)&lt;br/&gt;&lt;i&gt;(google_storage_bucket)&lt;/i&gt;")]
-            Armor["🛡️ Cloud Armor Security Policy"]
-        end
+        Armor --&gt; CloudRun["⚡ Cloud Run v2 (europe-west1)"]
+        CloudRun --&gt; PubSub["📨 Cloud Pub/Sub Topic"]
     end
 
-    GCLB --&gt; Armor
-    Armor --&gt; MIG
-    Armor --&gt; CloudRun
-    WIF -.-&gt;|"Federates CI/CD Permissions"| OrgHierarchy</code></pre>
-<p>Core Tenets:
-1. <strong>Custom Mode VPC Networks</strong>: Always set <code>auto_create_subnetworks = false</code> to prevent default wide-open IP allocations across unused regions.
-2. <strong>Tag-Driven Firewall Boundaries</strong>: Scope ingress and egress firewall rules strictly using <code>target_tags</code> and <code>source_tags</code>.
-3. <strong>Container-Native Serverless</strong>: Deploy autoscaling microservices on Cloud Run v2 with concurrency limits and VPC egress connectors.
-4. <strong>Keyless Authentication via Workload Identity</strong>: Federate external CI/CD runners (GitHub Actions, GitLab) without generating long-lived service account keys.</p>
+    subgraph SecurityStorage["Security &amp; Storage"]
+        WIF["🛡️ Workload Identity Federation"]
+        GCS[("🪣 Cloud Storage (Uniform IAM)")]
+    end
+
+    CloudRun &amp; MIG --&gt; GCS
+    WIF -.-&gt;|"Keyless OIDC"| GlobalVPC</code></pre>
+<h3 id="diagram-concept-breakdown">🔍 Diagram Concept Breakdown</h3>
+<ul>
+<li><strong>Global Ingress &amp; Edge Protection Tier</strong>:</li>
+<li>Global External HTTPS Cloud Load Balancer (GCLB) routes anycast client traffic to the closest Google edge Point of Presence (PoP).</li>
+<li>Google Cloud Armor filters malicious traffic with Layer 7 DDoS mitigation, IP allowlists, and WAF rule sets before packets reach internal workloads.</li>
+<li><strong>Global VPC Network Topology</strong>:</li>
+<li>A single Global VPC spans multiple regions (<code>us-central1</code>, <code>europe-west1</code>), avoiding complex multi-region peering tunnels.</li>
+<li>Regional Managed Instance Groups (MIG) deliver auto-healing VM fleets across multiple zones.</li>
+<li>Cloud Run v2 executes containerized microservices that communicate with private backend services via Serverless VPC Access Connectors.</li>
+<li>Highly available Cloud SQL instances connect over Private Services Access (PSA) using internal RFC 1918 IP addresses.</li>
+<li>Cloud Pub/Sub decouples event-driven microservices across regions.</li>
+<li><strong>Security &amp; Storage Fabric</strong>:</li>
+<li>Google Cloud Storage (GCS) enforces Uniform Bucket-Level Access, CMEK encryption, and object lifecycle transitions.</li>
+<li>Keyless Workload Identity Federation (WIF) allows GitHub Actions / CI runners to exchange OIDC tokens for ephemeral GCP access tokens, completely eliminating static service account JSON keys.</li>
+</ul>
 <hr />
 <h2 id="2-annotated-production-hcl-anatomy-field-reference">2. Annotated Production HCL Anatomy &amp; Field Reference</h2>
 <p>Below is a production-grade Google Cloud infrastructure blueprint demonstrating custom VPC networking, firewall rules, Cloud Run services, and Pub/Sub event messaging:</p>

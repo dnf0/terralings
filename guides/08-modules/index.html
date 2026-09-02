@@ -722,6 +722,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; Modular Composition">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1216,6 +1233,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; Modular Composition">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1351,31 +1385,32 @@
 <h2 id="1-architectural-overview-modular-composition">1. Architectural Overview &amp; Modular Composition</h2>
 <p>In Terraform and OpenTofu, <strong>Modules</strong> are the foundational unit of abstraction, encapsulation, and code reuse. Every configuration has at least one root module (the directory containing your active <code>.tf</code> files) and can instantiate child modules locally or from remote registries.</p>
 <pre class="mermaid"><code>flowchart TD
-    subgraph RootModule["Root Module Scope (Caller)"]
-        direction TB
-        Vars["📥 Root Variables&lt;br/&gt;&lt;code&gt;var.vpc_cidr&lt;/code&gt;"]
-        DefProv["🔌 Default Providers&lt;br/&gt;&lt;code&gt;provider 'aws'&lt;/code&gt;"]
-        AliasProv["🔌 Alias Provider&lt;br/&gt;&lt;code&gt;provider 'aws' { alias = 'west' }&lt;/code&gt;"]
+    subgraph RootModule["Root Orchestration Scope"]
+        Vars["📥 var.vpc_cidr"]
+        Prov["🔌 provider 'aws'"]
     end
 
-    subgraph ChildVPC["Child Module: module.network (./modules/vpc)"]
-        direction TB
-        VPCInputs["📥 Inputs: cidr"] --&gt; VPCRes["🏗️ aws_vpc.main"] --&gt; VPCOutputs["📤 Outputs: vpc_id, subnet_ids"]
+    subgraph NetworkMod["module.network (./modules/vpc)"]
+        NetRes["🏗️ aws_vpc.main"] --&gt; NetOut["📤 module.network.vpc_id"]
     end
 
-    subgraph ChildApp["Child Module: module.app (./modules/app)"]
-        direction TB
-        AppInputs["📥 Inputs: vpc_id"] --&gt; AppRes["🏗️ aws_instance.web"] --&gt; AppOutputs["📤 Outputs: app_url"]
+    subgraph AppMod["module.app (./modules/app)"]
+        AppRes["🏗️ aws_instance.web"]
     end
 
-    Vars --&gt;|"Pass Argument"| VPCInputs
-    DefProv -.-&gt;|"Inherit Provider"| ChildVPC
-    AliasProv -.-&gt;|"providers = { aws = aws.west }"| ChildApp
-    VPCOutputs --&gt;|"module.network.vpc_id"| AppInputs</code></pre>
-<p>Core Architectural Rules:
-1. <strong>Encapsulation Boundary</strong>: Child modules cannot access variables or resources from the parent scope unless passed explicitly as input arguments.
-2. <strong>Provider Aliases</strong>: Reusable child modules must declare <code>configuration_aliases</code> inside <code>terraform.required_providers</code> when requiring caller-supplied provider configurations.
-3. <strong>Flat Composition over Deep Nesting</strong>: Prefer flat sibling composition in the root module over deeply nested multi-tier module hierarchies.</p>
+    Vars --&gt; NetworkMod
+    Prov -.-&gt; NetworkMod &amp; AppMod
+    NetOut --&gt;|"Pass vpc_id"| AppMod</code></pre>
+<h3 id="diagram-concept-breakdown">🔍 Diagram Concept Breakdown</h3>
+<ul>
+<li><strong>Root Orchestration Scope</strong>: Acts as the central integration layer, managing environment input variables, root state backends, and provider instantiations.</li>
+<li><strong>Child Module Encapsulation Boundaries</strong>:</li>
+<li><code>module.network</code> and <code>module.app</code> are isolated namespaces. Resources inside <code>module.network</code> cannot be directly referenced by <code>module.app</code>.</li>
+<li>Encapsulation guarantees that internal refactorings inside a module do not break caller contracts.</li>
+<li><strong>Explicit Output-to-Input Binding</strong>: The root module binds <code>module.network.vpc_id</code> into the input parameters of <code>module.app</code>, creating a clear, deterministic dependency edge in the engine's execution graph.</li>
+<li><strong>Provider Inheritance &amp; Aliasing</strong>: Provider configurations defined in the root module flow into child modules automatically or via explicit <code>providers = { aws = aws.us_east }</code> maps when <code>configuration_aliases</code> are declared.</li>
+<li><strong>Flat Sibling Composition</strong>: Sibling modules composed horizontally at the root layer promote reusability, testability, and clear architectural boundaries over deeply nested monoliths.</li>
+</ul>
 <hr />
 <h2 id="2-annotated-production-hcl-anatomy-field-reference">2. Annotated Production HCL Anatomy &amp; Field Reference</h2>
 <p>Below is a production-grade configuration demonstrating child module declaration, provider alias forwarding, and multi-instance <code>for_each</code> instantiation:</p>

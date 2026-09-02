@@ -551,6 +551,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; Function Engine">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1216,6 +1233,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; Function Engine">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1351,30 +1385,34 @@
 <h2 id="1-architectural-overview-function-engine">1. Architectural Overview &amp; Function Engine</h2>
 <p>In Terraform and OpenTofu, <strong>Built-in Functions</strong> provide a deterministic, side-effect-free standard library for manipulating data structures, formatting strings, encoding data, and interacting with filesystem templates. HCL does not allow user-defined functions; all transformations execute via the built-in standard library.</p>
 <pre class="mermaid"><code>flowchart TD
-    subgraph StandardLibrary["HCL Built-in Standard Library"]
-        direction TB
-        subgraph Domains["Function Domains"]
-            Str["🔤 Strings &amp; Formats&lt;br/&gt;&lt;code&gt;format, join, split, replace&lt;/code&gt;"]
-            Coll["🗂️ Collections &amp; Maps&lt;br/&gt;&lt;code&gt;merge, flatten, lookup, zipmap&lt;/code&gt;"]
-            Enc["🔐 Encodings &amp; Serialization&lt;br/&gt;&lt;code&gt;jsonencode, yamlencode, base64&lt;/code&gt;"]
-            FS["📁 Filesystem &amp; Templates&lt;br/&gt;&lt;code&gt;file, templatefile, fileset&lt;/code&gt;"]
-        end
+    subgraph Domains["1. Function Domains"]
+        Str["🔤 Strings &amp; Formats"]
+        Coll["🗂️ Collections &amp; Maps"]
+        Enc["🔐 Encodings (JSON/YAML)"]
+        FS["📁 Filesystem &amp; Templates"]
     end
 
-    subgraph EvalEngine["Evaluation &amp; Guard Pipeline"]
-        RawExpr["📥 Expression Input"] --&gt; Exec{"⚡ Evaluate Function"}
-        Exec --&gt;|"Success"| Result["✅ Transformed Value"]
-        Exec --&gt;|"Evaluation Error"| GuardCheck{"🛡️ Wrapped in try() / can()?"}
-        GuardCheck --&gt;|"try(expr, fallback)"| Fallback["🔄 Graceful Fallback Value"]
-        GuardCheck --&gt;|"can(expr)"| BoolOut["🔲 Returns false (boolean)"]
-        GuardCheck --&gt;|"Unprotected"| Fatal["❌ Halt Plan / Fatal HCL Error"]
+    subgraph Guards["2. Defensive Guard Clauses"]
+        Try["🛡️ try(expr, fallback) &amp;rarr; Safe Fallback"]
+        Can["🛡️ can(expr) &amp;rarr; Boolean Result"]
     end
 
-    Domains --&gt; Exec</code></pre>
-<p>Function characteristics:
-1. <strong>Deterministic Execution</strong>: All functions are purely functional and idempotent. Calling a function with identical inputs always produces identical outputs.
-2. <strong>Compile-Time Safety</strong>: When inputs are statically known, function evaluation occurs during the validation and planning phases.
-3. <strong>Safe Evaluation Guards</strong>: <code>try()</code> and <code>can()</code> allow graceful handling of unknown attributes, dynamic maps, or type mismatches without terminating execution.</p>
+    Domains --&gt; Execute["⚡ Built-in Engine Execution"]
+    Execute --&gt; Guards
+    Guards --&gt; Result["✅ Transformed Output"]</code></pre>
+<h3 id="diagram-concept-breakdown">🔍 Diagram Concept Breakdown</h3>
+<ul>
+<li><strong>Core Function Domains</strong>: Categorizes the built-in standard library into specialized manipulation engines:</li>
+<li><strong>Strings &amp; Formats</strong>: <code>lower()</code>, <code>upper()</code>, <code>trimprefix()</code>, <code>format()</code>, and <code>regex()</code>.</li>
+<li><strong>Collections &amp; Maps</strong>: <code>merge()</code>, <code>flatten()</code>, <code>lookup()</code>, <code>slice()</code>, <code>concat()</code>, and <code>distinct()</code>.</li>
+<li><strong>Encodings</strong>: <code>jsonencode()</code>, <code>jsondecode()</code>, <code>yamlencode()</code>, <code>base64encode()</code>, and <code>sha256()</code>.</li>
+<li><strong>Filesystem &amp; Templates</strong>: <code>file()</code>, <code>fileset()</code>, <code>fileexists()</code>, and <code>templatefile()</code>.</li>
+<li><strong>Built-in Engine Execution</strong>: Executes transformations deterministically without network calls or external side effects during the compile/plan phases.</li>
+<li><strong>Defensive Guard Clauses</strong>:</li>
+<li><strong><code>try(expr, fallback)</code></strong>: Evaluates an expression that might fail (such as accessing an optional map key or parsing a variable structure), falling back gracefully to a default value without terminating execution.</li>
+<li><strong><code>can(expr)</code></strong>: Safely evaluates an expression to determine if it produces an error, returning <code>true</code> or <code>false</code> (invaluable for <code>variable</code> validation blocks and preconditions).</li>
+<li><strong>Transformed Output</strong>: Produces pristine, validated data structures ready for consumption by downstream resource definitions.</li>
+</ul>
 <hr />
 <h2 id="2-annotated-production-hcl-anatomy-field-reference">2. Annotated Production HCL Anatomy &amp; Field Reference</h2>
 <p>Below is a production-grade configuration demonstrating data encoding, collection flattening, templating, and defensive error handling:</p>

@@ -865,6 +865,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; Enterprise Design Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1199,6 +1216,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; Enterprise Design Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1317,37 +1351,35 @@
 <h2 id="1-architectural-overview-enterprise-design-patterns">1. Architectural Overview &amp; Enterprise Design Patterns</h2>
 <p>In production Infrastructure as Code, codebases scale to support hundreds of engineers and diverse environments. <strong>Enterprise Design Patterns</strong> provide robust architectural blueprints to maintain clean separation of concerns, eliminate copy-pasted configuration, and enforce organizational governance.</p>
 <pre class="mermaid"><code>flowchart TD
-    subgraph EnterprisePatterns["Enterprise Design Pattern Architecture"]
-        direction TB
-
-        subgraph Pattern1["1. Environment Configuration Matrix"]
-            EnvLookup["🏢 var.environment&lt;br/&gt;&lt;i&gt;(dev | staging | prod)&lt;/i&gt;"]
-            MatrixMap["🗺️ local.env_config = {&lt;br/&gt;&amp;nbsp;&amp;nbsp;dev = { tier = 't4g.nano', replicas = 1 },&lt;br/&gt;&amp;nbsp;&amp;nbsp;prod = { tier = 'r6g.xlarge', replicas = 5 }&lt;br/&gt;}"]
-            SelectedConfig["🎯 local.active_config"]
-            EnvLookup --&gt; MatrixMap --&gt; SelectedConfig
-        end
-
-        subgraph Pattern2["2. Hierarchical Tagging Factory"]
-            direction LR
-            GlobalTags["🏷️ Global Org Tags"] --&gt; EnvTags["🏷️ Env Tags"] --&gt; ResTags["🏷️ Resource Tags"]
-            ResTags --&gt; FinalTags["🛡️ merge(global, env, res)"]
-        end
-
-        subgraph Pattern3["3. Self-Service Sanitization &amp; Toggles"]
-            DevInput["📋 Developer Input Spec"] --&gt; Sanitize["🔍 Schema Validation &amp; Sanitizer"]
-            Sanitize --&gt; Toggle{"⚡ Feature Toggle (count 0/1)"}
-            Toggle --&gt;|"Enabled"| Provision["🚀 Resource Provisioned with one() output"]
-            Toggle --&gt;|"Disabled"| NoOp["⏹️ Zero Resources Created"]
-        end
+    subgraph Matrix["1. Environment Matrix"]
+        Env["🏢 var.environment"] --&gt; Lookup["🗺️ local.env_config[var.env]"]
+        Lookup --&gt; Sizing["🎯 Tier &amp; Replica Sizing"]
     end
 
-    SelectedConfig --&gt; Pattern2
-    FinalTags --&gt; Pattern3</code></pre>
-<p>Core Enterprise Patterns:
-1. <strong>Environment Configuration Matrix</strong>: Centralizes per-environment sizing, feature flags, and topology in structured maps inside <code>locals</code>.
-2. <strong>Deterministic Tagging Factory</strong>: Uses layered <code>merge()</code> calls to guarantee required compliance tags are always attached.
-3. <strong>Safe Feature Toggles</strong>: Implements clean 0/1 conditional patterns with safe scalar extraction via <code>one()</code>.
-4. <strong>Self-Service Input Contracts</strong>: Validates, normalizes, and filters complex developer specifications into safe infrastructure blueprints.</p>
+    subgraph Tagging["2. Tagging Factory"]
+        Global["🏷️ Org Tags"] --&gt; Merge["🛡️ merge(org, env, res)"]
+        EnvTags["🏷️ Env Tags"] --&gt; Merge
+        ResTags["🏷️ Res Tags"] --&gt; Merge
+    end
+
+    subgraph Toggles["3. Feature Toggles &amp; one()"]
+        Toggle{"⚡ Feature Enabled?"}
+        Toggle --&gt;|"count = 1"| Resource["🚀 Provisioned Resource"]
+        Toggle --&gt;|"count = 0"| Null["⏹️ Null Resource"]
+        Resource --&gt; One["🔍 one(resource.*) Safe Output"]
+    end</code></pre>
+<h3 id="diagram-concept-breakdown">🔍 Diagram Concept Breakdown</h3>
+<ul>
+<li><strong>Environment Configuration Matrix</strong>:</li>
+<li>Replaces scattered, brittle <code>condition ? a : b</code> ternaries with a single, centralized lookup map in <code>locals</code> keyed by environment name (<code>dev</code>, <code>staging</code>, <code>prod</code>).</li>
+<li>Standardizes cluster sizes, replica counts, instance tiers, and backup retention rules across all deployments.</li>
+<li><strong>Deterministic Tagging Factory</strong>:</li>
+<li>Enforces continuous governance and FinOps cost allocation by layering tags hierarchically: <code>merge(local.org_tags, local.env_tags, var.resource_tags)</code>.</li>
+<li>Guarantees mandatory tags (<code>CostCenter</code>, <code>Environment</code>, <code>SecurityTier</code>, <code>ManagedBy</code>) are present on every resource without manual developer intervention.</li>
+<li><strong>Safe Feature Toggles &amp; <code>one()</code> Pattern</strong>:</li>
+<li>Implements optional infrastructure components via <code>count = var.enable_waf ? 1 : 0</code>.</li>
+<li>Uses <code>one(aws_wafv2_web_acl.main[*].arn)</code> to safely project either the single ARN (when enabled) or <code>null</code> (when disabled) into downstream inputs without crashing on empty list index lookups (<code>[0]</code>).</li>
+</ul>
 <hr />
 <h2 id="2-annotated-production-hcl-anatomy-field-reference">2. Annotated Production HCL Anatomy &amp; Field Reference</h2>
 <p>Below is a production-grade configuration demonstrating environment mapping, tagging factories, and feature toggles:</p>

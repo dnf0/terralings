@@ -352,6 +352,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="💡 How the Playground Works">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#architectural-concepts-explained" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Architectural Concepts Explained
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1167,6 +1184,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="💡 How the Playground Works">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#architectural-concepts-explained" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Architectural Concepts Explained
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1278,6 +1312,13 @@
         Monaco --&gt;|"HCL Source Code"| Engine
         Validators --&gt;|"Test Results &amp; Diagnostics"| Terminal
     end</code></pre>
+<h3 id="architectural-concepts-explained">🔍 Architectural Concepts Explained</h3>
+<ul>
+<li><strong>Monaco Code Editor</strong>: Provides a browser-native VS Code editing interface with HCL syntax highlighting, line numbers, and live event debouncing.</li>
+<li><strong>Pyodide WebAssembly Runtime</strong>: Spawns inside a dedicated background Web Worker to execute Python 3.12 completely client-side in memory. No code or telemetry leaves your browser.</li>
+<li><strong>15 Chapter Validators &amp; Hint Engine</strong>: Tests student solutions against AST rules and test fixtures, providing progressive hints whenever a verification rule fails.</li>
+<li><strong>xterm.js Terminal</strong>: Captures stdout and formatting streams directly from the WebAssembly worker to provide sub-millisecond feedback identical to the native CLI.</li>
+</ul>
 <hr />
 <h2 id="quick-navigation">🚀 Quick Navigation</h2>
 <div class="grid cards" markdown>

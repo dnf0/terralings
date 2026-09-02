@@ -467,6 +467,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; Engine Mechanics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1216,6 +1233,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; Engine Mechanics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1351,25 +1385,23 @@
 <h2 id="1-architectural-overview-engine-mechanics">1. Architectural Overview &amp; Engine Mechanics</h2>
 <p>In Terraform and OpenTofu, <strong>HashiCorp Configuration Language (HCL)</strong> is a declarative domain-specific language engineered to express desired infrastructure state. The core engine constructs a Directed Acyclic Graph (DAG) of resources, computing execution plans based on explicit and implicit dependencies.</p>
 <pre class="mermaid"><code>flowchart TD
-    subgraph Pipeline["HCL Engine Execution Pipeline"]
-        Config["📄 Root Config (*.tf)"] --&gt; Lexer["🔍 Lexer &amp; AST Parser"]
-        Lexer --&gt; AST["🌳 In-Memory HCL AST"]
+    Files["📄 Config Files (*.tf)"] --&gt; Lexer["🔍 Lexer &amp; Parser"]
+    Lexer --&gt; AST["🌳 In-Memory HCL AST"]
 
-        Providers["🔌 Provider RPC Plugins&lt;br/&gt;&lt;i&gt;(local, aws, google)&lt;/i&gt;"] --&gt; Schema["📋 Schema Sync &amp; Type Check"]
+    Providers["🔌 Provider Plugins"] --&gt; Schema["📋 Provider Schema Sync"]
 
-        AST --&gt; DAG["🕸️ Directed Acyclic Graph (DAG) Engine"]
-        Schema --&gt; DAG
+    AST --&gt; DAG["🕸️ Dependency Graph (DAG)"]
+    Schema --&gt; DAG
 
-        subgraph GraphWalker["Graph Walk &amp; Planner"]
-            DAG --&gt; Topo["⚡ Topological Ordering &amp; Cycle Detection"]
-            Topo --&gt; Exec["🚀 Concurrent Plan / Apply Operations"]
-        end
-    end</code></pre>
-<p>When configuration files are evaluated:
-1. The lexer and parser read all <code>.tf</code> files in the directory concurrently into a single memory scope.
-2. The engine analyzes attribute references (e.g. <code>local_file.config.id</code>) to construct dependency vertices in the DAG.
-3. Provider plugins are initialized via gRPC handshake to fetch resource schemas.
-4. The execution planner walks the DAG in topological order, running independent vertices concurrently while sequencing dependent nodes.</p>
+    DAG --&gt; Plan["⚡ Topological Execution (Plan &amp; Apply)"]</code></pre>
+<h3 id="diagram-concept-breakdown">🔍 Diagram Concept Breakdown</h3>
+<ul>
+<li><strong>Configuration Files (<code>*.tf</code>)</strong>: All Terraform/OpenTofu source files within a working directory are parsed together as a single unified root configuration namespace.</li>
+<li><strong>Lexer, Parser &amp; In-Memory AST</strong>: Translates declarative HCL text into an Abstract Syntax Tree (AST), tokenizing blocks, attributes, expressions, and string interpolations.</li>
+<li><strong>Provider Plugins &amp; Schema Sync</strong>: External provider binaries (AWS, Google, Local, etc.) communicate over gRPC to supply resource schemas, validating attribute types, required constraints, and default values against the AST.</li>
+<li><strong>Dependency Graph (DAG)</strong>: Constructs a Directed Acyclic Graph where vertices represent configuration nodes (resources, modules, outputs) and directed edges represent data dependencies (such as <code>local_file.config.id</code>).</li>
+<li><strong>Topological Execution Walk</strong>: The core engine evaluates the DAG in topological order, parallelizing independent resources while strictly serializing dependent resources during <code>terraform plan</code> and <code>terraform apply</code>.</li>
+</ul>
 <hr />
 <h2 id="2-annotated-production-hcl-anatomy-field-reference">2. Annotated Production HCL Anatomy &amp; Field Reference</h2>
 <p>Below is a production-grade declarative manifest demonstrating root configuration, provider pinning, implicit dependencies, and lifecycle hooks:</p>

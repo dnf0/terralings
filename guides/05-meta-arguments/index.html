@@ -638,6 +638,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; Scaling Mechanics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1216,6 +1233,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; Scaling Mechanics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1351,34 +1385,38 @@
 <h2 id="1-architectural-overview-scaling-mechanics">1. Architectural Overview &amp; Scaling Mechanics</h2>
 <p>In Terraform and OpenTofu, <strong>Meta-Arguments</strong> are engine-level directives applicable to any resource or module block. They control how many instances are generated, how dependencies are sequenced, and how the resource lifecycle responds to changes and drift.</p>
 <pre class="mermaid"><code>flowchart TD
-    subgraph ResourceBlock["Resource Definition"]
-        Decl["📦 resource 'type' 'name'"]
+    Resource["📦 resource 'type' 'name'"]
+
+    subgraph Scaling["1. Scaling Strategy"]
+        Count["🔢 count = N (Index-based)"]
+        ForEach["🗺️ for_each = map / set (Key-based)"]
     end
 
-    subgraph ScalingStrategies["Scaling &amp; Instantiation Strategy"]
-        direction TB
-        CountNode["🔢 count = N&lt;br/&gt;&lt;i&gt;• Index Addressing: res[0], res[1]&lt;br/&gt;⚠️ Shifting Index on Deletions&lt;/i&gt;"]
-        ForEachNode["🗺️ for_each = toset() / map&lt;br/&gt;&lt;i&gt;• Key Addressing: res['web'], res['db']&lt;br/&gt;✅ Safe, Idempotent Mutations&lt;/i&gt;"]
+    subgraph Lifecycle["2. Lifecycle Controls"]
+        CBD["⚡ create_before_destroy"]
+        PD["🛡️ prevent_destroy"]
+        IC["👁️ ignore_changes"]
     end
 
-    subgraph LifecycleEngine["Lifecycle Control &amp; Hook Engine"]
-        CBD["⚡ create_before_destroy&lt;br/&gt;&lt;i&gt;Zero-Downtime Provisioning&lt;/i&gt;"]
-        PD["🛡️ prevent_destroy&lt;br/&gt;&lt;i&gt;Accidental Deletion Guard&lt;/i&gt;"]
-        IC["👁️ ignore_changes&lt;br/&gt;&lt;i&gt;External Drift Suppression&lt;/i&gt;"]
-        RTB["🔄 replace_triggered_by&lt;br/&gt;&lt;i&gt;Explicit State Recreation&lt;/i&gt;"]
+    subgraph Dependency["3. Explicit Graph Order"]
+        DO["🔗 depends_on = [...]"]
     end
 
-    subgraph DAGOrder["Graph Dependency"]
-        DO["🔗 depends_on = [...]&lt;br/&gt;&lt;i&gt;Explicit DAG Edge Injection&lt;/i&gt;"]
-    end
-
-    Decl --&gt; ScalingStrategies
-    Decl --&gt; LifecycleEngine
-    Decl --&gt; DAGOrder</code></pre>
-<p>Core Mechanics:
-1. <strong><code>count</code></strong>: Replicates resources based on an integer count. Instances are addressed as <code>resource.name[index]</code>. Removing an element from the middle of a list shifts subsequent indices, causing destructive recreation of downstream resources.
-2. <strong><code>for_each</code></strong>: Maps instances by distinct set or map keys. Instances are addressed as <code>resource.name["key"]</code>. Adding or removing keys modifies only the specific target instance.
-3. <strong><code>lifecycle</code></strong>: Modifies the default plan calculation sequence to guarantee zero downtime or lock critical assets.</p>
+    Resource --&gt; Scaling
+    Resource --&gt; Lifecycle
+    Resource --&gt; Dependency</code></pre>
+<h3 id="diagram-concept-breakdown">🔍 Diagram Concept Breakdown</h3>
+<ul>
+<li><strong>Scaling Strategy (<code>count</code> vs <code>for_each</code>)</strong>:</li>
+<li><strong><code>count = N</code></strong>: Replicates resources based on an integer count. Addresses resources as <code>type.name[index]</code>. Useful for simple boolean toggles (<code>count = var.enabled ? 1 : 0</code>), but removing items from lists shifts indices, causing destructive recreations.</li>
+<li><strong><code>for_each = map/set</code></strong>: Replicates resources based on unique map or set keys. Addresses resources as <code>type.name["key"]</code>. Adding, modifying, or removing items isolates changes strictly to that key without affecting peers.</li>
+<li><strong>Lifecycle Controls</strong>:</li>
+<li><strong><code>create_before_destroy = true</code></strong>: Reverses the default destroy-then-create replacement order, creating the replacement resource first to ensure zero-downtime infrastructure updates.</li>
+<li><strong><code>prevent_destroy = true</code></strong>: Guardrail that causes <code>terraform plan</code> / <code>terraform apply</code> to exit with an error if a destroy operation is detected (protecting production databases and storage).</li>
+<li><strong><code>ignore_changes = [...]</code></strong>: Instructs the plan engine to ignore differences between state and real-world attributes (e.g. autoscale instance counts or external tags) to eliminate perpetual drift diffs.</li>
+<li><strong>Explicit Graph Ordering (<code>depends_on</code>)</strong>:</li>
+<li>Injects a strict directed edge into the DAG when hidden or out-of-band dependencies exist (such as waiting for an IAM role policy attachment to propagate before creating an EKS cluster).</li>
+</ul>
 <hr />
 <h2 id="2-annotated-production-hcl-anatomy-field-reference">2. Annotated Production HCL Anatomy &amp; Field Reference</h2>
 <p>Below is a production-grade configuration demonstrating idempotent <code>for_each</code> mapping, explicit graph dependencies, and lifecycle rules:</p>

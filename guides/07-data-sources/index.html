@@ -694,6 +694,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; Read-Only Query Lifecycle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1216,6 +1233,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; Read-Only Query Lifecycle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1351,41 +1385,25 @@
 <h2 id="1-architectural-overview-read-only-query-lifecycle">1. Architectural Overview &amp; Read-Only Query Lifecycle</h2>
 <p>In Terraform and OpenTofu, <strong>Data Sources</strong> allow configurations to query information defined outside of the current management scope. Data sources are strictly read-only; they fetch data during the refresh/plan phase and make it available to resources, locals, and outputs.</p>
 <pre class="mermaid"><code>flowchart TD
-    subgraph External["External Reality &amp; External State"]
-        API["☁️ Cloud Provider APIs"]
-        FS["📁 Local Filesystem / Archive"]
-        Remote["🌐 Remote Terraform State"]
+    Sources["☁️ Cloud APIs / State / Files"] --&gt; Query["🔍 data 'type' 'name'"]
+
+    subgraph Lifecycle["Validation &amp; Query Lifecycle"]
+        Query --&gt; Pre["🛡️ precondition { condition }"]
+        Pre --&gt; Fetch["⚡ Fetch External Attributes"]
+        Fetch --&gt; Post["⚖️ postcondition { condition }"]
     end
 
-    subgraph DataQuery["Data Source Query &amp; Contract Gate"]
-        Block["🔍 data 'type' 'name' Block"]
-        PreCond{"🛡️ precondition { condition }"}
-        PostCond{"⚖️ postcondition { condition }"}
-
-        Block --&gt; PreCond
-        PreCond --&gt;|"Passes"| Fetch["⚡ Fetch &amp; Parse External Attributes"]
-        PreCond --&gt;|"Fails"| PreErr["❌ Abort Query Execution"]
-        Fetch --&gt; PostCond
-        PostCond --&gt;|"Passes"| ValidData["✅ Read-Only State In-Scope"]
-        PostCond --&gt;|"Fails"| PostErr["❌ Abort Plan / Validation Error"]
-    end
-
-    subgraph Downstream["Downstream Graph Consumers"]
-        Res["🏗️ Managed Resources&lt;br/&gt;&lt;code&gt;resource 'type' 'name'&lt;/code&gt;"]
-        Loc["⚙️ locals Block"]
-        Out["📤 output Block"]
-    end
-
-    API --&gt; Fetch
-    FS --&gt; Fetch
-    Remote --&gt; Fetch
-    ValidData --&gt; Res
-    ValidData --&gt; Loc
-    ValidData --&gt; Out</code></pre>
-<p>Query Phases:
-1. <strong>Static Data Sources</strong>: Queries with known inputs execute immediately during the plan phase.
-2. <strong>Dynamic Data Sources</strong>: Queries that depend on computed resource attributes are deferred to the apply phase.
-3. <strong>Contract Enforcement</strong>: <code>precondition</code> and <code>postcondition</code> blocks guarantee that external assumptions remain valid before and after queries execute.</p>
+    Post --&gt; Consumers["🏗️ Resources / Locals / Outputs"]</code></pre>
+<h3 id="diagram-concept-breakdown">🔍 Diagram Concept Breakdown</h3>
+<ul>
+<li><strong>External Data Providers (<code>Sources</code>)</strong>: Interfaces with external systems such as cloud provider control planes (AWS, GCP, Azure), remote backend state files (<code>terraform_remote_state</code>), or local disk artifacts.</li>
+<li><strong>Data Source Declaration (<code>data "&lt;type&gt;" "&lt;name&gt;"</code>)</strong>: Defines a read-only query contract without declaring resource ownership or lifecycle management.</li>
+<li><strong>Validation &amp; Query Lifecycle</strong>:</li>
+<li><strong><code>precondition</code> gate</strong>: Validates assumptions about input query arguments <em>before</em> the external API call is dispatched.</li>
+<li><strong>Fetch External Attributes</strong>: The provider issues read calls during <code>terraform refresh</code> / <code>terraform plan</code> (or defers to <code>apply</code> if arguments depend on pending resource attributes).</li>
+<li><strong><code>postcondition</code> gate</strong>: Validates assertions against the retrieved attributes (e.g., verifying that returned AMI images have virtualization type <code>hvm</code> and state <code>available</code>) before exposing data downstream.</li>
+<li><strong>Downstream Consumers</strong>: Supplies safe, validated, read-only attributes to downstream managed resources, <code>locals</code>, and <code>output</code> blocks.</li>
+</ul>
 <hr />
 <h2 id="2-annotated-production-hcl-anatomy-field-reference">2. Annotated Production HCL Anatomy &amp; Field Reference</h2>
 <p>Below is a production-grade configuration demonstrating data source queries, filesystem archive creation, and defensive precondition contracts:</p>

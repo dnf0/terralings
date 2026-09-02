@@ -666,6 +666,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; Dynamic Block Expansion">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1216,6 +1233,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; Dynamic Block Expansion">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1351,27 +1385,20 @@
 <h2 id="1-architectural-overview-dynamic-block-expansion">1. Architectural Overview &amp; Dynamic Block Expansion</h2>
 <p>In Terraform and OpenTofu, <strong>Dynamic Blocks</strong> generate repeated, nested configuration blocks inside resource, data source, or provider declarations. Unlike top-level <code>for_each</code> which replicates whole resources, dynamic blocks replicate inner structural blocks (e.g. <code>ingress</code>, <code>tag</code>, <code>setting</code>).</p>
 <pre class="mermaid"><code>flowchart LR
-    subgraph InputCollection["Input Collection (List / Map)"]
-        Coll["📋 var.rules = [&lt;br/&gt;&lt;code&gt;{ port = 80, desc = 'HTTP' }&lt;/code&gt;,&lt;br/&gt;&lt;code&gt;{ port = 443, desc = 'HTTPS' }&lt;/code&gt;&lt;br/&gt;]"]
-    end
+    Collection["📋 Input Collection&lt;br/&gt;&lt;code&gt;var.rules&lt;/code&gt;"] --&gt; DynamicBlock["⚙️ dynamic 'ingress' {&lt;br/&gt;&amp;nbsp;&amp;nbsp;for_each = var.rules&lt;br/&gt;&amp;nbsp;&amp;nbsp;iterator = rule&lt;br/&gt;&amp;nbsp;&amp;nbsp;content { ... }&lt;br/&gt;}"]
 
-    subgraph DynamicGenerator["Dynamic Generator Block"]
-        Dyn["⚙️ dynamic 'ingress' {&lt;br/&gt;&amp;nbsp;&amp;nbsp;for_each = var.rules&lt;br/&gt;&amp;nbsp;&amp;nbsp;iterator = rule&lt;br/&gt;&amp;nbsp;&amp;nbsp;content { ... }&lt;br/&gt;}"]
-    end
-
-    subgraph ExpandedAST["Expanded Resource AST Body"]
-        direction TB
-        B1["🧱 ingress {&lt;br/&gt;&amp;nbsp;&amp;nbsp;from_port = 80&lt;br/&gt;&amp;nbsp;&amp;nbsp;description = 'HTTP'&lt;br/&gt;}"]
-        B2["🧱 ingress {&lt;br/&gt;&amp;nbsp;&amp;nbsp;from_port = 443&lt;br/&gt;&amp;nbsp;&amp;nbsp;description = 'HTTPS'&lt;br/&gt;}"]
-        B1 --- B2
-    end
-
-    Coll --&gt; Dyn
-    Dyn --&gt;|"AST Expansion Loop"| ExpandedAST</code></pre>
-<p>Core Rules:
-1. <strong>Scope of Application</strong>: Dynamic blocks only work inside block bodies. They cannot generate top-level blocks like <code>resource</code> or <code>variable</code>.
-2. <strong>Conditional Emission</strong>: Passing an empty collection (<code>[]</code> or <code>{}</code>) evaluates to zero generated blocks, allowing clean conditional omission.
-3. <strong>Custom Iterators</strong>: Setting <code>iterator = &lt;name&gt;</code> avoids naming conflicts when nesting dynamic blocks inside other dynamic blocks.</p>
+    DynamicBlock --&gt; Block1["🧱 ingress { port = 80 }"]
+    DynamicBlock --&gt; Block2["🧱 ingress { port = 443 }"]</code></pre>
+<h3 id="diagram-concept-breakdown">🔍 Diagram Concept Breakdown</h3>
+<ul>
+<li><strong>Input Collection (<code>var.rules</code>)</strong>: Provides a list or map of complex objects (such as firewall port definitions, storage lifecycle rules, or tag sets) passed into the module or resource.</li>
+<li><strong>Dynamic Block Generator (<code>dynamic "&lt;block_type&gt;"</code> )</strong>:</li>
+<li><strong><code>for_each</code> argument</strong>: Iterates over each element in the input collection.</li>
+<li><strong><code>iterator</code> symbol</strong>: Defines a custom accessor symbol (<code>rule</code> instead of default <code>ingress</code>) to access <code>rule.key</code> and <code>rule.value</code> cleanly, especially when nesting dynamic blocks.</li>
+<li><strong><code>content</code> template</strong>: Declares the target nested schema to be stamped out for each collection item.</li>
+<li><strong>Expanded Inner Blocks</strong>: The HCL compiler unrolls the dynamic block at evaluation time into concrete schema elements (<code>ingress { port = 80 }</code>, <code>ingress { port = 443 }</code>) inside the enclosing resource.</li>
+<li><strong>Conditional Block Omission</strong>: Passing an empty collection (<code>[]</code> or <code>{}</code>) causes zero blocks to be rendered, providing a declarative way to toggle optional nested configurations.</li>
+</ul>
 <hr />
 <h2 id="2-annotated-production-hcl-anatomy-field-reference">2. Annotated Production HCL Anatomy &amp; Field Reference</h2>
 <p>Below is a production-grade configuration demonstrating nested dynamic blocks, custom iterators, and conditional rule generation:</p>

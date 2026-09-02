@@ -495,6 +495,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; Type System Mechanics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1216,6 +1233,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; Type System Mechanics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1351,28 +1385,32 @@
 <h2 id="1-architectural-overview-type-system-mechanics">1. Architectural Overview &amp; Type System Mechanics</h2>
 <p>In modern Terraform and OpenTofu, <strong>Input Variables</strong> define the external parameterization contract for modules and configurations. The type system validates input contracts at initialization time before any resources are planned or provisioned.</p>
 <pre class="mermaid"><code>flowchart TD
-    subgraph Inputs["Input Sources (Precedence Order)"]
-        direction TB
-        P1["1. CLI Flags: -var / -var-file"]
-        P2["2. Auto Files: *.auto.tfvars"]
-        P3["3. Default File: terraform.tfvars"]
-        P4["4. Environment: TF_VAR_*"]
-        P5["5. HCL Schema: default value"]
-        P1 --&gt; P2 --&gt; P3 --&gt; P4 --&gt; P5
+    subgraph Precedence["1. Input Value Precedence"]
+        CLI["1. CLI Flags (-var)"] --&gt; Auto["2. *.auto.tfvars"]
+        Auto --&gt; DefaultFile["3. terraform.tfvars"]
+        DefaultFile --&gt; EnvVar["4. TF_VAR_*"]
+        EnvVar --&gt; SchemaDef["5. Schema Default"]
     end
 
-    subgraph TypeEngine["Type &amp; Validation Engine"]
-        P5 --&gt; Schema["🔍 Schema Type Match&lt;br/&gt;&lt;i&gt;(primitive, list, map, object)&lt;/i&gt;"]
-        Schema --&gt; NullGuard{"🛡️ nullable = false?"}
-        NullGuard --&gt;|"Passed"| CustomVal{"⚖️ validation { condition }"}
-        NullGuard --&gt;|"Null Received"| NullErr["❌ Reject Null Input"]
-        CustomVal --&gt;|"true"| ValidState["✅ Validated Variable in Scope"]
-        CustomVal --&gt;|"false"| CustomErr["❌ Emit error_message"]
+    subgraph Validation["2. Validation Pipeline"]
+        SchemaDef --&gt; TypeCheck["🔍 Type Constraint Check"]
+        TypeCheck --&gt; NullGuard{"🛡️ nullable = false?"}
+        NullGuard --&gt; CustomVal{"⚖️ validation { condition }"}
+        CustomVal --&gt; Valid["✅ Validated Variable in Scope"]
     end</code></pre>
-<p>When variable values are passed via CLI flags (<code>-var</code>), <code>.tfvars</code> files, or environment variables (<code>TF_VAR_name</code>), the engine executes a three-stage validation pipeline:
-1. <strong>Type Constraint Matching</strong>: Ensures values strictly conform to primitive, collection, or object constraints.
-2. <strong>Nullability Checks</strong>: If <code>nullable = false</code> is defined, the engine rejects <code>null</code> inputs and falls back to default values.
-3. <strong>Custom Validation Predicates</strong>: Executes all <code>condition</code> expressions inside <code>validation</code> blocks, raising custom <code>error_message</code> strings if a condition evaluates to <code>false</code>.</p>
+<h3 id="diagram-concept-breakdown">🔍 Diagram Concept Breakdown</h3>
+<ul>
+<li><strong>Input Value Precedence (Hierarchy of Overrides)</strong>: Resolves variable values from highest to lowest precedence:</li>
+<li>CLI flags (<code>-var</code> / <code>-var-file</code>) explicitly override all other sources.</li>
+<li>Files matching <code>*.auto.tfvars</code> or <code>*.auto.tfvars.json</code> loaded lexicographically.</li>
+<li>Default <code>terraform.tfvars</code> or <code>terraform.tfvars.json</code> files.</li>
+<li>Environment variables formatted as <code>TF_VAR_&lt;variable_name&gt;</code>.</li>
+<li>Manifest <code>default</code> value defined in the <code>variable</code> block.</li>
+<li><strong>Type Constraint Check</strong>: Enforces static and structural types (<code>string</code>, <code>number</code>, <code>bool</code>, <code>list</code>, <code>map</code>, <code>object({ ... })</code>). Mismatched types trigger compile-time errors before graph creation.</li>
+<li><strong>Nullability Guard (<code>nullable = false</code>)</strong>: Defends against explicit <code>null</code> inputs. When set to <code>false</code>, any <code>null</code> value is rejected or replaced by the default value.</li>
+<li><strong>Custom Validation Predicates</strong>: Evaluates custom HCL expressions in <code>validation { condition = ... }</code> blocks (e.g., regex matching, port range checks), aborting execution with custom <code>error_message</code> strings if violated.</li>
+<li><strong>Validated Variable in Scope</strong>: Provides guaranteed type-safe and validated inputs to downstream <code>locals</code>, <code>resource</code>, and <code>module</code> blocks.</li>
+</ul>
 <hr />
 <h2 id="2-annotated-production-hcl-anatomy-field-reference">2. Annotated Production HCL Anatomy &amp; Field Reference</h2>
 <p>Below is a production-grade variable declaration demonstrating structural types, optional attributes with defaults, and defensive regex validation rules:</p>

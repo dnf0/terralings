@@ -809,6 +809,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; State Graph Surgery">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1216,6 +1233,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; State Graph Surgery">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1351,36 +1385,29 @@
 <h2 id="1-architectural-overview-state-graph-surgery">1. Architectural Overview &amp; State Graph Surgery</h2>
 <p>In Terraform and OpenTofu, the <strong>State File</strong> binds declarative HCL resource addresses to real-world cloud infrastructure IDs. Refactoring resource names or module hierarchies historically required dangerous imperative CLI commands (<code>terraform state mv</code>). Modern HCL supports declarative, version-controlled state surgery via <code>moved</code> and <code>import</code> blocks.</p>
 <pre class="mermaid"><code>flowchart TD
-    subgraph DeclarativeState["Declarative State Surgery Engine"]
-        direction TB
-
-        subgraph Renaming["Resource &amp; Module Renaming"]
-            OldAddr["📦 Old State Key&lt;br/&gt;&lt;code&gt;local_file.legacy&lt;/code&gt;"]
-            MovedBlock["🔄 moved {&lt;br/&gt;&amp;nbsp;&amp;nbsp;from = local_file.legacy&lt;br/&gt;&amp;nbsp;&amp;nbsp;to = local_file.v2&lt;br/&gt;}"]
-            NewAddr["✨ New Address&lt;br/&gt;&lt;code&gt;local_file.v2&lt;/code&gt;"]
-
-            OldAddr --&gt; MovedBlock --&gt; NewAddr
-        end
-
-        subgraph Importing["Cloud Resource Onboarding"]
-            CloudRes["☁️ Real Cloud Asset&lt;br/&gt;&lt;code&gt;ID: 'i-0abcdef1234567890'&lt;/code&gt;"]
-            ImportBlock["📥 import {&lt;br/&gt;&amp;nbsp;&amp;nbsp;to = aws_instance.web&lt;br/&gt;&amp;nbsp;&amp;nbsp;id = 'i-0abcdef1234567890'&lt;br/&gt;}"]
-            ImportState["💾 Managed Resource State"]
-
-            CloudRes --&gt; ImportBlock --&gt; ImportState
-        end
-
-        subgraph PlanOutcome["Plan &amp; Apply Execution"]
-            ZeroDowntime["✅ In-Place State Key Rebinding&lt;br/&gt;• 0 Resources Destroyed&lt;br/&gt;• 0 Resources Recreated&lt;br/&gt;• Zero Downtime"]
-        end
+    subgraph Refactor["1. Declarative Resource Renaming"]
+        Old["📦 Old Address: local_file.legacy"] --&gt; Moved["🔄 moved { from ... to ... }"]
+        Moved --&gt; New["✨ New Address: local_file.v2"]
     end
 
-    NewAddr --&gt; ZeroDowntime
-    ImportState --&gt; ZeroDowntime</code></pre>
-<p>Refactoring Capabilities:
-1. <strong><code>moved</code> Blocks</strong>: Rebind state keys during <code>plan</code> generation without destroying or recreating target infrastructure.
-2. <strong><code>import</code> Blocks</strong>: Bring unmanaged existing cloud resources into state declaratively as part of continuous integration.
-3. <strong>Controlled Replacement</strong>: Use <code>replace_triggered_by</code> to trigger cascade replacements deterministically.</p>
+    subgraph Import["2. Declarative Resource Onboarding"]
+        Cloud["☁️ Existing Cloud Asset (ID)"] --&gt; ImportBlock["📥 import { to ... id ... }"]
+        ImportBlock --&gt; State["💾 Managed State"]
+    end
+
+    New --&gt; PlanApply["⚡ Zero-Downtime State Rebinding (0 Recreations)"]
+    State --&gt; PlanApply</code></pre>
+<h3 id="diagram-concept-breakdown">🔍 Diagram Concept Breakdown</h3>
+<ul>
+<li><strong>Declarative Resource Renaming (<code>moved</code> blocks)</strong>:</li>
+<li>Records address transitions in code (e.g. <code>from = aws_instance.old</code> to <code>to = aws_instance.new</code> or moving into a module <code>to = module.app.aws_instance.web</code>).</li>
+<li>The plan engine automatically migrates state keys in memory during <code>terraform plan</code> without generating destroy/recreate actions.</li>
+<li><strong>Declarative Resource Onboarding (<code>import</code> blocks)</strong>:</li>
+<li>Links an unmanaged existing cloud infrastructure ID (e.g. <code>vpc-0123456789</code>) directly to a target resource address in code (<code>to = aws_vpc.imported</code>).</li>
+<li>Allows full code generation (<code>-generate-config-out</code>) and CI-driven onboarding without manual imperative CLI commands.</li>
+<li><strong>Zero-Downtime State Rebinding</strong>:</li>
+<li>State surgery operations are version-controlled, auditable in pull requests, and executed with guaranteed zero downtime and zero unwanted resource churn.</li>
+</ul>
 <hr />
 <h2 id="2-annotated-production-hcl-anatomy-field-reference">2. Annotated Production HCL Anatomy &amp; Field Reference</h2>
 <p>Below is a production-grade configuration demonstrating state migrations from legacy names, collection refactoring from <code>count</code> to <code>for_each</code>, and declarative resource importing:</p>

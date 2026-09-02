@@ -837,6 +837,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; Test Framework Mechanics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1216,6 +1233,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; Test Framework Mechanics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1351,44 +1385,35 @@
 <h2 id="1-architectural-overview-test-framework-mechanics">1. Architectural Overview &amp; Test Framework Mechanics</h2>
 <p>In modern Terraform and OpenTofu, <strong>Native Testing</strong> executes via <code>.tftest.hcl</code> files. The testing framework provisions isolated ephemeral environments, mocks external cloud providers without credentials, runs assertion rules against planned or applied states, and verifies defensive failure paths.</p>
 <pre class="mermaid"><code>flowchart TD
-    subgraph TestHarness["Native .tftest.hcl Test Engine"]
-        direction TB
-
-        subgraph Setup["Test Setup &amp; Isolation"]
-            TFTest["🧪 .tftest.hcl Harness"]
-            Mock["🎭 mock_provider 'aws' / 'google'&lt;br/&gt;&lt;i&gt;Zero Real Cloud Credentials Required&lt;/i&gt;"]
-            Overrides["⚙️ override_resource / override_data"]
-            TFTest --&gt; Mock --&gt; Overrides
-        end
-
-        subgraph RunBlocks["Sequential run Blocks"]
-            direction TB
-            PlanRun["📋 run 'plan_verification'&lt;br/&gt;&lt;code&gt;command = plan&lt;/code&gt;&lt;br/&gt;&lt;i&gt;In-Memory Static Plan Verification&lt;/i&gt;"]
-            ApplyRun["🚀 run 'apply_integration'&lt;br/&gt;&lt;code&gt;command = apply&lt;/code&gt;&lt;br/&gt;&lt;i&gt;Ephemeral State Execution&lt;/i&gt;"]
-            PlanRun --&gt; ApplyRun
-        end
-
-        subgraph Assertions["Assertion &amp; Negative Testing Gates"]
-            AssertGate{"⚖️ assert { condition }"}
-            NegGate{"🛡️ expect_failures = [...]"}
-
-            Pass["✅ Test Step Passed"]
-            Fail["❌ Test Step Failed (Emit error_message)"]
-
-            AssertGate --&gt;|"condition = true"| Pass
-            AssertGate --&gt;|"condition = false"| Fail
-            NegGate --&gt;|"Expected Error Caught"| Pass
-            NegGate --&gt;|"No Error Raised"| Fail
-        end
+    subgraph Setup["1. Setup &amp; Isolation"]
+        TFTest["🧪 .tftest.hcl Harness"] --&gt; Mock["🎭 mock_provider (Zero Credentials)"]
+        Mock --&gt; Overrides["⚙️ override_resource / override_data"]
     end
 
-    Overrides --&gt; RunBlocks
-    RunBlocks --&gt; Assertions</code></pre>
-<p>Testing Modes:
-1. <strong><code>command = plan</code> (Unit Testing)</strong>: Validates variable validations, locals, and planned resource values in memory without issuing cloud API calls.
-2. <strong><code>command = apply</code> (Integration Testing)</strong>: Provisions real or mocked resources to test computed output contracts.
-3. <strong><code>mock_provider</code></strong>: Intercepts provider API calls and returns synthetic mock attributes for fast, deterministic unit test execution.
-4. <strong><code>expect_failures</code></strong>: Asserts that invalid input configurations fail validation as expected.</p>
+    subgraph Execution["2. Test Execution Stages"]
+        Plan["📋 run { command = plan }"] --&gt; Apply["🚀 run { command = apply }"]
+    end
+
+    subgraph Gates["3. Verification &amp; Assertions"]
+        Assert["⚖️ assert { condition }"]
+        NegTest["🛡️ expect_failures = [...]"]
+    end
+
+    Overrides --&gt; Plan
+    Apply --&gt; Assert &amp; NegTest</code></pre>
+<h3 id="diagram-concept-breakdown">🔍 Diagram Concept Breakdown</h3>
+<ul>
+<li><strong>Setup &amp; Mocking Isolation</strong>:</li>
+<li><strong><code>.tftest.hcl</code> Test Files</strong>: Declarative test suites orchestrated natively by <code>tofu test</code> / <code>terraform test</code>.</li>
+<li><strong><code>mock_provider</code></strong>: Intercepts external provider operations, returning synthetic attributes (such as mock AWS VPC IDs or GCP zones) to execute tests instantly without cloud credentials or network access.</li>
+<li><strong><code>override_resource</code> / <code>override_data</code></strong>: Stubs specific upstream data sources or resources with fixed test fixtures.</li>
+<li><strong>Test Execution Stages</strong>:</li>
+<li><strong><code>run { command = plan }</code></strong>: Fast, in-memory unit testing that validates variable validation rules, local transformations, and planned attributes.</li>
+<li><strong><code>run { command = apply }</code></strong>: Integration testing that creates state in an isolated ephemeral workspace, evaluating computed attributes across multi-step deployments.</li>
+<li><strong>Verification &amp; Assertions</strong>:</li>
+<li><strong><code>assert { condition, error_message }</code></strong>: Verifies post-execution state against expected conditions (e.g. <code>assert { condition = aws_s3_bucket.logs.bucket_prefix == "prod-logs-" }</code>).</li>
+<li><strong><code>expect_failures = [var.port]</code></strong>: Negative testing asserting that invalid configurations trigger expected validation errors without halting the test harness.</li>
+</ul>
 <hr />
 <h2 id="2-annotated-production-hcl-anatomy-field-reference">2. Annotated Production HCL Anatomy &amp; Field Reference</h2>
 <p>Below is a production-grade <code>.tftest.hcl</code> specification demonstrating plan-time assertions, provider mocking, and negative test verification:</p>

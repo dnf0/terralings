@@ -1008,6 +1008,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; AWS Resource Dependency Graph">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1216,6 +1233,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; AWS Resource Dependency Graph">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1351,51 +1385,34 @@
 <h2 id="1-architectural-overview-aws-resource-dependency-graph">1. Architectural Overview &amp; AWS Resource Dependency Graph</h2>
 <p>In production Amazon Web Services (AWS) architectures, Infrastructure as Code manages complex topological graphs connecting networking fabrics, resilient compute clusters, event brokers, and least-privilege security boundaries.</p>
 <pre class="mermaid"><code>flowchart TD
-    Internet(["🌐 Public Internet"]) --&gt; IGW["🚪 Internet Gateway (aws_internet_gateway)"]
+    Internet(["🌐 Public Internet"]) --&gt; IGW["🚪 Internet Gateway"]
+    IGW --&gt; ALB["⚖️ Application Load Balancer (Public Subnet)"]
 
-    subgraph VPC["VPC: 10.0.0.0/16 (aws_vpc)"]
-        direction TB
-
-        subgraph PublicSubnets["Public Subnets (Multi-AZ)"]
-            direction LR
-            ALB["⚖️ Application Load Balancer&lt;br/&gt;&lt;i&gt;(aws_lb.public)&lt;/i&gt;"]
-            NAT["🌐 NAT Gateway&lt;br/&gt;&lt;i&gt;(aws_nat_gateway.primary)&lt;/i&gt;"]
-        end
-
-        subgraph PrivateSubnets["Private Workload Subnets (Multi-AZ)"]
-            direction TB
-            subgraph ComputeTier["Compute &amp; Microservices"]
-                direction LR
-                ASG["⚙️ Auto Scaling Group (EC2)&lt;br/&gt;&lt;i&gt;(aws_autoscaling_group)&lt;/i&gt;"]
-                Lambda["⚡ Serverless Microservices&lt;br/&gt;&lt;i&gt;(aws_lambda_function)&lt;/i&gt;"]
-            end
-
-            subgraph AsyncMessaging["Decoupled Event Streaming"]
-                direction LR
-                SNS["📢 SNS Topic&lt;br/&gt;&lt;i&gt;(aws_sns_topic)&lt;/i&gt;"]
-                SQS["📥 SQS FIFO Queue + DLQ&lt;br/&gt;&lt;i&gt;(aws_sqs_queue)&lt;/i&gt;"]
-                SNS --&gt; SQS
-            end
-        end
+    subgraph VPC["VPC Architecture (10.0.0.0/16)"]
+        ALB --&gt; Compute["⚙️ Compute (EC2 / Auto Scaling &amp; Lambda)"]
+        Compute --&gt; Queue["📥 SQS FIFO Queue &amp; SNS Topic"]
     end
 
-    subgraph DataSecurity["Data &amp; Security Plane"]
-        direction LR
-        S3[("🪣 S3 Data Lake (SSE-KMS)&lt;br/&gt;&lt;i&gt;(aws_s3_bucket)&lt;/i&gt;")]
-        DDB[("⚡ DynamoDB Table&lt;br/&gt;&lt;i&gt;(aws_dynamodb_table)&lt;/i&gt;")]
-        IAM["🛡️ IAM Least-Privilege Role&lt;br/&gt;&lt;i&gt;(aws_iam_role)&lt;/i&gt;"]
+    subgraph DataSecurity["Data &amp; Security Layer"]
+        S3[("🪣 S3 Data Lake (KMS Encrypted)")]
+        DDB[("⚡ DynamoDB Table")]
+        IAM["🛡️ IAM Least-Privilege Role"]
     end
 
-    IGW --&gt; ALB
-    ALB --&gt; ComputeTier
-    ComputeTier --&gt; AsyncMessaging
-    ComputeTier --&gt; DataSecurity
-    IAM -.-&gt;|"Assumes Role / Grants Access"| ComputeTier</code></pre>
-<p>Core Tenets:
-1. <strong>Multi-AZ Network Isolation</strong>: Segment workloads across at least two Availability Zones with strict public/private subnet tiers.
-2. <strong>Stateless Compute Scaling</strong>: Pair Application Load Balancers with Launch Templates and dynamic Auto Scaling Groups.
-3. <strong>Decoupled Event Streaming</strong>: Buffer asynchronous transactions with Amazon SQS FIFO queues and Dead-Letter Queues (DLQs).
-4. <strong>Least-Privilege IAM Boundaries</strong>: Avoid wildcard actions; scope permissions strictly to target resource ARNs.</p>
+    Compute --&gt; S3 &amp; DDB
+    IAM -.-&gt;|"Least-Privilege Policy"| Compute</code></pre>
+<h3 id="diagram-concept-breakdown">🔍 Diagram Concept Breakdown</h3>
+<ul>
+<li><strong>Public Ingress &amp; Perimeter Tier</strong>:</li>
+<li>The Internet Gateway (IGW) bridges public traffic into dual-AZ public subnets hosting the Application Load Balancer (ALB).</li>
+<li>The ALB terminates SSL/TLS and balances traffic across target groups with continuous health checks.</li>
+<li><strong>Isolated VPC Compute &amp; Messaging Fabric</strong>:</li>
+<li>Compute workloads (Auto Scaling Groups of EC2 instances and serverless Lambda functions) execute inside private subnets without public IP addresses, routing outbound traffic through NAT Gateways.</li>
+<li>Asynchronous messaging (Amazon SNS topics and SQS FIFO queues with Dead-Letter Queues) decouples ingestion from heavy processing, absorbing traffic spikes.</li>
+<li><strong>Data &amp; Security Layer</strong>:</li>
+<li><strong>Storage &amp; Databases</strong>: Encrypted persistence via Amazon S3 (protected by AWS KMS customer-managed keys) and Amazon DynamoDB with point-in-time recovery (PITR).</li>
+<li><strong>IAM Security Boundary</strong>: Scoped instance profiles and execution roles enforce least-privilege access, restricting IAM statements directly to explicit bucket and table ARNs without wildcard privileges (<code>*</code>).</li>
+</ul>
 <hr />
 <h2 id="2-annotated-production-hcl-anatomy-field-reference">2. Annotated Production HCL Anatomy &amp; Field Reference</h2>
 <p>Below is a production-grade AWS infrastructure blueprint demonstrating VPC networking, compute scaling, and serverless event wiring:</p>

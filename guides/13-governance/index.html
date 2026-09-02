@@ -921,6 +921,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; Governance Principles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1216,6 +1233,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Architectural Overview &amp; Governance Principles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagram-concept-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Diagram Concept Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1351,41 +1385,36 @@
 <h2 id="1-architectural-overview-governance-principles">1. Architectural Overview &amp; Governance Principles</h2>
 <p>Enterprise-scale Infrastructure as Code requires rigorous architectural governance. <strong>Architecture Governance Standards</strong> ensure repositories remain auditable, secure, and maintainable over years of operation.</p>
 <pre class="mermaid"><code>flowchart TD
-    subgraph GovernanceArchitecture["Architecture Governance Standards"]
-        direction TB
-
-        subgraph RootBoundary["1. Root Module Encapsulation Boundary (envs/prod)"]
-            Root["🏢 Root Orchestrator (main.tf)"]
-            NetMod["📦 module 'networking'"]
-            DBMod["📦 module 'database'"]
-            AppMod["📦 module 'compute'"]
-
-            Root --&gt; NetMod
-            Root --&gt; DBMod
-            Root --&gt; AppMod
-        end
-
-        subgraph PolicyEncapsulation["2. ADR-0005: Policy Encapsulation Standard"]
-            direction TB
-            ResourceNode["🏗️ Resource Boundary&lt;br/&gt;&lt;i&gt;(aws_s3_bucket.data)&lt;/i&gt;"]
-            PolicyNode["🛡️ Integrated IAM Policy&lt;br/&gt;&lt;i&gt;(Least-Privilege Scoped Document)&lt;/i&gt;"]
-            ExportedPolicy["📤 Output: read_policy_arn"]
-
-            ResourceNode --&gt; PolicyNode --&gt; ExportedPolicy
-        end
-
-        subgraph Enforcement["3. Anti-Pattern Prevention Gate"]
-            Anti1["❌ NO loose resource blocks in root"]
-            Anti2["❌ NO wildcard IAM policies (*:*) in root"]
-            Anti3["❌ NO unmanaged ephemeral test resources"]
-        end
+    subgraph Root["1. Root Orchestrator (envs/prod)"]
+        Main["🏢 Root Orchestrator (main.tf)"]
+        NetMod["📦 module 'networking'"]
+        DBMod["📦 module 'database'"]
+        AppMod["📦 module 'compute'"]
+        Main --&gt; NetMod &amp; DBMod &amp; AppMod
     end
 
-    AppMod -.-&gt;|"Attaches Scoped Policy"| ExportedPolicy</code></pre>
-<p>Core Architectural Standards:
-1. <strong>Zero Loose Root Resources</strong>: The root module serves exclusively as an orchestrator of cohesive child modules. No loose <code>resource</code> blocks should exist in environment roots.
-2. <strong>Policy Encapsulation (ADR-0005)</strong>: Security boundaries and IAM policies are defined directly inside the child module that manages the resource, exporting strictly scoped policy documents to consumers.
-3. <strong>Ephemeral Workload Isolation</strong>: Dynamic batch jobs and transient tooling workloads are isolated into short-lived workspaces or independent state boundaries to prevent state locking and bloat.</p>
+    subgraph Policy["2. ADR-0005 Policy Encapsulation"]
+        Res["🏗️ Resource (aws_s3_bucket)"] --&gt; IAM["🛡️ Least-Privilege IAM Policy"]
+        IAM --&gt; Output["📤 output 'read_policy_arn'"]
+    end
+
+    subgraph Rules["3. Architectural Guardrails"]
+        NoRoot["❌ No loose resources in root"]
+        NoWild["❌ No wildcard (*:*) policies"]
+    end
+
+    AppMod -.-&gt;|"Attaches Scoped Policy"| Output</code></pre>
+<h3 id="diagram-concept-breakdown">🔍 Diagram Concept Breakdown</h3>
+<ul>
+<li><strong>Root Orchestration Cleanliness</strong>:</li>
+<li>The root configuration file (<code>envs/prod/main.tf</code>) functions exclusively as an orchestrator that passes configuration arguments to discrete, single-purpose child modules (<code>networking</code>, <code>database</code>, <code>compute</code>).</li>
+<li><strong>Zero Loose Root Resources Rule</strong>: Direct <code>resource</code> declarations in the root namespace are strictly forbidden to prevent monolith sprawl and blast radius expansion.</li>
+<li><strong>ADR-0005 Policy Encapsulation</strong>:</li>
+<li>Security policies and IAM roles are declared in the same module that provisions the underlying resource (e.g. S3 module creates bucket + read-only IAM policy).</li>
+<li>Child modules export scoped policy ARNs (<code>output "read_policy_arn"</code>), allowing downstream compute modules to attach least-privilege permissions without creating broad, insecure wildcard policies.</li>
+<li><strong>Continuous Architectural Guardrails</strong>:</li>
+<li>Automated CI linters and policy engines reject wildcard IAM statements (<code>Action = "*"</code>, <code>Resource = "*"</code>) and enforce ephemeral workload isolation to prevent state file bloat.</li>
+</ul>
 <hr />
 <h2 id="2-annotated-production-hcl-anatomy-field-reference">2. Annotated Production HCL Anatomy &amp; Field Reference</h2>
 <p>Below is a production-grade configuration demonstrating root encapsulation and policy encapsulation (ADR-0005):</p>
