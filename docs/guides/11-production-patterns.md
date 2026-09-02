@@ -14,26 +14,34 @@
 
 In production Infrastructure as Code, codebases scale to support hundreds of engineers and diverse environments. **Enterprise Design Patterns** provide robust architectural blueprints to maintain clean separation of concerns, eliminate copy-pasted configuration, and enforce organizational governance.
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                 Enterprise Pattern Architecture             │
-│                                                             │
-│   1. Environment Matrix Pattern                             │
-│   ┌───────────────────────────────────────────────────────┐ │
-│   │ env_config = {                                        │ │
-│   │   dev  = { tier = "t4g.nano",  replicas = 1 }         │ │
-│   │   prod = { tier = "r6g.xlarge", replicas = 5 }        │ │
-│   │ }                                                     │ │
-│   └──────────────────────────┬────────────────────────────┘ │
-│                              │                              │
-│                              ▼                              │
-│   2. Tagging Factory Pattern (Hierarchical Merging)         │
-│   [ Global Org Tags ] ──► [ Env Tags ] ──► [ Resource Tags] │
-│                              │                              │
-│                              ▼                              │
-│   3. Self-Service Input Contract & Filtering                │
-│   [ Developer Spec ] ──► [ Schema Sanitizer ] ──► [ Engine] │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph EnterprisePatterns["Enterprise Design Pattern Architecture"]
+        direction TB
+        
+        subgraph Pattern1["1. Environment Configuration Matrix"]
+            EnvLookup["🏢 var.environment<br/><i>(dev | staging | prod)</i>"]
+            MatrixMap["🗺️ local.env_config = {<br/>&nbsp;&nbsp;dev = { tier = 't4g.nano', replicas = 1 },<br/>&nbsp;&nbsp;prod = { tier = 'r6g.xlarge', replicas = 5 }<br/>}"]
+            SelectedConfig["🎯 local.active_config"]
+            EnvLookup --> MatrixMap --> SelectedConfig
+        end
+
+        subgraph Pattern2["2. Hierarchical Tagging Factory"]
+            direction LR
+            GlobalTags["🏷️ Global Org Tags"] --> EnvTags["🏷️ Env Tags"] --> ResTags["🏷️ Resource Tags"]
+            ResTags --> FinalTags["🛡️ merge(global, env, res)"]
+        end
+
+        subgraph Pattern3["3. Self-Service Sanitization & Toggles"]
+            DevInput["📋 Developer Input Spec"] --> Sanitize["🔍 Schema Validation & Sanitizer"]
+            Sanitize --> Toggle{"⚡ Feature Toggle (count 0/1)"}
+            Toggle -->|"Enabled"| Provision["🚀 Resource Provisioned with one() output"]
+            Toggle -->|"Disabled"| NoOp["⏹️ Zero Resources Created"]
+        end
+    end
+
+    SelectedConfig --> Pattern2
+    FinalTags --> Pattern3
 ```
 
 Core Enterprise Patterns:

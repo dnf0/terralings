@@ -14,29 +14,34 @@
 
 In Terraform and OpenTofu, the **State File** binds declarative HCL resource addresses to real-world cloud infrastructure IDs. Refactoring resource names or module hierarchies historically required dangerous imperative CLI commands (`terraform state mv`). Modern HCL supports declarative, version-controlled state surgery via `moved` and `import` blocks.
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                 Declarative State Refactoring               │
-│                                                             │
-│   Old State Address                     New HCL Address     │
-│   [ local_file.legacy ]                 [ local_file.v2 ]   │
-│            │                                   ▲            │
-│            └───────────────┐   ┌───────────────┘            │
-│                            ▼   │                            │
-│                  ┌───────────────────────┐                  │
-│                  │  `moved` Block Engine │                  │
-│                  │  from = legacy        │                  │
-│                  │  to   = v2            │                  │
-│                  └───────────────────────┘                  │
-│                              │                              │
-│                              ▼                              │
-│                 [ State Updated in Place ]                  │
-│                 - Zero Resource Recreations                 │
-│                 - Zero Production Downtime                  │
-│                                                             │
-│   Onboarding Unmanaged Resources: `import` Block            │
-│   [ Cloud ID: "i-12345" ] ──► `import { to, id }` ──► State │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph DeclarativeState["Declarative State Surgery Engine"]
+        direction TB
+        
+        subgraph Renaming["Resource & Module Renaming"]
+            OldAddr["📦 Old State Key<br/><code>local_file.legacy</code>"]
+            MovedBlock["🔄 moved {<br/>&nbsp;&nbsp;from = local_file.legacy<br/>&nbsp;&nbsp;to = local_file.v2<br/>}"]
+            NewAddr["✨ New Address<br/><code>local_file.v2</code>"]
+            
+            OldAddr --> MovedBlock --> NewAddr
+        end
+
+        subgraph Importing["Cloud Resource Onboarding"]
+            CloudRes["☁️ Real Cloud Asset<br/><code>ID: 'i-0abcdef1234567890'</code>"]
+            ImportBlock["📥 import {<br/>&nbsp;&nbsp;to = aws_instance.web<br/>&nbsp;&nbsp;id = 'i-0abcdef1234567890'<br/>}"]
+            ImportState["💾 Managed Resource State"]
+            
+            CloudRes --> ImportBlock --> ImportState
+        end
+
+        subgraph PlanOutcome["Plan & Apply Execution"]
+            ZeroDowntime["✅ In-Place State Key Rebinding<br/>• 0 Resources Destroyed<br/>• 0 Resources Recreated<br/>• Zero Downtime"]
+        end
+    end
+
+    NewAddr --> ZeroDowntime
+    ImportState --> ZeroDowntime
 ```
 
 Refactoring Capabilities:

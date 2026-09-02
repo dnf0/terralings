@@ -14,27 +14,34 @@
 
 **OpenTofu** is an open-source, community-driven Infrastructure as Code engine under the Linux Foundation. OpenTofu introduces foundational architectural innovations including **End-to-End State Encryption at Rest**, **Early Variable Evaluation** in providers and backends, and an open, decentralized provider registry ecosystem.
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                 OpenTofu Architecture Enhancements          │
-│                                                             │
-│   1. Native State Encryption Engine (AES-GCM / PBKDF2)      │
-│   ┌───────────────────────────────────────────────────────┐ │
-│   │ `terraform { encryption { ... } }`                    │ │
-│   │ - State is encrypted BEFORE writing to backend        │ │
-│   │ - Plan files are encrypted on disk                    │ │
-│   │ - Zero plaintext secrets leakage in remote S3/GCS/Blob│ │
-│   └───────────────────────────────────────────────────────┘ │
-│                                                             │
-│   2. Early Variable Evaluation Engine                       │
-│   ┌───────────────────────────────────────────────────────┐ │
-│   │ `backend "s3" { bucket = var.backend_bucket }`        │ │
-│   │ `provider "aws" { region = var.aws_region }`          │ │
-│   │ - Dynamic backend and provider parameterization       │ │
-│   └───────────────────────────────────────────────────────┘ │
-│                                                             │
-│   3. Decentralized Open Registry (get.opentofu.org)        │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph TofuInnovations["OpenTofu Architectural Innovations"]
+        direction TB
+        
+        subgraph EncryptionPipeline["1. Client-Side State Encryption Engine"]
+            direction LR
+            RawState["📄 In-Memory State AST<br/><i>(Plaintext Secrets)</i>"]
+            AES["🔐 AES-GCM Encryption Engine<br/><code>key_provider 'pbkdf2' / 'kms'</code>"]
+            EncryptedState["🛡️ Encrypted State Payload<br/><i>(Zero Secrets at Rest)</i>"]
+            RemoteStorage[("☁️ Remote Backend<br/><i>S3 / GCS / Azure Blob</i>")]
+            
+            RawState --> AES --> EncryptedState --> RemoteStorage
+        end
+
+        subgraph EarlyEval["2. Early Variable Evaluation Engine"]
+            VarInputs["📥 Input Variables (var.region, var.bucket)"]
+            BackendBlock["🗄️ backend 's3' { bucket = var.bucket }"]
+            ProviderBlock["🔌 provider 'aws' { region = var.region }"]
+            
+            VarInputs --> BackendBlock
+            VarInputs --> ProviderBlock
+        end
+
+        subgraph OpenRegistry["3. Decentralized Registry Ecosystem"]
+            OpenReg["🌐 get.opentofu.org<br/><i>Decentralized, Open-Source Provider Mirror</i>"]
+        end
+    end
 ```
 
 Key Architectural Innovations:

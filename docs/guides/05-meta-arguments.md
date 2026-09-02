@@ -14,27 +14,32 @@
 
 In Terraform and OpenTofu, **Meta-Arguments** are engine-level directives applicable to any resource or module block. They control how many instances are generated, how dependencies are sequenced, and how the resource lifecycle responds to changes and drift.
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                    Meta-Arguments Engine                    │
-│                                                             │
-│   Scaling: `count` vs `for_each`                            │
-│   ┌───────────────────────────┐ ┌─────────────────────────┐ │
-│   │ `count = 3`               │ │ `for_each = toset(...)` │ │
-│   │ Index-based addressing    │ │ Key-based addressing    │ │
-│   │ - res[0], res[1], res[2]  │ │ - res["web"], res["api"]│ │
-│   │ ⚠️ Index shift on delete  │ │ ✅ Idempotent removal   │ │
-│   └───────────────────────────┘ └─────────────────────────┘ │
-│                                                             │
-│   Graph Ordering: `depends_on`                              │
-│   └── Injects explicit edge between two DAG vertices        │
-│                                                             │
-│   Lifecycle Hooks: `lifecycle { ... }`                      │
-│   ├── `create_before_destroy` - Zero-downtime replacement   │
-│   ├── `prevent_destroy`       - Guard against accidental del│
-│   ├── `ignore_changes`        - Exclude out-of-band updates │
-│   └── `replace_triggered_by`  - Force recreation on trigger │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph ResourceBlock["Resource Definition"]
+        Decl["📦 resource 'type' 'name'"]
+    end
+
+    subgraph ScalingStrategies["Scaling & Instantiation Strategy"]
+        direction TB
+        CountNode["🔢 count = N<br/><i>• Index Addressing: res[0], res[1]<br/>⚠️ Shifting Index on Deletions</i>"]
+        ForEachNode["🗺️ for_each = toset() / map<br/><i>• Key Addressing: res['web'], res['db']<br/>✅ Safe, Idempotent Mutations</i>"]
+    end
+
+    subgraph LifecycleEngine["Lifecycle Control & Hook Engine"]
+        CBD["⚡ create_before_destroy<br/><i>Zero-Downtime Provisioning</i>"]
+        PD["🛡️ prevent_destroy<br/><i>Accidental Deletion Guard</i>"]
+        IC["👁️ ignore_changes<br/><i>External Drift Suppression</i>"]
+        RTB["🔄 replace_triggered_by<br/><i>Explicit State Recreation</i>"]
+    end
+
+    subgraph DAGOrder["Graph Dependency"]
+        DO["🔗 depends_on = [...]<br/><i>Explicit DAG Edge Injection</i>"]
+    end
+
+    Decl --> ScalingStrategies
+    Decl --> LifecycleEngine
+    Decl --> DAGOrder
 ```
 
 Core Mechanics:

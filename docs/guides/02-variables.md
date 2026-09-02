@@ -14,28 +14,26 @@
 
 In modern Terraform and OpenTofu, **Input Variables** define the external parameterization contract for modules and configurations. The type system validates input contracts at initialization time before any resources are planned or provisioned.
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                    Variable Type System                     │
-│                                                             │
-│   Primitive Types              Structural & Complex Types   │
-│   ├── string                   ├── list(T)                  │
-│   ├── number                   ├── set(T)                   │
-│   └── bool                     ├── map(T)                   │
-│                                ├── tuple([T1, T2, ...])     │
-│                                └── object({                 │
-│                                      k1 = type              │
-│                                      k2 = optional(type, d) │
-│                                    })                       │
-│                                                             │
-│   Validation Engine (Pre-Plan Evaluation)                   │
-│   ┌───────────────────────────────────────────────────────┐ │
-│   │ 1. Type Coercion & Schema Check                       │ │
-│   │ 2. `nullable = false` Guard Evaluation                │ │
-│   │ 3. `validation` Block Condition Predicate Execution   │ │
-│   │ 4. Emit Custom Error Message on Predicate Failure     │ │
-│   └───────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph Inputs["Input Sources (Precedence Order)"]
+        direction TB
+        P1["1. CLI Flags: -var / -var-file"]
+        P2["2. Auto Files: *.auto.tfvars"]
+        P3["3. Default File: terraform.tfvars"]
+        P4["4. Environment: TF_VAR_*"]
+        P5["5. HCL Schema: default value"]
+        P1 --> P2 --> P3 --> P4 --> P5
+    end
+
+    subgraph TypeEngine["Type & Validation Engine"]
+        P5 --> Schema["🔍 Schema Type Match<br/><i>(primitive, list, map, object)</i>"]
+        Schema --> NullGuard{"🛡️ nullable = false?"}
+        NullGuard -->|"Passed"| CustomVal{"⚖️ validation { condition }"}
+        NullGuard -->|"Null Received"| NullErr["❌ Reject Null Input"]
+        CustomVal -->|"true"| ValidState["✅ Validated Variable in Scope"]
+        CustomVal -->|"false"| CustomErr["❌ Emit error_message"]
+    end
 ```
 
 When variable values are passed via CLI flags (`-var`), `.tfvars` files, or environment variables (`TF_VAR_name`), the engine executes a three-stage validation pipeline:

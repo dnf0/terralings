@@ -14,28 +14,39 @@
 
 In Terraform and OpenTofu, **Data Sources** allow configurations to query information defined outside of the current management scope. Data sources are strictly read-only; they fetch data during the refresh/plan phase and make it available to resources, locals, and outputs.
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                   Data Source Query Lifecycle               │
-│                                                             │
-│   External Reality (Cloud APIs, Filesystem, Remote State)   │
-│                              │                              │
-│                              ▼ (Read & Fetch)               │
-│   ┌───────────────────────────────────────────────────────┐ │
-│   │ `data "<type>" "<name>"` Block Execution              │ │
-│   │ - Refreshed during `plan` (or deferred if dependent)  │ │
-│   └──────────────────────────┬────────────────────────────┘ │
-│                              │                              │
-│                              ▼                              │
-│   ┌───────────────────────────────────────────────────────┐ │
-│   │ Lifecycle Contracts (Defensive Invariants)            │ │
-│   │ ├── `precondition`  - Evaluate before data read/apply │ │
-│   │ └── `postcondition` - Verify queried data invariants  │ │
-│   └──────────────────────────┬────────────────────────────┘ │
-│                              │                              │
-│                              ▼                              │
-│   Downstream Managed Resources (`resource "..." "..."`)     │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph External["External Reality & External State"]
+        API["☁️ Cloud Provider APIs"]
+        FS["📁 Local Filesystem / Archive"]
+        Remote["🌐 Remote Terraform State"]
+    end
+
+    subgraph DataQuery["Data Source Query & Contract Gate"]
+        Block["🔍 data 'type' 'name' Block"]
+        PreCond{"🛡️ precondition { condition }"}
+        PostCond{"⚖️ postcondition { condition }"}
+        
+        Block --> PreCond
+        PreCond -->|"Passes"| Fetch["⚡ Fetch & Parse External Attributes"]
+        PreCond -->|"Fails"| PreErr["❌ Abort Query Execution"]
+        Fetch --> PostCond
+        PostCond -->|"Passes"| ValidData["✅ Read-Only State In-Scope"]
+        PostCond -->|"Fails"| PostErr["❌ Abort Plan / Validation Error"]
+    end
+
+    subgraph Downstream["Downstream Graph Consumers"]
+        Res["🏗️ Managed Resources<br/><code>resource 'type' 'name'</code>"]
+        Loc["⚙️ locals Block"]
+        Out["📤 output Block"]
+    end
+
+    API --> Fetch
+    FS --> Fetch
+    Remote --> Fetch
+    ValidData --> Res
+    ValidData --> Loc
+    ValidData --> Out
 ```
 
 Query Phases:

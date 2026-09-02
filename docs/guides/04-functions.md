@@ -14,26 +14,28 @@
 
 In Terraform and OpenTofu, **Built-in Functions** provide a deterministic, side-effect-free standard library for manipulating data structures, formatting strings, encoding data, and interacting with filesystem templates. HCL does not allow user-defined functions; all transformations execute via the built-in standard library.
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                 HCL Built-in Standard Library               │
-│                                                             │
-│   Strings & Formatting           Collections & Maps         │
-│   ├── format("%s-%02d", ...)     ├── merge(map1, map2)      │
-│   ├── join(",", list)            ├── flatten([nested_lists])│
-│   ├── split("/", path)           ├── lookup(map, key, dflt) │
-│   └── replace(str, s, r)         └── zipmap(keys, values)   │
-│                                                             │
-│   Encodings & Data               Filesystem & Templates     │
-│   ├── jsonencode(obj)            ├── file(path)             │
-│   ├── jsondecode(str)            ├── templatefile(f, vars)  │
-│   ├── yamlencode(obj)            └── fileset(dir, glob)     │
-│   └── base64encode(raw)                                     │
-│                                                             │
-│   Defensive Evaluation & Type Inspection                    │
-│   ├── try(expr1, expr2, fallback) - Catch runtime errors    │
-│   └── can(expression)             - Returns boolean         │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph StandardLibrary["HCL Built-in Standard Library"]
+        direction TB
+        subgraph Domains["Function Domains"]
+            Str["🔤 Strings & Formats<br/><code>format, join, split, replace</code>"]
+            Coll["🗂️ Collections & Maps<br/><code>merge, flatten, lookup, zipmap</code>"]
+            Enc["🔐 Encodings & Serialization<br/><code>jsonencode, yamlencode, base64</code>"]
+            FS["📁 Filesystem & Templates<br/><code>file, templatefile, fileset</code>"]
+        end
+    end
+
+    subgraph EvalEngine["Evaluation & Guard Pipeline"]
+        RawExpr["📥 Expression Input"] --> Exec{"⚡ Evaluate Function"}
+        Exec -->|"Success"| Result["✅ Transformed Value"]
+        Exec -->|"Evaluation Error"| GuardCheck{"🛡️ Wrapped in try() / can()?"}
+        GuardCheck -->|"try(expr, fallback)"| Fallback["🔄 Graceful Fallback Value"]
+        GuardCheck -->|"can(expr)"| BoolOut["🔲 Returns false (boolean)"]
+        GuardCheck -->|"Unprotected"| Fatal["❌ Halt Plan / Fatal HCL Error"]
+    end
+
+    Domains --> Exec
 ```
 
 Function characteristics:

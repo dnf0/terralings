@@ -14,26 +14,22 @@
 
 In Terraform and OpenTofu, **HashiCorp Configuration Language (HCL)** is a declarative domain-specific language engineered to express desired infrastructure state. The core engine constructs a Directed Acyclic Graph (DAG) of resources, computing execution plans based on explicit and implicit dependencies.
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                   HCL Execution Pipeline                    │
-│                                                             │
-│  ┌─────────────────┐             ┌───────────────────────┐  │
-│  │  Root Config    │             │  Provider RPC Plugins │  │
-│  │  (*.tf Files)   │ ──(Parse)──►│  (local, aws, google) │  │
-│  └────────┬────────┘             └───────────┬───────────┘  │
-│           │                                  │              │
-│           ▼                                  ▼              │
-│     [ AST Builder ]                     [ Schema Sync]      │
-│     [ HCL Spec     ]                     [ Validate    ]    │
-│           │                                  ▲              │
-│           ▼                                  │              │
-│  ┌───────────────────────────────────────────┴───────────┐  │
-│  │           Directed Acyclic Graph (DAG) Engine         │  │
-│  │           - Node Walk & Topological Ordering          │  │
-│  │           - Cycle Detection & Implicit Referencing    │  │
-│  └───────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph Pipeline["HCL Engine Execution Pipeline"]
+        Config["📄 Root Config (*.tf)"] --> Lexer["🔍 Lexer & AST Parser"]
+        Lexer --> AST["🌳 In-Memory HCL AST"]
+        
+        Providers["🔌 Provider RPC Plugins<br/><i>(local, aws, google)</i>"] --> Schema["📋 Schema Sync & Type Check"]
+        
+        AST --> DAG["🕸️ Directed Acyclic Graph (DAG) Engine"]
+        Schema --> DAG
+        
+        subgraph GraphWalker["Graph Walk & Planner"]
+            DAG --> Topo["⚡ Topological Ordering & Cycle Detection"]
+            Topo --> Exec["🚀 Concurrent Plan / Apply Operations"]
+        end
+    end
 ```
 
 When configuration files are evaluated:

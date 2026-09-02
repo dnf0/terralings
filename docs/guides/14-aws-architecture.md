@@ -14,28 +14,48 @@
 
 In production Amazon Web Services (AWS) architectures, Infrastructure as Code manages complex topological graphs connecting networking fabrics, resilient compute clusters, event brokers, and least-privilege security boundaries.
 
-```text
-┌─────────────────────────────────────────────────────────────────┐
-│                    Production AWS Architecture                  │
-│                                                                 │
-│   Internet ──► [ Internet Gateway ]                             │
-│                      │                                          │
-│                      ▼                                          │
-│   ┌───────────────────────────────────────────────────────────┐ │
-│   │ VPC: 10.0.0.0/16                                          │ │
-│   │                                                           │ │
-│   │  Public Subnet A (10.0.1.0/24)  Public Subnet B (10.0.2.0/24) │
-│   │  ├── [ NAT Gateway A ]          ├── [ Application LB ]    │ │
-│   │                                                           │ │
-│   │  Private Subnet A (10.0.10.0/24) Private Subnet B (10.0.20.0)│
-│   │  ├── [ Auto Scaling Group ]     ├── [ Lambda Functions ]  │ │
-│   │  └── [ DynamoDB Endpoints ]     └── [ SQS FIFO Queues ]   │ │
-│   └───────────────────────────────────────────────────────────┘ │
-│                                                                 │
-│   Security & Data Plane                                         │
-│   ├── IAM Roles & Scoped Policies (AssumeRole WebIdentity)      │
-│   └── S3 Data Lake (SSE-KMS, Versioning, Public Access Block)   │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    Internet(["🌐 Public Internet"]) --> IGW["🚪 Internet Gateway (aws_internet_gateway)"]
+
+    subgraph VPC["VPC: 10.0.0.0/16 (aws_vpc)"]
+        direction TB
+
+        subgraph PublicSubnets["Public Subnets (Multi-AZ)"]
+            direction LR
+            ALB["⚖️ Application Load Balancer<br/><i>(aws_lb.public)</i>"]
+            NAT["🌐 NAT Gateway<br/><i>(aws_nat_gateway.primary)</i>"]
+        end
+
+        subgraph PrivateSubnets["Private Workload Subnets (Multi-AZ)"]
+            direction TB
+            subgraph ComputeTier["Compute & Microservices"]
+                direction LR
+                ASG["⚙️ Auto Scaling Group (EC2)<br/><i>(aws_autoscaling_group)</i>"]
+                Lambda["⚡ Serverless Microservices<br/><i>(aws_lambda_function)</i>"]
+            end
+
+            subgraph AsyncMessaging["Decoupled Event Streaming"]
+                direction LR
+                SNS["📢 SNS Topic<br/><i>(aws_sns_topic)</i>"]
+                SQS["📥 SQS FIFO Queue + DLQ<br/><i>(aws_sqs_queue)</i>"]
+                SNS --> SQS
+            end
+        end
+    end
+
+    subgraph DataSecurity["Data & Security Plane"]
+        direction LR
+        S3[("🪣 S3 Data Lake (SSE-KMS)<br/><i>(aws_s3_bucket)</i>")]
+        DDB[("⚡ DynamoDB Table<br/><i>(aws_dynamodb_table)</i>")]
+        IAM["🛡️ IAM Least-Privilege Role<br/><i>(aws_iam_role)</i>"]
+    end
+
+    IGW --> ALB
+    ALB --> ComputeTier
+    ComputeTier --> AsyncMessaging
+    ComputeTier --> DataSecurity
+    IAM -.->|"Assumes Role / Grants Access"| ComputeTier
 ```
 
 Core Tenets:
