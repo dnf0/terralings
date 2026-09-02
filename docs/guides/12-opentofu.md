@@ -16,31 +16,18 @@
 
 ```mermaid
 flowchart TD
-    subgraph TofuInnovations["OpenTofu Architectural Innovations"]
-        direction TB
-        
-        subgraph EncryptionPipeline["1. Client-Side State Encryption Engine"]
-            direction LR
-            RawState["📄 In-Memory State AST<br/><i>(Plaintext Secrets)</i>"]
-            AES["🔐 AES-GCM Encryption Engine<br/><code>key_provider 'pbkdf2' / 'kms'</code>"]
-            EncryptedState["🛡️ Encrypted State Payload<br/><i>(Zero Secrets at Rest)</i>"]
-            RemoteStorage[("☁️ Remote Backend<br/><i>S3 / GCS / Azure Blob</i>")]
-            
-            RawState --> AES --> EncryptedState --> RemoteStorage
-        end
+    subgraph Encryption["1. Client-Side State Encryption"]
+        State["📄 In-Memory State"] --> AES["🔐 AES-GCM / KMS Engine"]
+        AES --> Backend[("☁️ Encrypted Remote Backend (S3/GCS)")]
+    end
 
-        subgraph EarlyEval["2. Early Variable Evaluation Engine"]
-            VarInputs["📥 Input Variables (var.region, var.bucket)"]
-            BackendBlock["🗄️ backend 's3' { bucket = var.bucket }"]
-            ProviderBlock["🔌 provider 'aws' { region = var.region }"]
-            
-            VarInputs --> BackendBlock
-            VarInputs --> ProviderBlock
-        end
+    subgraph EarlyEval["2. Early Variable Evaluation"]
+        Vars["📥 Input Variables"] --> BackConf["🗄️ backend 's3' { bucket = var.b }"]
+        Vars --> ProvConf["🔌 provider 'aws' { region = var.r }"]
+    end
 
-        subgraph OpenRegistry["3. Decentralized Registry Ecosystem"]
-            OpenReg["🌐 get.opentofu.org<br/><i>Decentralized, Open-Source Provider Mirror</i>"]
-        end
+    subgraph Registry["3. Decentralized Registry"]
+        OpenReg["🌐 get.opentofu.org (Open Source Mirror)"]
     end
 ```
 

@@ -16,30 +16,26 @@ In Terraform and OpenTofu, **Meta-Arguments** are engine-level directives applic
 
 ```mermaid
 flowchart TD
-    subgraph ResourceBlock["Resource Definition"]
-        Decl["📦 resource 'type' 'name'"]
+    Resource["📦 resource 'type' 'name'"]
+
+    subgraph Scaling["1. Scaling Strategy"]
+        Count["🔢 count = N (Index-based)"]
+        ForEach["🗺️ for_each = map / set (Key-based)"]
     end
 
-    subgraph ScalingStrategies["Scaling & Instantiation Strategy"]
-        direction TB
-        CountNode["🔢 count = N<br/><i>• Index Addressing: res[0], res[1]<br/>⚠️ Shifting Index on Deletions</i>"]
-        ForEachNode["🗺️ for_each = toset() / map<br/><i>• Key Addressing: res['web'], res['db']<br/>✅ Safe, Idempotent Mutations</i>"]
+    subgraph Lifecycle["2. Lifecycle Controls"]
+        CBD["⚡ create_before_destroy"]
+        PD["🛡️ prevent_destroy"]
+        IC["👁️ ignore_changes"]
     end
 
-    subgraph LifecycleEngine["Lifecycle Control & Hook Engine"]
-        CBD["⚡ create_before_destroy<br/><i>Zero-Downtime Provisioning</i>"]
-        PD["🛡️ prevent_destroy<br/><i>Accidental Deletion Guard</i>"]
-        IC["👁️ ignore_changes<br/><i>External Drift Suppression</i>"]
-        RTB["🔄 replace_triggered_by<br/><i>Explicit State Recreation</i>"]
+    subgraph Dependency["3. Explicit Graph Order"]
+        DO["🔗 depends_on = [...]"]
     end
 
-    subgraph DAGOrder["Graph Dependency"]
-        DO["🔗 depends_on = [...]<br/><i>Explicit DAG Edge Injection</i>"]
-    end
-
-    Decl --> ScalingStrategies
-    Decl --> LifecycleEngine
-    Decl --> DAGOrder
+    Resource --> Scaling
+    Resource --> Lifecycle
+    Resource --> Dependency
 ```
 
 Core Mechanics:

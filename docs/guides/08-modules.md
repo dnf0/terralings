@@ -16,27 +16,22 @@ In Terraform and OpenTofu, **Modules** are the foundational unit of abstraction,
 
 ```mermaid
 flowchart TD
-    subgraph RootModule["Root Module Scope (Caller)"]
-        direction TB
-        Vars["📥 Root Variables<br/><code>var.vpc_cidr</code>"]
-        DefProv["🔌 Default Providers<br/><code>provider 'aws'</code>"]
-        AliasProv["🔌 Alias Provider<br/><code>provider 'aws' { alias = 'west' }</code>"]
+    subgraph RootModule["Root Orchestration Scope"]
+        Vars["📥 var.vpc_cidr"]
+        Prov["🔌 provider 'aws'"]
     end
 
-    subgraph ChildVPC["Child Module: module.network (./modules/vpc)"]
-        direction TB
-        VPCInputs["📥 Inputs: cidr"] --> VPCRes["🏗️ aws_vpc.main"] --> VPCOutputs["📤 Outputs: vpc_id, subnet_ids"]
+    subgraph NetworkMod["module.network (./modules/vpc)"]
+        NetRes["🏗️ aws_vpc.main"] --> NetOut["📤 module.network.vpc_id"]
     end
 
-    subgraph ChildApp["Child Module: module.app (./modules/app)"]
-        direction TB
-        AppInputs["📥 Inputs: vpc_id"] --> AppRes["🏗️ aws_instance.web"] --> AppOutputs["📤 Outputs: app_url"]
+    subgraph AppMod["module.app (./modules/app)"]
+        AppRes["🏗️ aws_instance.web"]
     end
 
-    Vars -->|"Pass Argument"| VPCInputs
-    DefProv -.->|"Inherit Provider"| ChildVPC
-    AliasProv -.->|"providers = { aws = aws.west }"| ChildApp
-    VPCOutputs -->|"module.network.vpc_id"| AppInputs
+    Vars --> NetworkMod
+    Prov -.-> NetworkMod & AppMod
+    NetOut -->|"Pass vpc_id"| AppMod
 ```
 
 Core Architectural Rules:

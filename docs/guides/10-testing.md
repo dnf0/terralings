@@ -16,39 +16,22 @@ In modern Terraform and OpenTofu, **Native Testing** executes via `.tftest.hcl` 
 
 ```mermaid
 flowchart TD
-    subgraph TestHarness["Native .tftest.hcl Test Engine"]
-        direction TB
-        
-        subgraph Setup["Test Setup & Isolation"]
-            TFTest["🧪 .tftest.hcl Harness"]
-            Mock["🎭 mock_provider 'aws' / 'google'<br/><i>Zero Real Cloud Credentials Required</i>"]
-            Overrides["⚙️ override_resource / override_data"]
-            TFTest --> Mock --> Overrides
-        end
-
-        subgraph RunBlocks["Sequential run Blocks"]
-            direction TB
-            PlanRun["📋 run 'plan_verification'<br/><code>command = plan</code><br/><i>In-Memory Static Plan Verification</i>"]
-            ApplyRun["🚀 run 'apply_integration'<br/><code>command = apply</code><br/><i>Ephemeral State Execution</i>"]
-            PlanRun --> ApplyRun
-        end
-
-        subgraph Assertions["Assertion & Negative Testing Gates"]
-            AssertGate{"⚖️ assert { condition }"}
-            NegGate{"🛡️ expect_failures = [...]"}
-            
-            Pass["✅ Test Step Passed"]
-            Fail["❌ Test Step Failed (Emit error_message)"]
-            
-            AssertGate -->|"condition = true"| Pass
-            AssertGate -->|"condition = false"| Fail
-            NegGate -->|"Expected Error Caught"| Pass
-            NegGate -->|"No Error Raised"| Fail
-        end
+    subgraph Setup["1. Setup & Isolation"]
+        TFTest["🧪 .tftest.hcl Harness"] --> Mock["🎭 mock_provider (Zero Credentials)"]
+        Mock --> Overrides["⚙️ override_resource / override_data"]
     end
 
-    Overrides --> RunBlocks
-    RunBlocks --> Assertions
+    subgraph Execution["2. Test Execution Stages"]
+        Plan["📋 run { command = plan }"] --> Apply["🚀 run { command = apply }"]
+    end
+
+    subgraph Gates["3. Verification & Assertions"]
+        Assert["⚖️ assert { condition }"]
+        NegTest["🛡️ expect_failures = [...]"]
+    end
+
+    Overrides --> Plan
+    Apply --> Assert & NegTest
 ```
 
 Testing Modes:

@@ -16,32 +16,18 @@ In Terraform and OpenTofu, the **State File** binds declarative HCL resource add
 
 ```mermaid
 flowchart TD
-    subgraph DeclarativeState["Declarative State Surgery Engine"]
-        direction TB
-        
-        subgraph Renaming["Resource & Module Renaming"]
-            OldAddr["📦 Old State Key<br/><code>local_file.legacy</code>"]
-            MovedBlock["🔄 moved {<br/>&nbsp;&nbsp;from = local_file.legacy<br/>&nbsp;&nbsp;to = local_file.v2<br/>}"]
-            NewAddr["✨ New Address<br/><code>local_file.v2</code>"]
-            
-            OldAddr --> MovedBlock --> NewAddr
-        end
-
-        subgraph Importing["Cloud Resource Onboarding"]
-            CloudRes["☁️ Real Cloud Asset<br/><code>ID: 'i-0abcdef1234567890'</code>"]
-            ImportBlock["📥 import {<br/>&nbsp;&nbsp;to = aws_instance.web<br/>&nbsp;&nbsp;id = 'i-0abcdef1234567890'<br/>}"]
-            ImportState["💾 Managed Resource State"]
-            
-            CloudRes --> ImportBlock --> ImportState
-        end
-
-        subgraph PlanOutcome["Plan & Apply Execution"]
-            ZeroDowntime["✅ In-Place State Key Rebinding<br/>• 0 Resources Destroyed<br/>• 0 Resources Recreated<br/>• Zero Downtime"]
-        end
+    subgraph Refactor["1. Declarative Resource Renaming"]
+        Old["📦 Old Address: local_file.legacy"] --> Moved["🔄 moved { from ... to ... }"]
+        Moved --> New["✨ New Address: local_file.v2"]
     end
 
-    NewAddr --> ZeroDowntime
-    ImportState --> ZeroDowntime
+    subgraph Import["2. Declarative Resource Onboarding"]
+        Cloud["☁️ Existing Cloud Asset (ID)"] --> ImportBlock["📥 import { to ... id ... }"]
+        ImportBlock --> State["💾 Managed State"]
+    end
+
+    New --> PlanApply["⚡ Zero-Downtime State Rebinding (0 Recreations)"]
+    State --> PlanApply
 ```
 
 Refactoring Capabilities:

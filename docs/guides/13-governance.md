@@ -16,37 +16,25 @@ Enterprise-scale Infrastructure as Code requires rigorous architectural governan
 
 ```mermaid
 flowchart TD
-    subgraph GovernanceArchitecture["Architecture Governance Standards"]
-        direction TB
-        
-        subgraph RootBoundary["1. Root Module Encapsulation Boundary (envs/prod)"]
-            Root["🏢 Root Orchestrator (main.tf)"]
-            NetMod["📦 module 'networking'"]
-            DBMod["📦 module 'database'"]
-            AppMod["📦 module 'compute'"]
-            
-            Root --> NetMod
-            Root --> DBMod
-            Root --> AppMod
-        end
-
-        subgraph PolicyEncapsulation["2. ADR-0005: Policy Encapsulation Standard"]
-            direction TB
-            ResourceNode["🏗️ Resource Boundary<br/><i>(aws_s3_bucket.data)</i>"]
-            PolicyNode["🛡️ Integrated IAM Policy<br/><i>(Least-Privilege Scoped Document)</i>"]
-            ExportedPolicy["📤 Output: read_policy_arn"]
-            
-            ResourceNode --> PolicyNode --> ExportedPolicy
-        end
-
-        subgraph Enforcement["3. Anti-Pattern Prevention Gate"]
-            Anti1["❌ NO loose resource blocks in root"]
-            Anti2["❌ NO wildcard IAM policies (*:*) in root"]
-            Anti3["❌ NO unmanaged ephemeral test resources"]
-        end
+    subgraph Root["1. Root Orchestrator (envs/prod)"]
+        Main["🏢 Root Orchestrator (main.tf)"]
+        NetMod["📦 module 'networking'"]
+        DBMod["📦 module 'database'"]
+        AppMod["📦 module 'compute'"]
+        Main --> NetMod & DBMod & AppMod
     end
 
-    AppMod -.->|"Attaches Scoped Policy"| ExportedPolicy
+    subgraph Policy["2. ADR-0005 Policy Encapsulation"]
+        Res["🏗️ Resource (aws_s3_bucket)"] --> IAM["🛡️ Least-Privilege IAM Policy"]
+        IAM --> Output["📤 output 'read_policy_arn'"]
+    end
+
+    subgraph Rules["3. Architectural Guardrails"]
+        NoRoot["❌ No loose resources in root"]
+        NoWild["❌ No wildcard (*:*) policies"]
+    end
+
+    AppMod -.->|"Attaches Scoped Policy"| Output
 ```
 
 Core Architectural Standards:

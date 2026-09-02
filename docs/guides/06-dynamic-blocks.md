@@ -16,23 +16,10 @@ In Terraform and OpenTofu, **Dynamic Blocks** generate repeated, nested configur
 
 ```mermaid
 flowchart LR
-    subgraph InputCollection["Input Collection (List / Map)"]
-        Coll["📋 var.rules = [<br/><code>{ port = 80, desc = 'HTTP' }</code>,<br/><code>{ port = 443, desc = 'HTTPS' }</code><br/>]"]
-    end
-
-    subgraph DynamicGenerator["Dynamic Generator Block"]
-        Dyn["⚙️ dynamic 'ingress' {<br/>&nbsp;&nbsp;for_each = var.rules<br/>&nbsp;&nbsp;iterator = rule<br/>&nbsp;&nbsp;content { ... }<br/>}"]
-    end
-
-    subgraph ExpandedAST["Expanded Resource AST Body"]
-        direction TB
-        B1["🧱 ingress {<br/>&nbsp;&nbsp;from_port = 80<br/>&nbsp;&nbsp;description = 'HTTP'<br/>}"]
-        B2["🧱 ingress {<br/>&nbsp;&nbsp;from_port = 443<br/>&nbsp;&nbsp;description = 'HTTPS'<br/>}"]
-        B1 --- B2
-    end
-
-    Coll --> Dyn
-    Dyn -->|"AST Expansion Loop"| ExpandedAST
+    Collection["📋 Input Collection<br/><code>var.rules</code>"] --> DynamicBlock["⚙️ dynamic 'ingress' {<br/>&nbsp;&nbsp;for_each = var.rules<br/>&nbsp;&nbsp;iterator = rule<br/>&nbsp;&nbsp;content { ... }<br/>}"]
+    
+    DynamicBlock --> Block1["🧱 ingress { port = 80 }"]
+    DynamicBlock --> Block2["🧱 ingress { port = 443 }"]
 ```
 
 Core Rules:

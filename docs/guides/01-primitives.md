@@ -16,20 +16,15 @@ In Terraform and OpenTofu, **HashiCorp Configuration Language (HCL)** is a decla
 
 ```mermaid
 flowchart TD
-    subgraph Pipeline["HCL Engine Execution Pipeline"]
-        Config["📄 Root Config (*.tf)"] --> Lexer["🔍 Lexer & AST Parser"]
-        Lexer --> AST["🌳 In-Memory HCL AST"]
-        
-        Providers["🔌 Provider RPC Plugins<br/><i>(local, aws, google)</i>"] --> Schema["📋 Schema Sync & Type Check"]
-        
-        AST --> DAG["🕸️ Directed Acyclic Graph (DAG) Engine"]
-        Schema --> DAG
-        
-        subgraph GraphWalker["Graph Walk & Planner"]
-            DAG --> Topo["⚡ Topological Ordering & Cycle Detection"]
-            Topo --> Exec["🚀 Concurrent Plan / Apply Operations"]
-        end
-    end
+    Files["📄 Config Files (*.tf)"] --> Lexer["🔍 Lexer & Parser"]
+    Lexer --> AST["🌳 In-Memory HCL AST"]
+    
+    Providers["🔌 Provider Plugins"] --> Schema["📋 Provider Schema Sync"]
+    
+    AST --> DAG["🕸️ Dependency Graph (DAG)"]
+    Schema --> DAG
+    
+    DAG --> Plan["⚡ Topological Execution (Plan & Apply)"]
 ```
 
 When configuration files are evaluated:

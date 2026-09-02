@@ -16,26 +16,21 @@ In Terraform and OpenTofu, **Built-in Functions** provide a deterministic, side-
 
 ```mermaid
 flowchart TD
-    subgraph StandardLibrary["HCL Built-in Standard Library"]
-        direction TB
-        subgraph Domains["Function Domains"]
-            Str["🔤 Strings & Formats<br/><code>format, join, split, replace</code>"]
-            Coll["🗂️ Collections & Maps<br/><code>merge, flatten, lookup, zipmap</code>"]
-            Enc["🔐 Encodings & Serialization<br/><code>jsonencode, yamlencode, base64</code>"]
-            FS["📁 Filesystem & Templates<br/><code>file, templatefile, fileset</code>"]
-        end
+    subgraph Domains["1. Function Domains"]
+        Str["🔤 Strings & Formats"]
+        Coll["🗂️ Collections & Maps"]
+        Enc["🔐 Encodings (JSON/YAML)"]
+        FS["📁 Filesystem & Templates"]
     end
 
-    subgraph EvalEngine["Evaluation & Guard Pipeline"]
-        RawExpr["📥 Expression Input"] --> Exec{"⚡ Evaluate Function"}
-        Exec -->|"Success"| Result["✅ Transformed Value"]
-        Exec -->|"Evaluation Error"| GuardCheck{"🛡️ Wrapped in try() / can()?"}
-        GuardCheck -->|"try(expr, fallback)"| Fallback["🔄 Graceful Fallback Value"]
-        GuardCheck -->|"can(expr)"| BoolOut["🔲 Returns false (boolean)"]
-        GuardCheck -->|"Unprotected"| Fatal["❌ Halt Plan / Fatal HCL Error"]
+    subgraph Guards["2. Defensive Guard Clauses"]
+        Try["🛡️ try(expr, fallback) &rarr; Safe Fallback"]
+        Can["🛡️ can(expr) &rarr; Boolean Result"]
     end
 
-    Domains --> Exec
+    Domains --> Execute["⚡ Built-in Engine Execution"]
+    Execute --> Guards
+    Guards --> Result["✅ Transformed Output"]
 ```
 
 Function characteristics:

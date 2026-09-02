@@ -16,41 +16,24 @@ Google Cloud Platform (GCP) structures infrastructure through an explicit organi
 
 ```mermaid
 flowchart TD
-    Internet(["🌐 Global Public Clients"]) --> GCLB["⚖️ External HTTPS Cloud Load Balancer<br/><i>(google_compute_global_forwarding_rule)</i>"]
+    Internet(["🌐 Global Clients"]) --> GCLB["⚖️ HTTPS Cloud Load Balancer"]
+    GCLB --> Armor["🛡️ Cloud Armor Security Policy"]
 
-    subgraph OrgHierarchy["Google Cloud Resource Hierarchy (Org -> Project)"]
-        direction TB
-
-        subgraph GlobalVPC["Global VPC Network (auto_create_subnetworks = false)"]
-            direction TB
-
-            subgraph RegionUS["Region: us-central1 (Subnet: 10.10.0.0/20)"]
-                direction LR
-                MIG["⚙️ Regional Managed Instance Group<br/><i>(google_compute_region_instance_group_manager)</i>"]
-                CloudSQL[("🗄️ Cloud SQL HA Instance<br/><i>(Private Service Access IP)</i>")]
-                MIG --> CloudSQL
-            end
-
-            subgraph RegionEU["Region: europe-west1 (Subnet: 10.20.0.0/20)"]
-                direction LR
-                CloudRun["⚡ Cloud Run v2 Microservices<br/><i>(google_cloud_run_v2_service)</i>"]
-                PubSub["📨 Cloud Pub/Sub Topic + DLQ<br/><i>(google_pubsub_topic)</i>"]
-                CloudRun --> PubSub
-            end
-        end
-
-        subgraph SecurityIdentity["Security, Identity & Data Layer"]
-            direction LR
-            WIF["🛡️ Workload Identity Federation<br/><i>(Keyless OIDC Authentication)</i>"]
-            GCS[("🪣 Cloud Storage (Uniform IAM)<br/><i>(google_storage_bucket)</i>")]
-            Armor["🛡️ Cloud Armor Security Policy"]
-        end
+    subgraph GlobalVPC["Global VPC Network"]
+        Armor --> MIG["⚙️ Regional MIG (us-central1)"]
+        MIG --> CloudSQL[("🗄️ Cloud SQL HA Instance")]
+        
+        Armor --> CloudRun["⚡ Cloud Run v2 (europe-west1)"]
+        CloudRun --> PubSub["📨 Cloud Pub/Sub Topic"]
     end
 
-    GCLB --> Armor
-    Armor --> MIG
-    Armor --> CloudRun
-    WIF -.->|"Federates CI/CD Permissions"| OrgHierarchy
+    subgraph SecurityStorage["Security & Storage"]
+        WIF["🛡️ Workload Identity Federation"]
+        GCS[("🪣 Cloud Storage (Uniform IAM)")]
+    end
+
+    CloudRun & MIG --> GCS
+    WIF -.->|"Keyless OIDC"| GlobalVPC
 ```
 
 Core Tenets:

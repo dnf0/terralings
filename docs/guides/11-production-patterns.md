@@ -16,32 +16,23 @@ In production Infrastructure as Code, codebases scale to support hundreds of eng
 
 ```mermaid
 flowchart TD
-    subgraph EnterprisePatterns["Enterprise Design Pattern Architecture"]
-        direction TB
-        
-        subgraph Pattern1["1. Environment Configuration Matrix"]
-            EnvLookup["🏢 var.environment<br/><i>(dev | staging | prod)</i>"]
-            MatrixMap["🗺️ local.env_config = {<br/>&nbsp;&nbsp;dev = { tier = 't4g.nano', replicas = 1 },<br/>&nbsp;&nbsp;prod = { tier = 'r6g.xlarge', replicas = 5 }<br/>}"]
-            SelectedConfig["🎯 local.active_config"]
-            EnvLookup --> MatrixMap --> SelectedConfig
-        end
-
-        subgraph Pattern2["2. Hierarchical Tagging Factory"]
-            direction LR
-            GlobalTags["🏷️ Global Org Tags"] --> EnvTags["🏷️ Env Tags"] --> ResTags["🏷️ Resource Tags"]
-            ResTags --> FinalTags["🛡️ merge(global, env, res)"]
-        end
-
-        subgraph Pattern3["3. Self-Service Sanitization & Toggles"]
-            DevInput["📋 Developer Input Spec"] --> Sanitize["🔍 Schema Validation & Sanitizer"]
-            Sanitize --> Toggle{"⚡ Feature Toggle (count 0/1)"}
-            Toggle -->|"Enabled"| Provision["🚀 Resource Provisioned with one() output"]
-            Toggle -->|"Disabled"| NoOp["⏹️ Zero Resources Created"]
-        end
+    subgraph Matrix["1. Environment Matrix"]
+        Env["🏢 var.environment"] --> Lookup["🗺️ local.env_config[var.env]"]
+        Lookup --> Sizing["🎯 Tier & Replica Sizing"]
     end
 
-    SelectedConfig --> Pattern2
-    FinalTags --> Pattern3
+    subgraph Tagging["2. Tagging Factory"]
+        Global["🏷️ Org Tags"] --> Merge["🛡️ merge(org, env, res)"]
+        EnvTags["🏷️ Env Tags"] --> Merge
+        ResTags["🏷️ Res Tags"] --> Merge
+    end
+
+    subgraph Toggles["3. Feature Toggles & one()"]
+        Toggle{"⚡ Feature Enabled?"}
+        Toggle -->|"count = 1"| Resource["🚀 Provisioned Resource"]
+        Toggle -->|"count = 0"| Null["⏹️ Null Resource"]
+        Resource --> One["🔍 one(resource.*) Safe Output"]
+    end
 ```
 
 Core Enterprise Patterns:

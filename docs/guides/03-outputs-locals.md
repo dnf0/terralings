@@ -16,35 +16,17 @@ In Terraform and OpenTofu, **Outputs, Locals & Expressions** manage data flow an
 
 ```mermaid
 flowchart TD
-    subgraph Upstream["Upstream Inputs & Attributes"]
-        Vars["📥 Input Variables<br/><code>var.environment</code>"]
-        Attrs["📦 Resource Attributes<br/><code>local_file.config.id</code>"]
+    Vars["📥 Input Variables"] --> Locals["⚙️ locals Scope (Transformations & Projections)"]
+    Attrs["📦 Resource Attributes"] --> Locals
+    
+    Locals --> Resources["🏗️ Downstream Resources"]
+    Locals --> Outputs["📤 output Block"]
+    
+    subgraph OutputMasking["Output Redaction Pipeline"]
+        Outputs --> Sensitive{"🔒 sensitive = true?"}
+        Sensitive -->|"Yes"| Masked["🛡️ Redacted in CLI"]
+        Sensitive -->|"No"| Plain["👁️ Plaintext in CLI"]
     end
-
-    subgraph Intermediate["Intermediate Locals Scope"]
-        Locals["⚙️ locals Block<br/><i>• Normalization & Ternaries<br/>• Tagging Factories<br/>• Splat Projections</i>"]
-    end
-
-    subgraph Downstream["Downstream Consumers"]
-        Resources["🏗️ Dependent Resources<br/><code>terraform_data.audit</code>"]
-        
-        subgraph OutputsPipe["Output Pipeline"]
-            RawOut["📤 output Block"]
-            SensCheck{"🔒 sensitive = true?"}
-            Masked["🛡️ (sensitive value) Redacted in CLI"]
-            Plain["👁️ Plaintext CLI Display"]
-            StatePersist["💾 Persisted in State File"]
-            
-            RawOut --> SensCheck
-            SensCheck -->|"Yes"| Masked --> StatePersist
-            SensCheck -->|"No"| Plain --> StatePersist
-        end
-    end
-
-    Vars --> Locals
-    Attrs --> Locals
-    Locals --> Resources
-    Locals --> RawOut
 ```
 
 Expressions are evaluated during graph resolution:

@@ -16,23 +16,18 @@ In modern Terraform and OpenTofu, **Input Variables** define the external parame
 
 ```mermaid
 flowchart TD
-    subgraph Inputs["Input Sources (Precedence Order)"]
-        direction TB
-        P1["1. CLI Flags: -var / -var-file"]
-        P2["2. Auto Files: *.auto.tfvars"]
-        P3["3. Default File: terraform.tfvars"]
-        P4["4. Environment: TF_VAR_*"]
-        P5["5. HCL Schema: default value"]
-        P1 --> P2 --> P3 --> P4 --> P5
+    subgraph Precedence["1. Input Value Precedence"]
+        CLI["1. CLI Flags (-var)"] --> Auto["2. *.auto.tfvars"]
+        Auto --> DefaultFile["3. terraform.tfvars"]
+        DefaultFile --> EnvVar["4. TF_VAR_*"]
+        EnvVar --> SchemaDef["5. Schema Default"]
     end
 
-    subgraph TypeEngine["Type & Validation Engine"]
-        P5 --> Schema["🔍 Schema Type Match<br/><i>(primitive, list, map, object)</i>"]
-        Schema --> NullGuard{"🛡️ nullable = false?"}
-        NullGuard -->|"Passed"| CustomVal{"⚖️ validation { condition }"}
-        NullGuard -->|"Null Received"| NullErr["❌ Reject Null Input"]
-        CustomVal -->|"true"| ValidState["✅ Validated Variable in Scope"]
-        CustomVal -->|"false"| CustomErr["❌ Emit error_message"]
+    subgraph Validation["2. Validation Pipeline"]
+        SchemaDef --> TypeCheck["🔍 Type Constraint Check"]
+        TypeCheck --> NullGuard{"🛡️ nullable = false?"}
+        NullGuard --> CustomVal{"⚖️ validation { condition }"}
+        CustomVal --> Valid["✅ Validated Variable in Scope"]
     end
 ```
 
