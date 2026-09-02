@@ -4,13 +4,13 @@
 
 [![Playground](https://img.shields.io/badge/Playground-⚡%20Launch%20Interactive%20IDE-blueviolet)](playground/index.html)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Curriculum](https://img.shields.io/badge/Curriculum-13%20Chapters%20%7C%2056%20Exercises-brightgreen)](syllabus.md)
+[![Curriculum](https://img.shields.io/badge/Curriculum-15%20Chapters%20%7C%2068%20Exercises-brightgreen)](syllabus.md)
 
 ---
 
 ## ⚡ The Modern Way to Master Infrastructure as Code
 
-Terralings combines a **zero-install, 100% client-side WebAssembly interactive playground** with **13 comprehensive architectural reference guides** spanning the entire Terraform & OpenTofu ecosystem.
+Terralings combines a **zero-install, 100% client-side WebAssembly interactive playground** with **15 comprehensive architectural reference guides** spanning the entire Terraform & OpenTofu ecosystem.
 
 <div class="grid cards" markdown>
 
@@ -20,17 +20,17 @@ Terralings combines a **zero-install, 100% client-side WebAssembly interactive p
     
     [**Launch Playground →**](playground/index.html){ .md-button .md-button--primary }
 
--   :material-book-open-page-variant-outline: **13-Chapter Reference Manual**
+-   :material-book-open-page-variant-outline: **15-Chapter Reference Manual**
     ---
     Deep architectural documentation, annotated HCL specs, production best practices, and state surgery workflows for modern IaC.
 
-    [**Explore Reference Guides →**](#-comprehensive-13-chapter-reference-guides){ .md-button }
+    [**Explore Reference Guides →**](#-comprehensive-15-chapter-reference-guides){ .md-button }
 
 </div>
 
 ---
 
-## 📚 Comprehensive 13-Chapter Reference Guides
+## 📚 Comprehensive 15-Chapter Reference Guides
 
 Explore in-depth architectural guides and launch linked practice exercises directly into the playground:
 
@@ -58,6 +58,11 @@ Explore in-depth architectural guides and launch linked practice exercises direc
     - [**12. OpenTofu Innovations & Enterprise**](guides/12-opentofu.md) &bull; State encryption at rest, key providers, open registries
     - [**13. Architecture Governance & Standards**](guides/13-governance.md) &bull; Root encapsulation, policy scoping, ephemeral isolation
 
+-   ### Cloud Architecture Blueprints
+    ---
+    - [**14. AWS Infrastructure & Blueprints**](guides/14-aws-architecture.md) &bull; VPCs, EC2/ASG, Serverless Lambda, S3, IAM roles
+    - [**15. Google Cloud (GCP) Blueprints**](guides/15-gcp-architecture.md) &bull; Custom VPC, MIG load balancing, Cloud Run, Pub/Sub, Workload Identity
+
 </div>
 
 ---
@@ -72,7 +77,7 @@ The Terralings web playground runs entirely on client-side WebAssembly technolog
 │  ┌───────────────────────┐             ┌─────────────────────────────┐ │
 │  │     Monaco Editor     │   HCL Code  │  Web Worker (Pyodide Wasm)  │ │
 │  │  (VS Code in Browser) ├────────────►│  • Python 3.12 Engine       │ │
-│  └───────────────────────┘             │  • 13 Chapter Validators    │ │
+│  └───────────────────────┘             │  • 15 Chapter Validators    │ │
 │                                        │  • Progressive Hint Engine  │ │
 │  ┌───────────────────────┐             └──────────────┬──────────────┘ │
 │  │   Interactive xterm   │◄───────────────────────────┘                │
@@ -95,7 +100,7 @@ The Terralings web playground runs entirely on client-side WebAssembly technolog
 
 -   :material-format-list-numbered: **Curriculum Syllabus**
     ---
-    View the complete breakdown of all 56 exercises and concepts.
+    View the complete breakdown of all 68 exercises and concepts.
     
     [Explore Syllabus →](syllabus.md)
 
