@@ -10,14 +10,14 @@ theme:
   palette:
     # Palette toggle for dark mode
     - scheme: slate
-      primary: indigo
+      primary: cyan
       accent: deep purple
       toggle:
         icon: material/weather-night
         name: Switch to light mode
     # Palette toggle for light mode
     - scheme: default
-      primary: indigo
+      primary: cyan
       accent: deep purple
       toggle:
         icon: material/weather-sunny
