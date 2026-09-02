@@ -91,6 +91,13 @@ flowchart LR
     end
 ```
 
+### 🔍 Architectural Concepts Explained
+
+- **Monaco Code Editor**: Provides a browser-native VS Code editing interface with HCL syntax highlighting, line numbers, and live event debouncing.
+- **Pyodide WebAssembly Runtime**: Spawns inside a dedicated background Web Worker to execute Python 3.12 completely client-side in memory. No code or telemetry leaves your browser.
+- **15 Chapter Validators & Hint Engine**: Tests student solutions against AST rules and test fixtures, providing progressive hints whenever a verification rule fails.
+- **xterm.js Terminal**: Captures stdout and formatting streams directly from the WebAssembly worker to provide sub-millisecond feedback identical to the native CLI.
+
 ---
 
 ## 🚀 Quick Navigation

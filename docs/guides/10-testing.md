@@ -34,11 +34,18 @@ flowchart TD
     Apply --> Assert & NegTest
 ```
 
-Testing Modes:
-1. **`command = plan` (Unit Testing)**: Validates variable validations, locals, and planned resource values in memory without issuing cloud API calls.
-2. **`command = apply` (Integration Testing)**: Provisions real or mocked resources to test computed output contracts.
-3. **`mock_provider`**: Intercepts provider API calls and returns synthetic mock attributes for fast, deterministic unit test execution.
-4. **`expect_failures`**: Asserts that invalid input configurations fail validation as expected.
+### 🔍 Diagram Concept Breakdown
+
+- **Setup & Mocking Isolation**:
+  - **`.tftest.hcl` Test Files**: Declarative test suites orchestrated natively by `tofu test` / `terraform test`.
+  - **`mock_provider`**: Intercepts external provider operations, returning synthetic attributes (such as mock AWS VPC IDs or GCP zones) to execute tests instantly without cloud credentials or network access.
+  - **`override_resource` / `override_data`**: Stubs specific upstream data sources or resources with fixed test fixtures.
+- **Test Execution Stages**:
+  - **`run { command = plan }`**: Fast, in-memory unit testing that validates variable validation rules, local transformations, and planned attributes.
+  - **`run { command = apply }`**: Integration testing that creates state in an isolated ephemeral workspace, evaluating computed attributes across multi-step deployments.
+- **Verification & Assertions**:
+  - **`assert { condition, error_message }`**: Verifies post-execution state against expected conditions (e.g. `assert { condition = aws_s3_bucket.logs.bucket_prefix == "prod-logs-" }`).
+  - **`expect_failures = [var.port]`**: Negative testing asserting that invalid configurations trigger expected validation errors without halting the test harness.
 
 ---
 

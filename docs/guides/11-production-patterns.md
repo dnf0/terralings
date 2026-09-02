@@ -35,11 +35,17 @@ flowchart TD
     end
 ```
 
-Core Enterprise Patterns:
-1. **Environment Configuration Matrix**: Centralizes per-environment sizing, feature flags, and topology in structured maps inside `locals`.
-2. **Deterministic Tagging Factory**: Uses layered `merge()` calls to guarantee required compliance tags are always attached.
-3. **Safe Feature Toggles**: Implements clean 0/1 conditional patterns with safe scalar extraction via `one()`.
-4. **Self-Service Input Contracts**: Validates, normalizes, and filters complex developer specifications into safe infrastructure blueprints.
+### 🔍 Diagram Concept Breakdown
+
+- **Environment Configuration Matrix**:
+  - Replaces scattered, brittle `condition ? a : b` ternaries with a single, centralized lookup map in `locals` keyed by environment name (`dev`, `staging`, `prod`).
+  - Standardizes cluster sizes, replica counts, instance tiers, and backup retention rules across all deployments.
+- **Deterministic Tagging Factory**:
+  - Enforces continuous governance and FinOps cost allocation by layering tags hierarchically: `merge(local.org_tags, local.env_tags, var.resource_tags)`.
+  - Guarantees mandatory tags (`CostCenter`, `Environment`, `SecurityTier`, `ManagedBy`) are present on every resource without manual developer intervention.
+- **Safe Feature Toggles & `one()` Pattern**:
+  - Implements optional infrastructure components via `count = var.enable_waf ? 1 : 0`.
+  - Uses `one(aws_wafv2_web_acl.main[*].arn)` to safely project either the single ARN (when enabled) or `null` (when disabled) into downstream inputs without crashing on empty list index lookups (`[0]`).
 
 ---
 

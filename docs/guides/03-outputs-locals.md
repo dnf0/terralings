@@ -29,11 +29,14 @@ flowchart TD
     end
 ```
 
-Expressions are evaluated during graph resolution:
-1. **Locals Scope**: Evaluated dynamically and cached for repeated references within the same module scope.
-2. **Conditional Expressions**: `condition ? true_val : false_val` evaluate lazily, returning a single type-unified value.
-3. **Splat Operators**: `[*]`, legacy `.*`, and `[for x in list : x.attr]` project nested list attributes into flat collections.
-4. **Output Masking**: Outputs marked with `sensitive = true` are redacted from CLI output and plan summaries, but remain unencrypted in state files.
+### 🔍 Diagram Concept Breakdown
+
+- **Data Inputs (Variables & Resource Attributes)**: Aggregates external module inputs (`var.*`) and dynamic runtime attributes (`aws_instance.web.private_ip`) into a unified intermediate scope.
+- **`locals` Scope (Transformations & Projections)**: Acts as an in-memory transformation layer to normalize, reshape, merge, and project data structures using `for` expressions, conditional operators (`? :`), and splat syntax (`[*]`). Local values eliminate code duplication (DRY) and isolate complex expressions.
+- **Downstream Resource Propagation**: Transformed local values flow directly into resource block arguments, maintaining clear implicit DAG dependencies.
+- **Output Exposure & Redaction Pipeline**: When exporting values across module boundaries or to the CLI via `output` blocks:
+  - `sensitive = true` flags trigger automatic redaction (`(sensitive value)`) in console logs, terminal outputs, and plan diffs.
+  - Non-sensitive outputs render in plaintext for operator inspection and downstream module parameterization.
 
 ---
 

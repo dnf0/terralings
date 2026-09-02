@@ -31,10 +31,15 @@ flowchart TD
     end
 ```
 
-Key Architectural Innovations:
-1. **Native Client-Side State Encryption**: Encrypts sensitive state files, plan files, and state caches locally using AES-GCM or KMS key providers before any data is sent to remote backends.
-2. **Early Variable Evaluation**: Allows input variables to be referenced directly inside `backend` and `provider` configuration blocks without requiring external wrapper scripts (e.g. Terragrunt).
-3. **Open Registry Interoperability**: Seamlessly pulls provider plugins from the OpenTofu registry with automated fallback to community registries.
+### 🔍 Diagram Concept Breakdown
+
+- **Client-Side State Encryption**:
+  - Encrypts in-memory state data, plan files, and disk caches *prior* to writing to remote backend stores (such as S3, GCS, or Azure Blob).
+  - Supports AES-GCM (via PBKDF2 passphrases) and cloud KMS key providers (AWS KMS, GCP Cloud KMS, HashiCorp Vault), ensuring that even cloud backend administrators cannot inspect plaintext credentials stored in state.
+- **Early Variable Evaluation**:
+  - Evaluates input variables *before* initializing backends and provider plugins, enabling dynamic backend configurations (`bucket = var.state_bucket`) and provider parameters (`region = var.aws_region`) directly in pure HCL without external wrapper tooling.
+- **Decentralized Open Source Registry**:
+  - Connects to `get.opentofu.org`, an open-source, highly available provider registry backed by the Linux Foundation with automatic failover and cryptographic checksum validation.
 
 ---
 

@@ -34,11 +34,17 @@ flowchart TD
     IAM -.->|"Least-Privilege Policy"| Compute
 ```
 
-Core Tenets:
-1. **Multi-AZ Network Isolation**: Segment workloads across at least two Availability Zones with strict public/private subnet tiers.
-2. **Stateless Compute Scaling**: Pair Application Load Balancers with Launch Templates and dynamic Auto Scaling Groups.
-3. **Decoupled Event Streaming**: Buffer asynchronous transactions with Amazon SQS FIFO queues and Dead-Letter Queues (DLQs).
-4. **Least-Privilege IAM Boundaries**: Avoid wildcard actions; scope permissions strictly to target resource ARNs.
+### 🔍 Diagram Concept Breakdown
+
+- **Public Ingress & Perimeter Tier**:
+  - The Internet Gateway (IGW) bridges public traffic into dual-AZ public subnets hosting the Application Load Balancer (ALB).
+  - The ALB terminates SSL/TLS and balances traffic across target groups with continuous health checks.
+- **Isolated VPC Compute & Messaging Fabric**:
+  - Compute workloads (Auto Scaling Groups of EC2 instances and serverless Lambda functions) execute inside private subnets without public IP addresses, routing outbound traffic through NAT Gateways.
+  - Asynchronous messaging (Amazon SNS topics and SQS FIFO queues with Dead-Letter Queues) decouples ingestion from heavy processing, absorbing traffic spikes.
+- **Data & Security Layer**:
+  - **Storage & Databases**: Encrypted persistence via Amazon S3 (protected by AWS KMS customer-managed keys) and Amazon DynamoDB with point-in-time recovery (PITR).
+  - **IAM Security Boundary**: Scoped instance profiles and execution roles enforce least-privilege access, restricting IAM statements directly to explicit bucket and table ARNs without wildcard privileges (`*`).
 
 ---
 

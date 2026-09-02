@@ -22,10 +22,15 @@ flowchart LR
     DynamicBlock --> Block2["🧱 ingress { port = 443 }"]
 ```
 
-Core Rules:
-1. **Scope of Application**: Dynamic blocks only work inside block bodies. They cannot generate top-level blocks like `resource` or `variable`.
-2. **Conditional Emission**: Passing an empty collection (`[]` or `{}`) evaluates to zero generated blocks, allowing clean conditional omission.
-3. **Custom Iterators**: Setting `iterator = <name>` avoids naming conflicts when nesting dynamic blocks inside other dynamic blocks.
+### 🔍 Diagram Concept Breakdown
+
+- **Input Collection (`var.rules`)**: Provides a list or map of complex objects (such as firewall port definitions, storage lifecycle rules, or tag sets) passed into the module or resource.
+- **Dynamic Block Generator (`dynamic "<block_type>"` )**:
+  - **`for_each` argument**: Iterates over each element in the input collection.
+  - **`iterator` symbol**: Defines a custom accessor symbol (`rule` instead of default `ingress`) to access `rule.key` and `rule.value` cleanly, especially when nesting dynamic blocks.
+  - **`content` template**: Declares the target nested schema to be stamped out for each collection item.
+- **Expanded Inner Blocks**: The HCL compiler unrolls the dynamic block at evaluation time into concrete schema elements (`ingress { port = 80 }`, `ingress { port = 443 }`) inside the enclosing resource.
+- **Conditional Block Omission**: Passing an empty collection (`[]` or `{}`) causes zero blocks to be rendered, providing a declarative way to toggle optional nested configurations.
 
 ---
 

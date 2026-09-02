@@ -27,10 +27,15 @@ flowchart TD
     Post --> Consumers["🏗️ Resources / Locals / Outputs"]
 ```
 
-Query Phases:
-1. **Static Data Sources**: Queries with known inputs execute immediately during the plan phase.
-2. **Dynamic Data Sources**: Queries that depend on computed resource attributes are deferred to the apply phase.
-3. **Contract Enforcement**: `precondition` and `postcondition` blocks guarantee that external assumptions remain valid before and after queries execute.
+### 🔍 Diagram Concept Breakdown
+
+- **External Data Providers (`Sources`)**: Interfaces with external systems such as cloud provider control planes (AWS, GCP, Azure), remote backend state files (`terraform_remote_state`), or local disk artifacts.
+- **Data Source Declaration (`data "<type>" "<name>"`)**: Defines a read-only query contract without declaring resource ownership or lifecycle management.
+- **Validation & Query Lifecycle**:
+  - **`precondition` gate**: Validates assumptions about input query arguments *before* the external API call is dispatched.
+  - **Fetch External Attributes**: The provider issues read calls during `terraform refresh` / `terraform plan` (or defers to `apply` if arguments depend on pending resource attributes).
+  - **`postcondition` gate**: Validates assertions against the retrieved attributes (e.g., verifying that returned AMI images have virtualization type `hvm` and state `available`) before exposing data downstream.
+- **Downstream Consumers**: Supplies safe, validated, read-only attributes to downstream managed resources, `locals`, and `output` blocks.
 
 ---
 

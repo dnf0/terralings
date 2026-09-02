@@ -37,10 +37,16 @@ flowchart TD
     AppMod -.->|"Attaches Scoped Policy"| Output
 ```
 
-Core Architectural Standards:
-1. **Zero Loose Root Resources**: The root module serves exclusively as an orchestrator of cohesive child modules. No loose `resource` blocks should exist in environment roots.
-2. **Policy Encapsulation (ADR-0005)**: Security boundaries and IAM policies are defined directly inside the child module that manages the resource, exporting strictly scoped policy documents to consumers.
-3. **Ephemeral Workload Isolation**: Dynamic batch jobs and transient tooling workloads are isolated into short-lived workspaces or independent state boundaries to prevent state locking and bloat.
+### 🔍 Diagram Concept Breakdown
+
+- **Root Orchestration Cleanliness**:
+  - The root configuration file (`envs/prod/main.tf`) functions exclusively as an orchestrator that passes configuration arguments to discrete, single-purpose child modules (`networking`, `database`, `compute`).
+  - **Zero Loose Root Resources Rule**: Direct `resource` declarations in the root namespace are strictly forbidden to prevent monolith sprawl and blast radius expansion.
+- **ADR-0005 Policy Encapsulation**:
+  - Security policies and IAM roles are declared in the same module that provisions the underlying resource (e.g. S3 module creates bucket + read-only IAM policy).
+  - Child modules export scoped policy ARNs (`output "read_policy_arn"`), allowing downstream compute modules to attach least-privilege permissions without creating broad, insecure wildcard policies.
+- **Continuous Architectural Guardrails**:
+  - Automated CI linters and policy engines reject wildcard IAM statements (`Action = "*"`, `Resource = "*"`) and enforce ephemeral workload isolation to prevent state file bloat.
 
 ---
 

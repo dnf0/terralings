@@ -31,10 +31,18 @@ flowchart TD
     end
 ```
 
-When variable values are passed via CLI flags (`-var`), `.tfvars` files, or environment variables (`TF_VAR_name`), the engine executes a three-stage validation pipeline:
-1. **Type Constraint Matching**: Ensures values strictly conform to primitive, collection, or object constraints.
-2. **Nullability Checks**: If `nullable = false` is defined, the engine rejects `null` inputs and falls back to default values.
-3. **Custom Validation Predicates**: Executes all `condition` expressions inside `validation` blocks, raising custom `error_message` strings if a condition evaluates to `false`.
+### 🔍 Diagram Concept Breakdown
+
+- **Input Value Precedence (Hierarchy of Overrides)**: Resolves variable values from highest to lowest precedence:
+  1. CLI flags (`-var` / `-var-file`) explicitly override all other sources.
+  2. Files matching `*.auto.tfvars` or `*.auto.tfvars.json` loaded lexicographically.
+  3. Default `terraform.tfvars` or `terraform.tfvars.json` files.
+  4. Environment variables formatted as `TF_VAR_<variable_name>`.
+  5. Manifest `default` value defined in the `variable` block.
+- **Type Constraint Check**: Enforces static and structural types (`string`, `number`, `bool`, `list`, `map`, `object({ ... })`). Mismatched types trigger compile-time errors before graph creation.
+- **Nullability Guard (`nullable = false`)**: Defends against explicit `null` inputs. When set to `false`, any `null` value is rejected or replaced by the default value.
+- **Custom Validation Predicates**: Evaluates custom HCL expressions in `validation { condition = ... }` blocks (e.g., regex matching, port range checks), aborting execution with custom `error_message` strings if violated.
+- **Validated Variable in Scope**: Provides guaranteed type-safe and validated inputs to downstream `locals`, `resource`, and `module` blocks.
 
 ---
 

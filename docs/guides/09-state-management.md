@@ -30,10 +30,16 @@ flowchart TD
     State --> PlanApply
 ```
 
-Refactoring Capabilities:
-1. **`moved` Blocks**: Rebind state keys during `plan` generation without destroying or recreating target infrastructure.
-2. **`import` Blocks**: Bring unmanaged existing cloud resources into state declaratively as part of continuous integration.
-3. **Controlled Replacement**: Use `replace_triggered_by` to trigger cascade replacements deterministically.
+### 🔍 Diagram Concept Breakdown
+
+- **Declarative Resource Renaming (`moved` blocks)**:
+  - Records address transitions in code (e.g. `from = aws_instance.old` to `to = aws_instance.new` or moving into a module `to = module.app.aws_instance.web`).
+  - The plan engine automatically migrates state keys in memory during `terraform plan` without generating destroy/recreate actions.
+- **Declarative Resource Onboarding (`import` blocks)**:
+  - Links an unmanaged existing cloud infrastructure ID (e.g. `vpc-0123456789`) directly to a target resource address in code (`to = aws_vpc.imported`).
+  - Allows full code generation (`-generate-config-out`) and CI-driven onboarding without manual imperative CLI commands.
+- **Zero-Downtime State Rebinding**:
+  - State surgery operations are version-controlled, auditable in pull requests, and executed with guaranteed zero downtime and zero unwanted resource churn.
 
 ---
 

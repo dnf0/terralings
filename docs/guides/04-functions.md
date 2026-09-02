@@ -33,10 +33,18 @@ flowchart TD
     Guards --> Result["✅ Transformed Output"]
 ```
 
-Function characteristics:
-1. **Deterministic Execution**: All functions are purely functional and idempotent. Calling a function with identical inputs always produces identical outputs.
-2. **Compile-Time Safety**: When inputs are statically known, function evaluation occurs during the validation and planning phases.
-3. **Safe Evaluation Guards**: `try()` and `can()` allow graceful handling of unknown attributes, dynamic maps, or type mismatches without terminating execution.
+### 🔍 Diagram Concept Breakdown
+
+- **Core Function Domains**: Categorizes the built-in standard library into specialized manipulation engines:
+  - **Strings & Formats**: `lower()`, `upper()`, `trimprefix()`, `format()`, and `regex()`.
+  - **Collections & Maps**: `merge()`, `flatten()`, `lookup()`, `slice()`, `concat()`, and `distinct()`.
+  - **Encodings**: `jsonencode()`, `jsondecode()`, `yamlencode()`, `base64encode()`, and `sha256()`.
+  - **Filesystem & Templates**: `file()`, `fileset()`, `fileexists()`, and `templatefile()`.
+- **Built-in Engine Execution**: Executes transformations deterministically without network calls or external side effects during the compile/plan phases.
+- **Defensive Guard Clauses**:
+  - **`try(expr, fallback)`**: Evaluates an expression that might fail (such as accessing an optional map key or parsing a variable structure), falling back gracefully to a default value without terminating execution.
+  - **`can(expr)`**: Safely evaluates an expression to determine if it produces an error, returning `true` or `false` (invaluable for `variable` validation blocks and preconditions).
+- **Transformed Output**: Produces pristine, validated data structures ready for consumption by downstream resource definitions.
 
 ---
 

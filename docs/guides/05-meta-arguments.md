@@ -38,10 +38,17 @@ flowchart TD
     Resource --> Dependency
 ```
 
-Core Mechanics:
-1. **`count`**: Replicates resources based on an integer count. Instances are addressed as `resource.name[index]`. Removing an element from the middle of a list shifts subsequent indices, causing destructive recreation of downstream resources.
-2. **`for_each`**: Maps instances by distinct set or map keys. Instances are addressed as `resource.name["key"]`. Adding or removing keys modifies only the specific target instance.
-3. **`lifecycle`**: Modifies the default plan calculation sequence to guarantee zero downtime or lock critical assets.
+### 🔍 Diagram Concept Breakdown
+
+- **Scaling Strategy (`count` vs `for_each`)**:
+  - **`count = N`**: Replicates resources based on an integer count. Addresses resources as `type.name[index]`. Useful for simple boolean toggles (`count = var.enabled ? 1 : 0`), but removing items from lists shifts indices, causing destructive recreations.
+  - **`for_each = map/set`**: Replicates resources based on unique map or set keys. Addresses resources as `type.name["key"]`. Adding, modifying, or removing items isolates changes strictly to that key without affecting peers.
+- **Lifecycle Controls**:
+  - **`create_before_destroy = true`**: Reverses the default destroy-then-create replacement order, creating the replacement resource first to ensure zero-downtime infrastructure updates.
+  - **`prevent_destroy = true`**: Guardrail that causes `terraform plan` / `terraform apply` to exit with an error if a destroy operation is detected (protecting production databases and storage).
+  - **`ignore_changes = [...]`**: Instructs the plan engine to ignore differences between state and real-world attributes (e.g. autoscale instance counts or external tags) to eliminate perpetual drift diffs.
+- **Explicit Graph Ordering (`depends_on`)**:
+  - Injects a strict directed edge into the DAG when hidden or out-of-band dependencies exist (such as waiting for an IAM role policy attachment to propagate before creating an EKS cluster).
 
 ---
 
