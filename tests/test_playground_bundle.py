@@ -1,10 +1,12 @@
+import json
 import os
 import sys
 import pytest
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from scripts.build_playground_bundle import generate_bundle, BUNDLE_OUTPUT_PATH
+from docs.assets.playground.hcl_validator import validate_exercise
+from scripts.build_playground_bundle import BUNDLE_OUTPUT_PATH, generate_bundle
 
 
 def test_generate_bundle_structure():
@@ -34,6 +36,31 @@ def test_sample_exercises_have_required_fields():
 def test_bundle_file_exists_and_valid_json():
     assert os.path.exists(BUNDLE_OUTPUT_PATH)
     with open(BUNDLE_OUTPUT_PATH, "r", encoding="utf-8") as f:
-        import json
         data = json.load(f)
         assert len(data["exercises"]) == 56
+
+
+def test_all_56_reference_solutions_pass_validation():
+    bundle = generate_bundle()
+    failures = []
+    for ex_id, ex in bundle["exercises"].items():
+        sol = ex["solutionCode"]
+        assert sol, f"Exercise {ex_id} has empty solution code"
+        res = validate_exercise(sol, ex_id, ex.get("rules", {}))
+        if not res["passed"]:
+            failures.append(f"{ex_id}: {res.get('error')}")
+
+    assert len(failures) == 0, f"The following reference solutions failed validation: {failures}"
+
+
+def test_all_starter_templates_fail_validation_if_incomplete():
+    bundle = generate_bundle()
+    failed_starters = 0
+    for ex_id, ex in bundle["exercises"].items():
+        starter = ex["starterCode"]
+        res = validate_exercise(starter, ex_id, ex.get("rules", {}))
+        if not res["passed"]:
+            failed_starters += 1
+
+    # Most starter templates contain TODOs or placeholders and must fail
+    assert failed_starters >= 50, f"Expected most starter templates to fail due to markers, but only {failed_starters} failed"
