@@ -1,6 +1,6 @@
 # Curriculum Syllabus
 
-Terralings features a comprehensive 13-chapter curriculum comprising **56 progressive exercises**. The curriculum covers the entire spectrum of modern Infrastructure as Code (IaC)—from foundational syntax and variables to advanced state surgery, native `.tftest.hcl` testing, OpenTofu state encryption, and architectural governance.
+Terralings features a comprehensive 15-chapter curriculum comprising **68 progressive exercises**. The curriculum covers the entire spectrum of modern Infrastructure as Code (IaC)—from foundational syntax and variables to advanced state surgery, native `.tftest.hcl` testing, OpenTofu state encryption, architectural governance, and multi-cloud production architecture blueprints on AWS and Google Cloud.
 
 ---
 
@@ -21,6 +21,8 @@ Terralings features a comprehensive 13-chapter curriculum comprising **56 progre
 | 11 | [Production Patterns & Anti-Patterns](#chapter-11-production-patterns-anti-patterns) | Environment mapping, feature flags, tagging factories | 4 | [Ch 11 Guide →](guides/11-production-patterns.md) | `plan` |
 | 12 | [OpenTofu Innovations & Enterprise](#chapter-12-opentofu-innovations-enterprise-features) | State encryption at rest, early evaluation, open registries | 3 | [Ch 12 Guide →](guides/12-opentofu.md) | `validate`, `plan` |
 | 13 | [Architecture Governance & Standards](#chapter-13-architecture-governance-enterprise-standards) | Root encapsulation, policy scoping (ADR-0005), ephemeral isolation | 3 | [Ch 13 Guide →](guides/13-governance.md) | `plan` |
+| 14 | [AWS Production Architecture](#chapter-14-aws-infrastructure-production-blueprints) | Multi-AZ VPCs, ASGs, Serverless Lambda, SQS/SNS, Zero-Trust IAM, S3/DynamoDB | 6 | [Ch 14 Guide →](guides/14-aws-architecture.md) | `plan` |
+| 15 | [Google Cloud (GCP) Architecture](#chapter-15-google-cloud-gcp-architecture-blueprints) | Custom VPCs, Firewalls, Regional MIGs, Cloud Run v2, Pub/Sub, Workload Identity | 6 | [Ch 15 Guide →](guides/15-gcp-architecture.md) | `plan` |
 
 ---
 
@@ -246,3 +248,42 @@ Terralings features a comprehensive 13-chapter curriculum comprising **56 progre
 | [**`gov01`**](playground/index.html?exercise=gov01) | Root Module Encapsulation | `exercises/13_governance/gov01.tf` | `plan` | [⚡ Solve in Playground →](playground/index.html?exercise=gov01) |
 | [**`gov02`**](playground/index.html?exercise=gov02) | Policy Encapsulation (ADR-0005) | `exercises/13_governance/gov02.tf` | `plan` | [⚡ Solve in Playground →](playground/index.html?exercise=gov02) |
 | [**`gov03`**](playground/index.html?exercise=gov03) | Ephemeral Workload Isolation | `exercises/13_governance/gov03.tf` | `plan` | [⚡ Solve in Playground →](playground/index.html?exercise=gov03) |
+
+---
+
+## [Chapter 14: AWS Infrastructure & Production Blueprints](guides/14-aws-architecture.md)
+
+**Reference Guide**: [📖 Chapter 14 Reference Guide & Architecture Specs](guides/14-aws-architecture.md)  
+**Directory**: `exercises/14_aws/`  
+**Description**: Architect enterprise-grade, highly available cloud systems on Amazon Web Services (AWS). Build multi-AZ Virtual Private Clouds (VPCs) with public/private subnet tiers, scale compute elastically with Launch Templates and Auto Scaling Groups, wire serverless microservices via API Gateway v2 and AWS Lambda, decouple asynchronous transactions with SQS FIFO and SNS event pipelines, enforce zero-trust IAM boundaries, and secure object storage with S3 Public Access Blocks and DynamoDB.
+
+### Exercises
+
+| Exercise ID | Title | File Path | Mode | Action |
+|---|---|---|:---:|:---:|
+| [**`aws01`**](playground/index.html?exercise=aws01) | Multi-AZ VPC Networking | `exercises/14_aws/aws01.tf` | `plan` | [⚡ Solve in Playground →](playground/index.html?exercise=aws01) |
+| [**`aws02`**](playground/index.html?exercise=aws02) | Resilient Compute & Load Balancing | `exercises/14_aws/aws02.tf` | `plan` | [⚡ Solve in Playground →](playground/index.html?exercise=aws02) |
+| [**`aws03`**](playground/index.html?exercise=aws03) | Serverless Microservice Pipeline | `exercises/14_aws/aws03.tf` | `plan` | [⚡ Solve in Playground →](playground/index.html?exercise=aws03) |
+| [**`aws04`**](playground/index.html?exercise=aws04) | Event-Driven Async Decoupling | `exercises/14_aws/aws04.tf` | `plan` | [⚡ Solve in Playground →](playground/index.html?exercise=aws04) |
+| [**`aws05`**](playground/index.html?exercise=aws05) | Zero-Trust IAM & Security Hardening | `exercises/14_aws/aws05.tf` | `plan` | [⚡ Solve in Playground →](playground/index.html?exercise=aws05) |
+| [**`aws06`**](playground/index.html?exercise=aws06) | Storage & Data Tier Architecture | `exercises/14_aws/aws06.tf` | `plan` | [⚡ Solve in Playground →](playground/index.html?exercise=aws06) |
+
+---
+
+## [Chapter 15: Google Cloud (GCP) Architecture Blueprints](guides/15-gcp-architecture.md)
+
+**Reference Guide**: [📖 Chapter 15 Reference Guide & Architecture Specs](guides/15-gcp-architecture.md)  
+**Directory**: `exercises/15_gcp/`  
+**Description**: Design and provision secure, scalable architectures on Google Cloud Platform (GCP). Implement custom-mode VPC networks with regional subnets and Private Google Access, enforce network security using tag-driven firewall rules, orchestrate resilient compute clusters with Regional Managed Instance Groups (MIGs), deploy containerized serverless workloads with Cloud Run v2, build fault-tolerant event pipelines with Cloud Pub/Sub dead-letter queues, establish keyless identity federation with Workload Identity, and enforce Uniform Bucket-Level Access on Cloud Storage.
+
+### Exercises
+
+| Exercise ID | Title | File Path | Mode | Action |
+|---|---|---|:---:|:---:|
+| [**`gcp01`**](playground/index.html?exercise=gcp01) | Custom VPC Networking & Firewall Rules | `exercises/15_gcp/gcp01.tf` | `plan` | [⚡ Solve in Playground →](playground/index.html?exercise=gcp01) |
+| [**`gcp02`**](playground/index.html?exercise=gcp02) | Managed Instance Groups & Load Balancing | `exercises/15_gcp/gcp02.tf` | `plan` | [⚡ Solve in Playground →](playground/index.html?exercise=gcp02) |
+| [**`gcp03`**](playground/index.html?exercise=gcp03) | Serverless Cloud Run Services | `exercises/15_gcp/gcp03.tf` | `plan` | [⚡ Solve in Playground →](playground/index.html?exercise=gcp03) |
+| [**`gcp04`**](playground/index.html?exercise=gcp04) | Pub/Sub Event Pipelines | `exercises/15_gcp/gcp04.tf` | `plan` | [⚡ Solve in Playground →](playground/index.html?exercise=gcp04) |
+| [**`gcp05`**](playground/index.html?exercise=gcp05) | Workload Identity & IAM Federation | `exercises/15_gcp/gcp05.tf` | `plan` | [⚡ Solve in Playground →](playground/index.html?exercise=gcp05) |
+| [**`gcp06`**](playground/index.html?exercise=gcp06) | Resilient Storage & Cloud Databases | `exercises/15_gcp/gcp06.tf` | `plan` | [⚡ Solve in Playground →](playground/index.html?exercise=gcp06) |
+

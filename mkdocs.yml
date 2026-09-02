@@ -66,6 +66,9 @@ nav:
       - 11. Production Patterns: guides/11-production-patterns.md
       - 12. OpenTofu Innovations: guides/12-opentofu.md
       - 13. Architecture Governance: guides/13-governance.md
+  - Cloud Architecture Blueprints:
+      - 14. AWS Production Architecture: guides/14-aws-architecture.md
+      - 15. GCP Architecture Blueprints: guides/15-gcp-architecture.md
   - Contributing: contributing.md
 
 not_in_nav: |
