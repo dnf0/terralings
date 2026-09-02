@@ -14,12 +14,12 @@ import (
 
 func TestE2E_FullCurriculumVerification(t *testing.T) {
 	m := manifest.GetManifest()
-	if len(m.Chapters) != 13 {
-		t.Fatalf("Expected 13 chapters in curriculum manifest, got %d", len(m.Chapters))
+	if len(m.Chapters) != 15 {
+		t.Fatalf("Expected 15 chapters in curriculum manifest, got %d", len(m.Chapters))
 	}
 
 	allExercises := m.AllExercises()
-	const expectedExerciseCount = 56
+	const expectedExerciseCount = 68
 	if len(allExercises) != expectedExerciseCount {
 		t.Fatalf("Expected %d exercises across curriculum, got %d", expectedExerciseCount, len(allExercises))
 	}

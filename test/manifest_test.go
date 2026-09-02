@@ -10,8 +10,8 @@ import (
 
 func TestManifestLoadsAllChapters(t *testing.T) {
 	m := manifest.GetManifest()
-	if len(m.Chapters) != 13 {
-		t.Fatalf("Expected 13 chapters, got %d", len(m.Chapters))
+	if len(m.Chapters) != 15 {
+		t.Fatalf("Expected 15 chapters, got %d", len(m.Chapters))
 	}
 	allEx := m.AllExercises()
 	if len(allEx) < 50 {
