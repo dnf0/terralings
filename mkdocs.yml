@@ -31,6 +31,13 @@ theme:
     - search.highlight
     - content.code.copy
 
+extra_css:
+  - assets/playground/playground.css
+
+extra_javascript:
+  - https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js
+  - assets/playground/playground.js
+
 markdown_extensions:
   - admonition
   - pymdownx.details
@@ -48,6 +55,7 @@ markdown_extensions:
 
 nav:
   - Overview: index.md
+  - Interactive Playground: playground.md
   - Getting Started: getting-started.md
   - Onboarding Guide: onboarding-guide.md
   - Curriculum Syllabus: syllabus.md

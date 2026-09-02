@@ -9,12 +9,17 @@
 </p>
 
 <p align="center">
+  <a href="playground.md"><strong>Interactive Playground</strong></a> •
   <a href="getting-started.md">Getting Started</a> •
   <a href="onboarding-guide.md">Onboarding Guide</a> •
   <a href="syllabus.md">Curriculum Syllabus</a> •
   <a href="cli-reference.md">CLI Reference</a> •
   <a href="vscode-extension.md">VS Code Companion</a> •
   <a href="contributing.md">Contributing</a>
+</p>
+
+<p align="center" style="margin-top: 1.2rem;">
+  <a href="playground.md" class="md-button md-button--primary">🚀 Launch In-Browser Playground (Zero Install)</a>
 </p>
 
 ---
