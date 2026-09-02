@@ -233,7 +233,7 @@
             <!-- Global Progress Bar -->
             <div class="sidebar-progress-container">
               <div class="sidebar-progress-labels">
-                <span id="pg-progress-text" class="sidebar-progress-text">0 / 56 Completed</span>
+                <span id="pg-progress-text" class="sidebar-progress-text">0 / 68 Completed</span>
                 <span id="pg-progress-pct" class="sidebar-progress-pct">0%</span>
               </div>
               <div class="sidebar-progress-track">
@@ -490,6 +490,8 @@
       matchingExerciseCount += visibleExercises.length;
       const isExpanded = query ? true : state.expandedChapters.has(chapter.number);
       const isChapterComplete = chCompleted === chapterExercises.length && chapterExercises.length > 0;
+      const chNum = chapter.number || 1;
+      const guideInfo = CHAPTER_GUIDES[chNum] || { slug: "01-primitives", title: "Reference Guide" };
 
       html += `
         <div class="chapter-group ${isExpanded ? "expanded" : ""}" data-chapter-num="${chapter.number}">
@@ -499,9 +501,12 @@
               <span class="chapter-num">${String(chapter.number).padStart(2, "0")}.</span>
               <span class="chapter-name" title="${escapeHtml(chapter.title)}">${escapeHtml(chapter.title)}</span>
             </div>
-            <span class="chapter-badge-count ${isChapterComplete ? "complete" : ""}">
-              ${chCompleted}/${chapterExercises.length} ${isChapterComplete ? "✓" : ""}
-            </span>
+            <div class="chapter-header-actions">
+              <a href="../guides/${guideInfo.slug}/" target="_blank" rel="noopener noreferrer" class="sidebar-guide-link" title="Open Chapter ${chapter.number} Reference Guide (${escapeHtml(guideInfo.title)}) ↗" onclick="event.stopPropagation();">📖 Guide ↗</a>
+              <span class="chapter-badge-count ${isChapterComplete ? "complete" : ""}">
+                ${chCompleted}/${chapterExercises.length} ${isChapterComplete ? "✓" : ""}
+              </span>
+            </div>
           </div>
           <div class="chapter-exercise-list">
       `;
@@ -865,13 +870,18 @@
       const list = getOrderedExerciseList();
       const idx = list.indexOf(res.exerciseId);
       const hasNext = idx >= 0 && idx < list.length - 1;
+      const chNum = (ex && ex.chapter_number) || 1;
+      const guideInfo = CHAPTER_GUIDES[chNum] || { slug: "01-primitives", title: "Reference Guide" };
 
       out.innerHTML = `
 <span class="term-banner-pass">✓ EXERCISE PASSED: ${escapeHtml(ex.id)}</span>
 <span class="term-pass">${escapeHtml(res.output || "All rules and checks passed successfully!")}</span>
 <span class="term-dim">Execution time: ${res.durationMs ? res.durationMs.toFixed(2) : "0.5"}ms (Wasm in-memory evaluation)</span>
 
-${hasNext ? `<button id="pg-next-ex-inline-btn" class="term-inline-btn">Next Exercise →</button>` : `<span class="term-pass">🎉 You have completed all exercises in this track!</span>`}
+<div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+  ${hasNext ? `<button id="pg-next-ex-inline-btn" class="term-inline-btn">Next Exercise →</button>` : `<span class="term-pass">🎉 You have completed all exercises in this track!</span>`}
+  <a href="../guides/${guideInfo.slug}/" target="_blank" rel="noopener noreferrer" class="term-guide-btn" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; font-size: 12px; font-weight: 600; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 4px; text-decoration: none;">📖 Read Chapter ${String(chNum).padStart(2, "0")} Guide ↗</a>
+</div>
 `;
 
       const nextBtn = document.getElementById("pg-next-ex-inline-btn");
@@ -891,7 +901,7 @@ ${hasNext ? `<button id="pg-next-ex-inline-btn" class="term-inline-btn">Next Exe
 
   function updateGlobalProgressBar() {
     TerralingsStorage.recalculateTotals();
-    const total = (state.bundle && state.bundle.total_exercises) || 56;
+    const total = (state.bundle && state.bundle.total_exercises) || 68;
     const completed = TerralingsStorage.state.completedCount || 0;
     const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
 

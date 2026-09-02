@@ -12,29 +12,27 @@
         <meta name="author" content="Daniel Fisher">
       
       
-        <link rel="canonical" href="https://dnf0.github.io/terralings/">
+        <link rel="canonical" href="https://dnf0.github.io/terralings/superpowers/plans/2026-09-02-docs-playground-bidirectional-linking/">
       
       
-      
-        <link rel="next" href="playground/">
       
       
         
       
       
-      <link rel="icon" href="assets/images/favicon.png">
+      <link rel="icon" href="../../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
-        <title>Terralings</title>
+        <title>Bidirectional Docs $\leftrightarrow$ Playground Linking Implementation Plan - Terralings</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -53,7 +51,7 @@
       
     
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -78,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#terralings" class="md-skip">
+        <a href="#bidirectional-docs-leftrightarrow-playground-linking-implementation-plan" class="md-skip">
           Skip to content
         </a>
       
@@ -94,7 +92,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="Terralings" class="md-header__button md-logo" aria-label="Terralings" data-md-component="logo">
+    <a href="../../.." title="Terralings" class="md-header__button md-logo" aria-label="Terralings" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -114,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Overview
+              Bidirectional Docs $\leftrightarrow$ Playground Linking Implementation Plan
             
           </span>
         </div>
@@ -232,7 +230,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="Terralings" class="md-nav__button md-logo" aria-label="Terralings" data-md-component="logo">
+    <a href="../../.." title="Terralings" class="md-nav__button md-logo" aria-label="Terralings" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -259,37 +257,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Overview
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="." class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
         
   
   
@@ -305,70 +276,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#the-modern-way-to-master-infrastructure-as-code" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        ⚡ The Modern Way to Master Infrastructure as Code
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#comprehensive-15-chapter-reference-guides" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        📚 Comprehensive 15-Chapter Reference Guides
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-the-playground-works" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        💡 How the Playground Works
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#quick-navigation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🚀 Quick Navigation
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -380,7 +287,7 @@
   
   
     <li class="md-nav__item">
-      <a href="playground/" class="md-nav__link">
+      <a href="../../../playground/" class="md-nav__link">
         
   
   
@@ -407,7 +314,7 @@
   
   
     <li class="md-nav__item">
-      <a href="syllabus/" class="md-nav__link">
+      <a href="../../../syllabus/" class="md-nav__link">
         
   
   
@@ -486,7 +393,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/01-primitives/" class="md-nav__link">
+      <a href="../../../guides/01-primitives/" class="md-nav__link">
         
   
   
@@ -514,7 +421,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/02-variables/" class="md-nav__link">
+      <a href="../../../guides/02-variables/" class="md-nav__link">
         
   
   
@@ -542,7 +449,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/03-outputs-locals/" class="md-nav__link">
+      <a href="../../../guides/03-outputs-locals/" class="md-nav__link">
         
   
   
@@ -570,7 +477,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/04-functions/" class="md-nav__link">
+      <a href="../../../guides/04-functions/" class="md-nav__link">
         
   
   
@@ -657,7 +564,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/05-meta-arguments/" class="md-nav__link">
+      <a href="../../../guides/05-meta-arguments/" class="md-nav__link">
         
   
   
@@ -685,7 +592,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/06-dynamic-blocks/" class="md-nav__link">
+      <a href="../../../guides/06-dynamic-blocks/" class="md-nav__link">
         
   
   
@@ -713,7 +620,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/07-data-sources/" class="md-nav__link">
+      <a href="../../../guides/07-data-sources/" class="md-nav__link">
         
   
   
@@ -741,7 +648,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/08-modules/" class="md-nav__link">
+      <a href="../../../guides/08-modules/" class="md-nav__link">
         
   
   
@@ -828,7 +735,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/09-state-management/" class="md-nav__link">
+      <a href="../../../guides/09-state-management/" class="md-nav__link">
         
   
   
@@ -856,7 +763,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/10-testing/" class="md-nav__link">
+      <a href="../../../guides/10-testing/" class="md-nav__link">
         
   
   
@@ -884,7 +791,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/11-production-patterns/" class="md-nav__link">
+      <a href="../../../guides/11-production-patterns/" class="md-nav__link">
         
   
   
@@ -912,7 +819,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/12-opentofu/" class="md-nav__link">
+      <a href="../../../guides/12-opentofu/" class="md-nav__link">
         
   
   
@@ -940,7 +847,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/13-governance/" class="md-nav__link">
+      <a href="../../../guides/13-governance/" class="md-nav__link">
         
   
   
@@ -1027,7 +934,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/14-aws-architecture/" class="md-nav__link">
+      <a href="../../../guides/14-aws-architecture/" class="md-nav__link">
         
   
   
@@ -1055,7 +962,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/15-gcp-architecture/" class="md-nav__link">
+      <a href="../../../guides/15-gcp-architecture/" class="md-nav__link">
         
   
   
@@ -1090,7 +997,7 @@
   
   
     <li class="md-nav__item">
-      <a href="contributing/" class="md-nav__link">
+      <a href="../../../contributing/" class="md-nav__link">
         
   
   
@@ -1137,46 +1044,52 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-modern-way-to-master-infrastructure-as-code" class="md-nav__link">
+  <a href="#global-constraints" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ⚡ The Modern Way to Master Infrastructure as Code
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-webassembly-playground-ui-controller-link-enhancements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: WebAssembly Playground UI Controller &amp; Link Enhancements
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#comprehensive-15-chapter-reference-guides" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#task-2-documentation-hub-guide-link-standardization" class="md-nav__link">
     <span class="md-ellipsis">
       
-        📚 Comprehensive 15-Chapter Reference Guides
+        Task 2: Documentation Hub &amp; Guide Link Standardization
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#how-the-playground-works" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#task-3-full-end-to-end-verification-quality-gate" class="md-nav__link">
     <span class="md-ellipsis">
       
-        💡 How the Playground Works
+        Task 3: Full End-to-End Verification &amp; Quality Gate
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#quick-navigation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🚀 Quick Navigation
-      
-    </span>
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1200,103 +1113,68 @@
   
 
 
-<h1 id="terralings">Terralings 🌍</h1>
-<p><strong>An interactive, client-side WebAssembly learning platform and comprehensive reference manual for Terraform &amp; OpenTofu.</strong></p>
-<p><a href="playground/"><img alt="Playground" src="https://img.shields.io/badge/Playground-⚡%20Launch%20Interactive%20IDE-blueviolet" /></a>
-<a href="https://opensource.org/licenses/Apache-2.0"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" /></a>
-<a href="syllabus/"><img alt="Curriculum" src="https://img.shields.io/badge/Curriculum-15%20Chapters%20%7C%2068%20Exercises-brightgreen" /></a></p>
+<h1 id="bidirectional-docs-leftrightarrow-playground-linking-implementation-plan">Bidirectional Docs $\leftrightarrow$ Playground Linking Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Choose an execution mode:
+1. <code>superpowers:subagent-driven-development</code> (recommended for multi-agent reviews, backed by <code>SKILL.state</code> / <code>.agent-state/state.json</code>)
+2. <code>agent-rules:stateful-execution</code> (SKILL.state) (recommended for deterministic single-agent linear execution)
+3. <code>superpowers:executing-plans</code> (batch execution with manual checkpoints)
+Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Implement comprehensive bidirectional deep-linking between all 15 documentation guides / syllabus and the interactive WebAssembly playground.</p>
+<p><strong>Architecture:</strong> Enrich the client-side JavaScript UI controller in <code>playground.js</code> to provide contextual guide links in sidebar chapter headers, the editor toolbar, hints drawer, and victory completion modal; synchronize <code>docs/index.md</code> and <code>docs/syllabus.md</code> with deep links to the Wasm playground.</p>
+<p><strong>Tech Stack:</strong> JavaScript (ES6), HTML5/CSS3, Monaco Editor, Pyodide Wasm, Markdown/MkDocs Material, Python 3.12 (pytest).</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>Zero-breakage policy for existing localStorage state format (<code>terralings_learning_state_v1</code>).</li>
+<li>All links from playground to guides must open in a new tab (<code>target="_blank" rel="noopener noreferrer"</code>).</li>
+<li>All MkDocs links must build cleanly under <code>mkdocs build --strict</code>.</li>
+<li>Pytest test suite <code>uv run pytest -q</code> must remain 100% green.</li>
+</ul>
 <hr />
-<h2 id="the-modern-way-to-master-infrastructure-as-code">⚡ The Modern Way to Master Infrastructure as Code</h2>
-<p>Terralings combines a <strong>zero-install, 100% client-side WebAssembly interactive playground</strong> with <strong>15 comprehensive architectural reference guides</strong> spanning the entire Terraform &amp; OpenTofu ecosystem.</p>
-<div class="grid cards" markdown>
-
--   :material-play-circle-outline: **Zero-Install Web IDE**
-    ---
-    Run Monaco Editor, Pyodide WebAssembly, and real-time HCL validation 100% in your browser. No cloud credentials, no local binary installs, and zero backend servers required.
-
-    [**Launch Playground →**](playground/index.html){ .md-button .md-button--primary }
-
--   :material-book-open-page-variant-outline: **15-Chapter Reference Manual**
-    ---
-    Deep architectural documentation, annotated HCL specs, production best practices, and state surgery workflows for modern IaC.
-
-    [**Explore Reference Guides →**](#-comprehensive-15-chapter-reference-guides){ .md-button }
-
-</div>
-
+<h3 id="task-1-webassembly-playground-ui-controller-link-enhancements">Task 1: WebAssembly Playground UI Controller &amp; Link Enhancements</h3>
+<p><strong>Files:</strong>
+- Modify: <code>docs/assets/playground/playground.js:590-640, 720-755, 870-940, 1020-1080</code>
+- Modify: <code>docs/assets/playground/playground.css:200-280</code>
+- Modify: <code>docs/playground/index.html:140-170</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>CHAPTER_GUIDES</code> map (chapters 1-15).
+- Produces: Contextual chapter guide pills in sidebar accordions, editor header, hints drawer, and victory modal.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write / Update test for playground bundle and links</strong></li>
+<li>[ ] <strong>Step 2: Add guide link pill to sidebar chapter headers in <code>playground.js</code></strong></li>
+<li>[ ] <strong>Step 3: Enhance hints drawer and victory modal with guide buttons</strong></li>
+<li>[ ] <strong>Step 4: Add CSS styles for <code>.playground-chapter-guide-pill</code> and victory action buttons</strong></li>
+<li>[ ] <strong>Step 5: Verify in browser / node / test suite</strong></li>
+<li>[ ] <strong>Step 6: Commit changes</strong></li>
+</ul>
 <hr />
-<h2 id="comprehensive-15-chapter-reference-guides">📚 Comprehensive 15-Chapter Reference Guides</h2>
-<p>Explore in-depth architectural guides and launch linked practice exercises directly into the playground:</p>
-<div class="grid cards" markdown>
-
--   ### Core HCL & Data Flow
-    ---
-    - [**01. HCL Foundations & Core Primitives**](guides/01-primitives.md) &bull; Blocks, provider constraints, resources, heredocs, lifecycle
-    - [**02. Input Variables, Types & Validations**](guides/02-variables.md) &bull; Primitives, collections, objects, custom validation rules
-    - [**03. Outputs, Locals & Expressions**](guides/03-outputs-locals.md) &bull; Outputs, sensitive masking, locals, ternaries, splat expressions
-    - [**04. Built-in Functions & Collections**](guides/04-functions.md) &bull; String ops, collection math, encoding, files, `try`/`can`
-
--   ### Dynamic Logic & Modules
-    ---
-    - [**05. Meta-Arguments & Scaling**](guides/05-meta-arguments.md) &bull; `count`, `for_each`, `depends_on`, lifecycle rules, replacement triggers
-    - [**06. Dynamic Blocks & Advanced HCL**](guides/06-dynamic-blocks.md) &bull; `dynamic` block generators, custom iterators, nested loops
-    - [**07. Data Sources & State Querying**](guides/07-data-sources.md) &bull; Local files, archive zips, external scripts, preconditions
-    - [**08. Modular Infrastructure Architecture**](guides/08-modules.md) &bull; Child modules, multi-instance calling, provider aliases
-
--   ### State Surgery, Testing & Governance
-    ---
-    - [**09. State Management & Refactoring Surgery**](guides/09-state-management.md) &bull; Declarative `moved` blocks, `import` blocks, replacements
-    - [**10. Native Unit & Integration Testing**](guides/10-testing.md) &bull; `.tftest.hcl`, `run` blocks, mocks, `expect_failures`
-    - [**11. Production Patterns & Anti-Patterns**](guides/11-production-patterns.md) &bull; Environment mapping, feature flags, tagging factories
-    - [**12. OpenTofu Innovations & Enterprise**](guides/12-opentofu.md) &bull; State encryption at rest, key providers, open registries
-    - [**13. Architecture Governance & Standards**](guides/13-governance.md) &bull; Root encapsulation, policy scoping, ephemeral isolation
-
--   ### Cloud Architecture Blueprints
-    ---
-    - [**14. AWS Infrastructure & Blueprints**](guides/14-aws-architecture.md) &bull; VPCs, EC2/ASG, Serverless Lambda, S3, IAM roles
-    - [**15. Google Cloud (GCP) Blueprints**](guides/15-gcp-architecture.md) &bull; Custom VPC, MIG load balancing, Cloud Run, Pub/Sub, Workload Identity
-
-</div>
-
+<h3 id="task-2-documentation-hub-guide-link-standardization">Task 2: Documentation Hub &amp; Guide Link Standardization</h3>
+<p><strong>Files:</strong>
+- Modify: <code>docs/index.md:1-105</code>
+- Modify: <code>docs/syllabus.md:1-120</code>
+- Check: <code>docs/guides/01-primitives.md</code> through <code>15-gcp-architecture.md</code></p>
+<p><strong>Interfaces:</strong>
+- Produces: Complete bidirectional links from homepage, syllabus, and all 15 reference guides to <code>playground/index.html?exercise=&lt;id&gt;</code> and <code>playground/index.html?chapter=&lt;N&gt;</code>.</p>
+<ul>
+<li>[ ] <strong>Step 1: Update <code>docs/index.md</code> with 15 chapters, 68 exercises, and Cloud Blueprints section</strong></li>
+<li>[ ] <strong>Step 2: Audit all 15 <code>docs/guides/*.md</code> for hero launch button and Section 6 practice matrix</strong></li>
+<li>[ ] <strong>Step 3: Run <code>mkdocs build --strict</code> to verify no broken links</strong></li>
+<li>[ ] <strong>Step 4: Commit changes</strong></li>
+</ul>
 <hr />
-<h2 id="how-the-playground-works">💡 How the Playground Works</h2>
-<p>The Terralings web playground runs entirely on client-side WebAssembly technology:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌────────────────────────────────────────────────────────────────────────┐
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│                          Web Browser Tab                               │
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│  ┌───────────────────────┐             ┌─────────────────────────────┐ │
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│  │     Monaco Editor     │   HCL Code  │  Web Worker (Pyodide Wasm)  │ │
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│  │  (VS Code in Browser) ├────────────►│  • Python 3.12 Engine       │ │
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│  └───────────────────────┘             │  • 15 Chapter Validators    │ │
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│                                        │  • Progressive Hint Engine  │ │
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│  ┌───────────────────────┐             └──────────────┬──────────────┘ │
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│  │   Interactive xterm   │◄───────────────────────────┘                │
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│  │    Terminal Output    │         Instant Test &amp; Validation Result    │
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│  └───────────────────────┘         (&lt; 1ms in WebAssembly)              │
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>└────────────────────────────────────────────────────────────────────────┘
-</span></code></pre></div>
-<hr />
-<h2 id="quick-navigation">🚀 Quick Navigation</h2>
-<div class="grid cards" markdown>
-
--   :material-laptop: **Interactive Playground**
-    ---
-    Dive straight into the browser IDE with real-time feedback.
-
-    [Open Playground →](playground/index.html)
-
--   :material-format-list-numbered: **Curriculum Syllabus**
-    ---
-    View the complete breakdown of all 68 exercises and concepts.
-
-    [Explore Syllabus →](syllabus.md)
-
--   :material-github: **Contribute on GitHub**
-    ---
-    Add new exercises, improve validators, or submit guides.
-
-    [Contributing Guide →](contributing.md)
-
-</div>
+<h3 id="task-3-full-end-to-end-verification-quality-gate">Task 3: Full End-to-End Verification &amp; Quality Gate</h3>
+<p><strong>Files:</strong>
+- Test: <code>tests/test_playground_bundle.py</code>
+- Verify: <code>uv run pytest -q</code>
+- Verify: <code>mkdocs build --strict</code>
+- Verify: <code>make check build-all</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Run pytest suite</strong></li>
+<li>[ ] <strong>Step 2: Run MkDocs strict build</strong></li>
+<li>[ ] <strong>Step 3: Run Go checks &amp; build</strong></li>
+<li>[ ] <strong>Step 4: Commit &amp; push</strong></li>
+</ul>
 
 
 
@@ -1352,10 +1230,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>
