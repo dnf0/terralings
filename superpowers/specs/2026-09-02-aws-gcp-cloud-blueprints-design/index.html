@@ -12,7 +12,7 @@
         <meta name="author" content="Daniel Fisher">
       
       
-        <link rel="canonical" href="https://dnf0.github.io/terralings/superpowers/specs/2026-09-02-full-browser-wasm-learning-platform-design/">
+        <link rel="canonical" href="https://dnf0.github.io/terralings/superpowers/specs/2026-09-02-aws-gcp-cloud-blueprints-design/">
       
       
       
@@ -25,7 +25,7 @@
     
     
       
-        <title>Full Browser WebAssembly (Pyodide) Learning Platform Design Specification - Terralings</title>
+        <title>Design Spec: AWS & GCP Production Cloud Blueprints Curriculum - Terralings</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#full-browser-webassembly-pyodide-learning-platform-design-specification" class="md-skip">
+        <a href="#design-spec-aws-gcp-production-cloud-blueprints-curriculum" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Full Browser WebAssembly (Pyodide) Learning Platform Design Specification
+              Design Spec: AWS &amp; GCP Production Cloud Blueprints Curriculum
             
           </span>
         </div>
@@ -1044,10 +1044,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-objective-scope" class="md-nav__link">
+  <a href="#1-executive-summary" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Objective &amp; Scope
+        1. Executive Summary
       
     </span>
   </a>
@@ -1055,22 +1055,33 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-system-architecture-component-interactions" class="md-nav__link">
+  <a href="#2-curriculum-scope-exercise-inventory" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. System Architecture &amp; Component Interactions
+        2. Curriculum Scope &amp; Exercise Inventory
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="2. System Architecture &amp; Component Interactions">
+    <nav class="md-nav" aria-label="2. Curriculum Scope &amp; Exercise Inventory">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#component-roles" class="md-nav__link">
+  <a href="#chapter-14-aws-infrastructure-production-blueprints-docsguides14-aws-architecturemd" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Component Roles:
+        Chapter 14: AWS Infrastructure &amp; Production Blueprints (docs/guides/14-aws-architecture.md)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chapter-15-google-cloud-gcp-architecture-blueprints-docsguides15-gcp-architecturemd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chapter 15: Google Cloud (GCP) Architecture Blueprints (docs/guides/15-gcp-architecture.md)
       
     </span>
   </a>
@@ -1083,88 +1094,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-state-management-specification-terralingsstorage" class="md-nav__link">
+  <a href="#3-webassembly-client-side-validation-engine" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. State Management Specification (TerralingsStorage)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3. State Management Specification (TerralingsStorage)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#data-schema" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Data Schema:
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#key-operations" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Key Operations:
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-user-interface-layout-specification" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. User Interface &amp; Layout Specification
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="4. User Interface &amp; Layout Specification">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#41-curriculum-sidebar-left-pane-320px" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4.1 Curriculum Sidebar (Left Pane - 320px)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#42-code-diagnostics-workspace-right-pane" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4.2 Code &amp; Diagnostics Workspace (Right Pane)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-in-memory-hcl-validation-engine" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5. In-Memory HCL Validation Engine
+        3. WebAssembly Client-Side Validation Engine
       
     </span>
   </a>
@@ -1172,10 +1105,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#6-verification-test-plan" class="md-nav__link">
+  <a href="#4-documentation-navigation-deliverables" class="md-nav__link">
     <span class="md-ellipsis">
       
-        6. Verification &amp; Test Plan
+        4. Documentation &amp; Navigation Deliverables
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-spec-self-review-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Spec Self-Review Checklist
       
     </span>
   </a>
@@ -1202,141 +1146,69 @@
   
 
 
-<h1 id="full-browser-webassembly-pyodide-learning-platform-design-specification">Full Browser WebAssembly (Pyodide) Learning Platform Design Specification</h1>
+<h1 id="design-spec-aws-gcp-production-cloud-blueprints-curriculum">Design Spec: AWS &amp; GCP Production Cloud Blueprints Curriculum</h1>
+<p><strong>Author:</strong> Antigravity<br />
+<strong>Date:</strong> 2026-09-02<br />
+<strong>Status:</strong> Approved<br />
+<strong>Target:</strong> Terralings WebAssembly Playground &amp; MkDocs Documentation Guides</p>
+<hr />
+<h2 id="1-executive-summary">1. Executive Summary</h2>
+<p>This specification expands the Terralings interactive curriculum from 13 chapters (56 exercises) to <strong>15 chapters (68 exercises)</strong> by introducing two dedicated enterprise cloud tracks:
+- <strong>Chapter 14: AWS Infrastructure &amp; Production Blueprints</strong> (6 exercises)
+- <strong>Chapter 15: Google Cloud (GCP) Architecture Blueprints</strong> (6 exercises)</p>
+<p>All exercises execute entirely client-side in WebAssembly with zero external cloud credentials, using in-memory HCL AST parsing, semantic schema validation, and bidirectional linking to comprehensive 6-section reference guides.</p>
+<hr />
+<h2 id="2-curriculum-scope-exercise-inventory">2. Curriculum Scope &amp; Exercise Inventory</h2>
+<h3 id="chapter-14-aws-infrastructure-production-blueprints-docsguides14-aws-architecturemd">Chapter 14: AWS Infrastructure &amp; Production Blueprints (<code>docs/guides/14-aws-architecture.md</code>)</h3>
 <ul>
-<li><strong>Date:</strong> 2026-09-02</li>
-<li><strong>Status:</strong> Approved</li>
-<li><strong>Target Release:</strong> <code>v0.12.0</code></li>
-<li><strong>Topic:</strong> Full 74-Exercise In-Browser Learning Platform with State Persistence</li>
+<li><strong><code>aws01</code> (Multi-AZ VPC Networking)</strong>: Configure <code>aws_vpc</code>, public and private <code>aws_subnet</code> across availability zones, <code>aws_internet_gateway</code>, and explicit <code>aws_route_table_association</code>.</li>
+<li><strong><code>aws02</code> (Resilient Compute &amp; Load Balancing)</strong>: Author <code>aws_launch_template</code>, <code>aws_autoscaling_group</code>, and <code>aws_lb_target_group</code> with health check rules.</li>
+<li><strong><code>aws03</code> (Serverless Microservice Pipeline)</strong>: Deploy <code>aws_lambda_function</code>, <code>aws_apigatewayv2_api</code> (HTTP API), <code>aws_apigatewayv2_integration</code>, and IAM execution role.</li>
+<li><strong><code>aws04</code> (Event-Driven Async Decoupling)</strong>: Build an asynchronous event pipeline with <code>aws_sqs_queue</code> (FIFO), <code>aws_sns_topic</code>, <code>aws_sns_topic_subscription</code>, and dead-letter queues.</li>
+<li><strong><code>aws05</code> (Zero-Trust IAM &amp; Security Hardening)</strong>: Define <code>aws_iam_role</code> with strict <code>assume_role_policy</code> documents, least-privilege <code>aws_iam_policy</code>, and egress-filtered <code>aws_security_group</code>.</li>
+<li><strong><code>aws06</code> (Storage &amp; Data Tier Architecture)</strong>: Provision secure <code>aws_s3_bucket</code> (SSE-KMS, Versioning, Public Access Block) and <code>aws_dynamodb_table</code> with <code>PAY_PER_REQUEST</code> and Global Secondary Indexes.</li>
+</ul>
+<h3 id="chapter-15-google-cloud-gcp-architecture-blueprints-docsguides15-gcp-architecturemd">Chapter 15: Google Cloud (GCP) Architecture Blueprints (<code>docs/guides/15-gcp-architecture.md</code>)</h3>
+<ul>
+<li><strong><code>gcp01</code> (Custom VPC Networking &amp; Firewall Rules)</strong>: Configure <code>google_compute_network</code> with <code>auto_create_subnetworks = false</code>, regional <code>google_compute_subnetwork</code>, and target-tagged <code>google_compute_firewall</code>.</li>
+<li><strong><code>gcp02</code> (Managed Instance Groups &amp; Load Balancing)</strong>: Author <code>google_compute_instance_template</code> and <code>google_compute_region_instance_group_manager</code> with rolling update policies.</li>
+<li><strong><code>gcp03</code> (Serverless Cloud Run Services)</strong>: Build <code>google_cloud_run_v2_service</code> with container concurrency limits, traffic splits, and <code>google_cloud_run_service_iam_member</code>.</li>
+<li><strong><code>gcp04</code> (Pub/Sub Event Pipelines)</strong>: Construct an event distribution bus using <code>google_pubsub_topic</code>, <code>google_pubsub_subscription</code> with push/pull configurations, and <code>dead_letter_policy</code>.</li>
+<li><strong><code>gcp05</code> (Workload Identity &amp; IAM Federation)</strong>: Configure <code>google_service_account</code>, scoped <code>google_project_iam_member</code>, and Workload Identity binding for zero-secret CI/CD.</li>
+<li><strong><code>gcp06</code> (Resilient Cloud Storage &amp; Databases)</strong>: Provision <code>google_storage_bucket</code> with uniform bucket-level access, retention lifecycle rules, and <code>google_sql_database_instance</code>.</li>
 </ul>
 <hr />
-<h2 id="1-objective-scope">1. Objective &amp; Scope</h2>
-<p>Transform the Terralings documentation site into an interactive, zero-install in-browser learning platform featuring:
-1. <strong>Full Curriculum Coverage</strong>: All 74 exercises across all 13 chapters available directly in-browser.
-2. <strong>Client-Side State Persistence</strong>: Complete progress, per-exercise working code, completion badges, and hint states stored locally via <code>localStorage</code> (<code>TerralingsStorage</code>) with zero backend server dependencies.
-3. <strong>Interactive Split-Pane Workspace</strong>: Modern IDE layout with a collapsible chapter syllabus sidebar (320px) on the left and Monaco Editor + Terminal Diagnostics on the right.
-4. <strong>In-Memory HCL AST &amp; Rule Validator</strong>: High-performance pure-Python HCL tokenizer, AST parser, and rule-verification engine running in Pyodide WebAssembly (&lt;15ms evaluation).
-5. <strong>Data Portability</strong>: Full JSON export and import of learner progress (<code>terralings-progress.json</code>) for seamless backup and migration across browsers/devices.
-6. <strong>Deterministic Testing</strong>: End-to-end bundle generation script and pytest verification ensuring parity with repository curriculum sources.</p>
+<h2 id="3-webassembly-client-side-validation-engine">3. WebAssembly Client-Side Validation Engine</h2>
+<ul>
+<li><strong>Engine Execution</strong>: Runs inside the Pyodide Web Worker (<code>playground-worker.js</code>).</li>
+<li><strong>Validation Rules</strong>: Uses Python-based AST analysis and schema inspection to verify:</li>
+<li>Correct resource block types, labels, and arguments.</li>
+<li>Attribute cross-references and dependency wiring (e.g. <code>subnet_ids = [aws_subnet.public_a.id, aws_subnet.public_b.id]</code>).</li>
+<li>Security attributes (e.g., SSE-KMS encryption, private subnets, egress filtering).</li>
+<li><strong>Diagnostics</strong>: Returns structured error messages with contextual tips pointing to the relevant chapter guide.</li>
+</ul>
 <hr />
-<h2 id="2-system-architecture-component-interactions">2. System Architecture &amp; Component Interactions</h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌────────────────────────────────────────────────────────────────────────────────────────┐
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│ Browser Application (docs/playground.md / site/playground/)                            │
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│                                                                                        │
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│  ┌───────────────────────────┬──────────────────────────────────────────────────────┐  │
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│  │ 📚 Curriculum Sidebar     │ 🏗️ Code &amp; Diagnostics Workspace                      │  │
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│  │  • 13 Chapters            │  • Chapter &amp; Exercise Title Header                   │  │
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│  │  • 74 Exercises           │  • Monaco Editor (HCL/Terraform + Auto-save)         │  │
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│  │  • Status Badges &amp; Search │  • Terminal Diagnostics (Pass/Fail, Timing, Errors)  │  │
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│  │  • Overall Progress Bar   │  • Action Bar: [▶ Run] [💡 Hint] [↺ Reset] [🔍 Diff] │  │
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│  └─────────────┬─────────────┴──────────────────────────┬───────────────────────────┘  │
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│                │                                        │                              │
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│                ▼                                        ▼                              │
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│  ┌───────────────────────────┐            ┌─────────────────────────────────────────┐  │
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│  │ LocalStorage State Engine │            │ Web Worker (Pyodide Wasm Runtime)       │  │
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│  │  • TerralingsStorage      │            │  • In-memory Python 3.12 Wasm           │  │
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>│  │  • Per-exercise code      │◄───────────┤  • Pure-Python HCL AST &amp; Rule Validator │  │
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>│  │  • Export / Import JSON   │            │  • Evaluates manifests in &lt;15ms         │  │
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│  └───────────────────────────┘            └─────────────────────────────────────────┘  │
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>└────────────────────────────────────────────────────────────────────────────────────────┘
-</span></code></pre></div>
-<h3 id="component-roles">Component Roles:</h3>
+<h2 id="4-documentation-navigation-deliverables">4. Documentation &amp; Navigation Deliverables</h2>
 <ol>
-<li><strong><code>scripts/build_playground_bundle.py</code></strong>:
-   Extracts all 74 exercises, reference solutions, hints, chapter metadata, and in-memory test rules from <code>exercises/</code>, <code>solutions/</code>, and <code>internal/manifest/manifest.go</code>, writing <code>docs/assets/playground/playground-bundle.json</code>.</li>
-<li><strong><code>docs/assets/playground/hcl_validator.py</code></strong>:
-   Pure-Python HCL lexer, AST parser, marker checker (<code>I AM NOT DONE</code>, <code>TODO</code>, <code>___</code>), and rule validation engine.</li>
-<li><strong><code>docs/assets/playground/playground-worker.js</code></strong>:
-   Web Worker running Pyodide v0.26+ WebAssembly runtime. Mounts <code>hcl_validator.py</code> and validates user submissions asynchronously without blocking the UI thread.</li>
-<li><strong><code>docs/assets/playground/playground.js</code> (<code>TerralingsUI</code> &amp; <code>TerralingsStorage</code>)</strong>:
-   Controls Monaco Editor, syllabus tree navigation, text search filtering, debounced auto-saving, progress calculation, fullscreen mode, and diff views.</li>
-<li><strong><code>docs/assets/playground/playground.css</code></strong>:
-   Responsive split-view styles with CSS Grid/Flexbox, status indicators, fullscreen mode overrides, and dark/light theme integration with MkDocs Material.</li>
+<li><strong>Chapter 14 Reference Guide</strong> (<a href="file:///Users/danielfisher/repos/terralings/docs/guides/14-aws-architecture.md"><code>docs/guides/14-aws-architecture.md</code></a>):</li>
+<li>6-section format: Header card, DAG data-flow diagram, annotated HCL &amp; schema table, 2 real-world patterns, production hardening, failure triage tree, interactive practice matrix.</li>
+<li><strong>Chapter 15 Reference Guide</strong> (<a href="file:///Users/danielfisher/repos/terralings/docs/guides/15-gcp-architecture.md"><code>docs/guides/15-gcp-architecture.md</code></a>):</li>
+<li>6-section format with complete GCP resource field references and diagnostic triage steps.</li>
+<li><strong>Curriculum Syllabus</strong> (<a href="file:///Users/danielfisher/repos/terralings/docs/syllabus.md"><code>docs/syllabus.md</code></a>):</li>
+<li>Updated overview table (15 chapters, 68 exercises) with solve links for all 68 exercises.</li>
+<li><strong>Site Navigation</strong> (<a href="file:///Users/danielfisher/repos/terralings/mkdocs.yml"><code>mkdocs.yml</code></a>):</li>
+<li>Adds "Cloud Architecture &amp; Blueprints" domain cluster to the navigation tree.</li>
+<li><strong>Playground Bundle &amp; Linking</strong> (<a href="file:///Users/danielfisher/repos/terralings/docs/assets/playground/playground-bundle.json"><code>docs/assets/playground/playground-bundle.json</code></a> &amp; <a href="file:///Users/danielfisher/repos/terralings/docs/assets/playground/playground.js"><code>docs/assets/playground/playground.js</code></a>):</li>
+<li>Extends bundle with 12 new exercises and links chapter IDs 14 &amp; 15 to their guides.</li>
 </ol>
 <hr />
-<h2 id="3-state-management-specification-terralingsstorage">3. State Management Specification (<code>TerralingsStorage</code>)</h2>
-<p>State is persisted under the <code>localStorage</code> key <code>terralings_learning_state_v1</code>.</p>
-<h3 id="data-schema">Data Schema:</h3>
-<div class="language-typescript highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kd">interface</span><span class="w"> </span><span class="nx">TerralingsSavedExercise</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s2">"not_started"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"in_progress"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"completed"</span><span class="p">;</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nx">userCode</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">           </span><span class="c1">// Active working code</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nx">hintsRevealed</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">       </span><span class="c1">// Number of hints viewed (0..N)</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="nx">lastEvaluatedAt?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">   </span><span class="c1">// ISO 8601 timestamp</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="nx">passedAt?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">          </span><span class="c1">// ISO 8601 timestamp</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">}</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="kd">interface</span><span class="w"> </span><span class="nx">TerralingsLearningState</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="kt">1</span><span class="p">;</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">  </span><span class="nx">lastActiveExerciseId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">  </span><span class="nx">exercises</span><span class="o">:</span><span class="w"> </span><span class="kt">Record</span><span class="o">&lt;</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">TerralingsSavedExercise</span><span class="o">&gt;</span><span class="p">;</span>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">  </span><span class="nx">stats</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span><span class="nx">completedCount</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">    </span><span class="nx">totalCount</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">    </span><span class="nx">completionPercentage</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
-</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">  </span><span class="p">};</span>
-</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="p">}</span>
-</span></code></pre></div>
-<h3 id="key-operations">Key Operations:</h3>
+<h2 id="5-spec-self-review-checklist">5. Spec Self-Review Checklist</h2>
 <ul>
-<li><strong><code>loadExercise(id)</code></strong>: Retrieves saved code; if none exists, populates with starter template from bundle.</li>
-<li><strong><code>saveExerciseCode(id, code)</code></strong>: Debounced auto-save (300ms) on Monaco Editor content change.</li>
-<li><strong><code>markCompleted(id)</code></strong>: Updates status to <code>completed</code>, records <code>passedAt</code>, recalculates overall progress stats, and triggers badge updates in the sidebar.</li>
-<li><strong><code>resetExercise(id)</code></strong>: Reverts <code>userCode</code> to the clean starter template from bundle and resets <code>hintsRevealed</code>.</li>
-<li><strong><code>exportProgress()</code></strong>: Generates and downloads <code>terralings-progress-&lt;date&gt;.json</code>.</li>
-<li><strong><code>importProgress(jsonString)</code></strong>: Validates schema, merges or overwrites state, and refreshes the UI.</li>
-<li><strong><code>resetAllProgress()</code></strong>: Clears storage key and re-initializes starter state after user confirmation.</li>
+<li>[x] <strong>Placeholder Scan</strong>: No TBDs or incomplete sections.</li>
+<li>[x] <strong>Internal Consistency</strong>: Exercise IDs match guide matrices and bundle schema.</li>
+<li>[x] <strong>Scope Check</strong>: Tightly focused on Chapters 14 &amp; 15 without altering existing Core HCL mechanics.</li>
+<li>[x] <strong>Ambiguity Check</strong>: Zero-credential client-side Wasm evaluation explicitly specified.</li>
 </ul>
-<hr />
-<h2 id="4-user-interface-layout-specification">4. User Interface &amp; Layout Specification</h2>
-<h3 id="41-curriculum-sidebar-left-pane-320px">4.1 Curriculum Sidebar (Left Pane - 320px)</h3>
-<ul>
-<li><strong>Header</strong>: Global progress bar (<code>X / 74 Exercises Completed • Y%</code>), Export JSON icon, Import JSON icon, and Reset Progress icon.</li>
-<li><strong>Search &amp; Filter Bar</strong>: Instant client-side search box filtering exercises by title, ID, chapter, or keyword (e.g. <code>dynamic</code>, <code>moved</code>, <code>validation</code>), plus status toggles (<code>All</code>, <code>Incomplete</code>, <code>Completed</code>).</li>
-<li><strong>Chapter Accordions</strong>:</li>
-<li>13 collapsible chapters with chapter index, title, and completed count badge (e.g. <code>01. Primitives (6/6 ✓)</code>).</li>
-<li>Exercise item rows displaying status icon (<code>○</code> Not Started, <code>⏳</code> In Progress, <code>✓</code> Completed) and exercise name.</li>
-<li>Active item highlight with automatic scroll-into-view.</li>
-</ul>
-<h3 id="42-code-diagnostics-workspace-right-pane">4.2 Code &amp; Diagnostics Workspace (Right Pane)</h3>
-<ul>
-<li><strong>Top Bar</strong>: Chapter title breadcrumb, exercise title, difficulty badge, and <code>← Prev</code> / <code>Next →</code> navigation.</li>
-<li><strong>Action Toolbar</strong>:</li>
-<li><code>▶ Run Solution (Ctrl+Enter)</code>: Dispatches code to Pyodide worker.</li>
-<li><code>💡 Reveal Hint (H)</code>: Progressively unhides hint tiers in a collapsible panel.</li>
-<li><code>↺ Reset Code</code>: Restores exercise starter manifest.</li>
-<li><code>🔍 Compare Solution</code>: Switches Monaco to side-by-side Diff Editor.</li>
-<li><code>⛶ Fullscreen (F11)</code>: Expands workspace to 100vw × 100vh full-bleed edge-to-edge mode.</li>
-<li><strong>Monaco Editor Container</strong>:</li>
-<li>Full-featured code editor with syntax highlighting for Terraform/HCL.</li>
-<li>Automatic theme switching matching MkDocs (<code>vs-dark</code> in slate mode, <code>vs</code> in default mode).</li>
-<li><strong>Terminal Output Pane</strong>:</li>
-<li>ANSI-styled output box rendering green passes, red assertion errors with line highlights, and execution duration in milliseconds.</li>
-<li>On pass, displays celebration message and auto-advance button.</li>
-</ul>
-<hr />
-<h2 id="5-in-memory-hcl-validation-engine">5. In-Memory HCL Validation Engine</h2>
-<p>The in-memory validation engine (<code>hcl_validator.py</code>) runs in Pyodide WebAssembly and performs:
-1. <strong>Marker Check</strong>: Fails if <code>I AM NOT DONE</code>, <code>TODO</code>, <code>___</code>, or <code>/* ??? */</code> are present in uncommented code.
-2. <strong>HCL Structure Parsing</strong>: Parses blocks, labels, attributes, and expressions.
-3. <strong>Semantic Verification</strong>:
-   - Compares parsed block structure, required attributes, variable definitions, and locals against the reference solution and rule set.
-   - Evaluates string expressions, collection indexing, and function transforms where applicable.
-4. <strong>Line-Specific Error Reporting</strong>: If a syntax or semantic error occurs, highlights the offending line with an error message in the terminal.</p>
-<hr />
-<h2 id="6-verification-test-plan">6. Verification &amp; Test Plan</h2>
-<ol>
-<li><strong>Bundle Generator Test (<code>tests/test_playground_bundle.py</code>)</strong>:</li>
-<li>Verify <code>scripts/build_playground_bundle.py</code> bundles all 74 exercises across 13 chapters.</li>
-<li>Assert all 74 exercises have non-empty starter code, reference solution, hints, and valid metadata.</li>
-<li>Assert generated JSON structure adheres to bundle schema.</li>
-<li><strong>In-Memory Validation Engine Parity</strong>:</li>
-<li>Run <code>hcl_validator.py</code> against all 74 reference solutions to guarantee 100% pass rate.</li>
-<li>Verify incomplete starter templates fail validation with appropriate diagnostics.</li>
-<li><strong>State Engine Integrity</strong>:</li>
-<li>Test localStorage initialization, auto-save debounce, progress calculations, and export/import roundtrip integrity.</li>
-<li><strong>Site Build &amp; Asset Integrity</strong>:</li>
-<li>Run <code>mkdocs build --strict</code> to verify all assets and markdown pages compile without warnings or broken references.</li>
-</ol>
 
 
 

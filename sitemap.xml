@@ -81,6 +81,14 @@
          <lastmod>2026-09-02</lastmod>
     </url>
     <url>
+         <loc>https://dnf0.github.io/terralings/guides/14-aws-architecture/</loc>
+         <lastmod>2026-09-02</lastmod>
+    </url>
+    <url>
+         <loc>https://dnf0.github.io/terralings/guides/15-gcp-architecture/</loc>
+         <lastmod>2026-09-02</lastmod>
+    </url>
+    <url>
          <loc>https://dnf0.github.io/terralings/superpowers/plans/2026-08-26-terralings-implementation/</loc>
          <lastmod>2026-09-02</lastmod>
     </url>
@@ -109,6 +117,10 @@
          <lastmod>2026-09-02</lastmod>
     </url>
     <url>
+         <loc>https://dnf0.github.io/terralings/superpowers/plans/2026-09-02-aws-gcp-cloud-blueprints/</loc>
+         <lastmod>2026-09-02</lastmod>
+    </url>
+    <url>
          <loc>https://dnf0.github.io/terralings/superpowers/plans/2026-09-02-full-browser-wasm-learning-platform/</loc>
          <lastmod>2026-09-02</lastmod>
     </url>
@@ -130,6 +142,10 @@
     </url>
     <url>
          <loc>https://dnf0.github.io/terralings/superpowers/specs/2026-08-27-vscode-extension-and-completions-design/</loc>
+         <lastmod>2026-09-02</lastmod>
+    </url>
+    <url>
+         <loc>https://dnf0.github.io/terralings/superpowers/specs/2026-09-02-aws-gcp-cloud-blueprints-design/</loc>
          <lastmod>2026-09-02</lastmod>
     </url>
     <url>

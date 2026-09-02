@@ -24,7 +24,9 @@
     10: { slug: "10-testing", title: "Native Unit & Integration Testing (.tftest.hcl)" },
     11: { slug: "11-production-patterns", title: "Production Patterns & Anti-Patterns" },
     12: { slug: "12-opentofu", title: "OpenTofu Innovations & Enterprise Features" },
-    13: { slug: "13-governance", title: "Architecture Governance & Enterprise Standards" }
+    13: { slug: "13-governance", title: "Architecture Governance & Enterprise Standards" },
+    14: { slug: "14-aws-architecture", title: "AWS Infrastructure & Production Blueprints" },
+    15: { slug: "15-gcp-architecture", title: "Google Cloud (GCP) Architecture Blueprints" }
   };
 
   /**
