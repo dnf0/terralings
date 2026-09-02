@@ -658,12 +658,14 @@ class TerralingsUI {
     if (!this.worker) return;
 
     const code = this.monacoEditor ? this.monacoEditor.getValue() : "";
+    const ex = this.bundle ? this.bundle.exercises[this.currentExerciseId] : null;
     this.updateTerminal("Validating HCL in WebAssembly...", "loading");
 
     this.worker.postMessage({
       type: "RUN_EXERCISE",
       exerciseId: this.currentExerciseId,
       code: code,
+      rules: (ex && ex.rules) || {},
     });
   }
 

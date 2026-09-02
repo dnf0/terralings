@@ -54,9 +54,9 @@ if "/lib" not in sys.path:
 
 import terralings.hcl_validator as validator
 
-def run_hcl_validation(user_code_str, exercise_id_str):
+def run_hcl_validation(user_code_str, exercise_id_str, rules_dict=None):
     try:
-        res = validator.validate_exercise(user_code_str, exercise_id_str)
+        res = validator.validate_exercise(user_code_str, exercise_id_str, rules_dict)
         return {
             "passed": bool(res.get("passed", False)),
             "error": res.get("error"),
@@ -116,9 +116,13 @@ self.onmessage = async function (e) {
     try {
       pyodide.globals.set("temp_code_str", msg.code || "");
       pyodide.globals.set("temp_exercise_id", msg.exerciseId || "");
+      pyodide.globals.set(
+        "temp_rules",
+        pyodide.toPy(msg.rules || {})
+      );
 
       const resProxy = await pyodide.runPythonAsync(
-        "run_hcl_validation(temp_code_str, temp_exercise_id)"
+        "run_hcl_validation(temp_code_str, temp_exercise_id, temp_rules)"
       );
       const resultObj = resProxy.toJs({ dict_converter: Object.fromEntries });
 
