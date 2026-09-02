@@ -69,21 +69,25 @@ Explore in-depth architectural guides and launch linked practice exercises direc
 
 ## 💡 How the Playground Works
 
-The Terralings web playground runs entirely on client-side WebAssembly technology:
+```mermaid
+flowchart LR
+    subgraph Browser["Web Browser Client (100% In-Memory Wasm)"]
+        direction LR
+        Monaco["💻 Monaco Editor<br/><i>(VS Code in Browser)</i>"]
+        
+        subgraph Worker["Web Worker (Pyodide WebAssembly)"]
+            direction TB
+            Engine["⚡ Python 3.12 Runtime"]
+            Validators["🛡️ 15 Chapter Validators"]
+            Hints["💡 Progressive Hint Engine"]
+            Engine --- Validators --- Hints
+        end
 
-```text
-┌────────────────────────────────────────────────────────────────────────┐
-│                          Web Browser Tab                               │
-│  ┌───────────────────────┐             ┌─────────────────────────────┐ │
-│  │     Monaco Editor     │   HCL Code  │  Web Worker (Pyodide Wasm)  │ │
-│  │  (VS Code in Browser) ├────────────►│  • Python 3.12 Engine       │ │
-│  └───────────────────────┘             │  • 15 Chapter Validators    │ │
-│                                        │  • Progressive Hint Engine  │ │
-│  ┌───────────────────────┐             └──────────────┬──────────────┘ │
-│  │   Interactive xterm   │◄───────────────────────────┘                │
-│  │    Terminal Output    │         Instant Test & Validation Result    │
-│  └───────────────────────┘         (< 1ms in WebAssembly)              │
-└────────────────────────────────────────────────────────────────────────┘
+        Terminal["📟 Interactive xterm.js<br/><i>Instant Output (< 1ms)</i>"]
+
+        Monaco -->|"HCL Source Code"| Worker
+        Worker -->|"Test Results & Diagnostics"| Terminal
+    end
 ```
 
 ---
