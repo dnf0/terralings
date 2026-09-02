@@ -16,7 +16,7 @@
       
       
       
-        <link rel="next" href="getting-started/">
+        <link rel="next" href="playground/">
       
       
         
@@ -52,6 +52,8 @@
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
+    
+      <link rel="stylesheet" href="assets/playground/playground.css">
     
     <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -408,6 +410,33 @@
   
   
     <li class="md-nav__item">
+      <a href="playground/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Interactive Playground
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="getting-started/" class="md-nav__link">
         
   
@@ -691,12 +720,17 @@
 </p>
 
 <p align="center">
+  <a href="playground.md"><strong>Interactive Playground</strong></a> •
   <a href="getting-started.md">Getting Started</a> •
   <a href="onboarding-guide.md">Onboarding Guide</a> •
   <a href="syllabus.md">Curriculum Syllabus</a> •
   <a href="cli-reference.md">CLI Reference</a> •
   <a href="vscode-extension.md">VS Code Companion</a> •
   <a href="contributing.md">Contributing</a>
+</p>
+
+<p align="center" style="margin-top: 1.2rem;">
+  <a href="playground.md" class="md-button md-button--primary">🚀 Launch In-Browser Playground (Zero Install)</a>
 </p>
 
 <hr />
@@ -892,6 +926,10 @@
     
     
       <script src="assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+      
+        <script src="assets/playground/playground.js"></script>
       
     
   </body>
