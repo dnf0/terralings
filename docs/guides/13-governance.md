@@ -14,30 +14,39 @@
 
 Enterprise-scale Infrastructure as Code requires rigorous architectural governance. **Architecture Governance Standards** ensure repositories remain auditable, secure, and maintainable over years of operation.
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                 Architecture Governance Tenets              │
-│                                                             │
-│   1. Root Module Encapsulation                              │
-│   ┌───────────────────────────────────────────────────────┐ │
-│   │ [ Root Module: envs/prod ]                            │ │
-│   │ ├── module "networking" { source = "..." }            │ │
-│   │ ├── module "database"   { source = "..." }            │ │
-│   │ └── module "compute"    { source = "..." }            │ │
-│   │ ❌ NO loose `resource "aws_..."` blocks in root!      │ │
-│   └───────────────────────────────────────────────────────┘ │
-│                                                             │
-│   2. Policy Encapsulation (ADR-0005 Standard)               │
-│   ┌───────────────────────────────────────────────────────┐ │
-│   │ "The module that owns the resource owns the policies   │ │
-│   │  that talk to it."                                    │ │
-│   │ - Child module exports least-privilege policy ARNs    │ │
-│   │ - Root never writes raw wildcard IAM policy documents │ │
-│   └───────────────────────────────────────────────────────┘ │
-│                                                             │
-│   3. Ephemeral Workload Isolation                           │
-│   └── Ephemeral CI/batch jobs must not pollute root state   │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph GovernanceArchitecture["Architecture Governance Standards"]
+        direction TB
+        
+        subgraph RootBoundary["1. Root Module Encapsulation Boundary (envs/prod)"]
+            Root["🏢 Root Orchestrator (main.tf)"]
+            NetMod["📦 module 'networking'"]
+            DBMod["📦 module 'database'"]
+            AppMod["📦 module 'compute'"]
+            
+            Root --> NetMod
+            Root --> DBMod
+            Root --> AppMod
+        end
+
+        subgraph PolicyEncapsulation["2. ADR-0005: Policy Encapsulation Standard"]
+            direction TB
+            ResourceNode["🏗️ Resource Boundary<br/><i>(aws_s3_bucket.data)</i>"]
+            PolicyNode["🛡️ Integrated IAM Policy<br/><i>(Least-Privilege Scoped Document)</i>"]
+            ExportedPolicy["📤 Output: read_policy_arn"]
+            
+            ResourceNode --> PolicyNode --> ExportedPolicy
+        end
+
+        subgraph Enforcement["3. Anti-Pattern Prevention Gate"]
+            Anti1["❌ NO loose resource blocks in root"]
+            Anti2["❌ NO wildcard IAM policies (*:*) in root"]
+            Anti3["❌ NO unmanaged ephemeral test resources"]
+        end
+    end
+
+    AppMod -.->|"Attaches Scoped Policy"| ExportedPolicy
 ```
 
 Core Architectural Standards:

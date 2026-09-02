@@ -14,35 +14,41 @@
 
 In modern Terraform and OpenTofu, **Native Testing** executes via `.tftest.hcl` files. The testing framework provisions isolated ephemeral environments, mocks external cloud providers without credentials, runs assertion rules against planned or applied states, and verifies defensive failure paths.
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                 Native `.tftest.hcl` Test Engine            │
-│                                                             │
-│   Ephemeral Test Harness                                    │
-│   ┌───────────────────────────────────────────────────────┐ │
-│   │ `run "unit_plan"` {                                   │ │
-│   │   command = plan                                      │ │
-│   │   variables = { env = "prod" }                        │ │
-│   │   assert {                                            │ │
-│   │     condition     = terraform_data.db.input.tier != ""│ │
-│   │     error_message = "Tier must not be empty"          │ │
-│   │   }                                                   │ │
-│   │ }                                                     │ │
-│   └──────────────────────────┬────────────────────────────┘ │
-│                              │                              │
-│                              ▼                              │
-│   ┌───────────────────────────────────────────────────────┐ │
-│   │ Mock Provider Subsystem (Zero Cloud Credentials)      │ │
-│   │ ├── `mock_provider "aws"`                             │ │
-│   │ └── `override_resource`                               │ │
-│   └──────────────────────────┬────────────────────────────┘ │
-│                              │                              │
-│                              ▼                              │
-│   ┌───────────────────────────────────────────────────────┐ │
-│   │ Negative Testing Guard                                │ │
-│   │ └── `expect_failures = [var.invalid_param]`           │ │
-│   └───────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph TestHarness["Native .tftest.hcl Test Engine"]
+        direction TB
+        
+        subgraph Setup["Test Setup & Isolation"]
+            TFTest["🧪 .tftest.hcl Harness"]
+            Mock["🎭 mock_provider 'aws' / 'google'<br/><i>Zero Real Cloud Credentials Required</i>"]
+            Overrides["⚙️ override_resource / override_data"]
+            TFTest --> Mock --> Overrides
+        end
+
+        subgraph RunBlocks["Sequential run Blocks"]
+            direction TB
+            PlanRun["📋 run 'plan_verification'<br/><code>command = plan</code><br/><i>In-Memory Static Plan Verification</i>"]
+            ApplyRun["🚀 run 'apply_integration'<br/><code>command = apply</code><br/><i>Ephemeral State Execution</i>"]
+            PlanRun --> ApplyRun
+        end
+
+        subgraph Assertions["Assertion & Negative Testing Gates"]
+            AssertGate{"⚖️ assert { condition }"}
+            NegGate{"🛡️ expect_failures = [...]"}
+            
+            Pass["✅ Test Step Passed"]
+            Fail["❌ Test Step Failed (Emit error_message)"]
+            
+            AssertGate -->|"condition = true"| Pass
+            AssertGate -->|"condition = false"| Fail
+            NegGate -->|"Expected Error Caught"| Pass
+            NegGate -->|"No Error Raised"| Fail
+        end
+    end
+
+    Overrides --> RunBlocks
+    RunBlocks --> Assertions
 ```
 
 Testing Modes:
