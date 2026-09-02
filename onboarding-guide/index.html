@@ -6,19 +6,15 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="An interactive, hands-on CLI learning environment for Terraform and OpenTofu.">
+        <meta name="description" content="An interactive, client-side WebAssembly learning platform and comprehensive reference manual for Terraform and OpenTofu.">
       
       
-        <meta name="author" content="Terralings Contributors">
+        <meta name="author" content="Daniel Fisher">
       
       
         <link rel="canonical" href="https://dnf0.github.io/terralings/onboarding-guide/">
       
       
-        <link rel="prev" href="../getting-started/">
-      
-      
-        <link rel="next" href="../syllabus/">
       
       
         
@@ -29,7 +25,7 @@
     
     
       
-        <title>Onboarding Guide - Terralings</title>
+        <title>Terralings Onboarding Guide - Terralings</title>
       
     
     
@@ -116,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Onboarding Guide
+              Terralings Onboarding Guide
             
           </span>
         </div>
@@ -318,624 +314,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../getting-started/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Getting Started
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Onboarding Guide
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Onboarding Guide
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#table-of-contents" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Table of Contents
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#1-welcome-core-philosophy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. Welcome &amp; Core Philosophy
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="1. Welcome &amp; Core Philosophy">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#core-design-principles" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Core Design Principles
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-step-0-environment-health-check-terralings-doctor" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. Step 0: Environment Health Check (terralings doctor)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2. Step 0: Environment Health Check (terralings doctor)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#diagnostic-checks-performed" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Diagnostic Checks Performed
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sample-output" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Sample Output
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#machine-readable-diagnostics" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Machine-Readable Diagnostics
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-step-1-workspace-initialization-terralings-init" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Step 1: Workspace Initialization (terralings init)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-step-2-the-interactive-guided-tour-terralings-tour" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. Step 2: The Interactive Guided Tour (terralings tour)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="4. Step 2: The Interactive Guided Tour (terralings tour)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#the-5-tour-steps" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The 5 Tour Steps
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#interactive-tour-controls" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Interactive Tour Controls
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#non-interactive-json-tour-modes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Non-Interactive &amp; JSON Tour Modes
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-step-3-solving-your-first-exercise-primitives01" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5. Step 3: Solving Your First Exercise (primitives01)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="5. Step 3: Solving Your First Exercise (primitives01)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-open-the-exercise-file" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. Open the Exercise File
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-run-single-exercise-verification" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. Run Single Exercise Verification
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-apply-the-fix" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Apply the Fix
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-verify-the-solution" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. Verify the Solution
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#6-choosing-your-learning-modality" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6. Choosing Your Learning Modality
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="6. Choosing Your Learning Modality">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#modal-a-continuous-watch-mode-terralings-watch" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Modal A: Continuous Watch Mode (terralings watch)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Modal A: Continuous Watch Mode (terralings watch)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#interactive-watch-controls" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Interactive Watch Controls
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#modal-b-interactive-full-screen-tui-dashboard-terralings-tui" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Modal B: Interactive Full-Screen TUI Dashboard (terralings tui)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Modal B: Interactive Full-Screen TUI Dashboard (terralings tui)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#tui-dashboard-layout" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        TUI Dashboard Layout
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#tui-keyboard-shortcuts" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        TUI Keyboard Shortcuts
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#7-step-5-using-progressive-hints-search-reset" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7. Step 5: Using Progressive Hints, Search &amp; Reset
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="7. Step 5: Using Progressive Hints, Search &amp; Reset">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#progressive-hints-terralings-hint" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Progressive Hints (terralings hint)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#curriculum-search-terralings-search" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Curriculum Search (terralings search)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#resetting-exercises-terralings-reset" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Resetting Exercises (terralings reset)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#8-step-6-progress-tracking-analytics-terralings-stats" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        8. Step 6: Progress Tracking &amp; Analytics (terralings stats)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="8. Step 6: Progress Tracking &amp; Analytics (terralings stats)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#sample-analytics-output" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Sample Analytics Output
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#9-step-7-editor-integration-language-server-terralings-lsp" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        9. Step 7: Editor Integration &amp; Language Server (terralings lsp)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="9. Step 7: Editor Integration &amp; Language Server (terralings lsp)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#visual-studio-code" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Visual Studio Code
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#neovim-nvim-lspconfig" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Neovim (nvim-lspconfig)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#helix-languagestoml" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Helix (languages.toml)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#10-curriculum-roadmap" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        10. Curriculum Roadmap
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#11-troubleshooting-faq" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        11. Troubleshooting &amp; FAQ
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="11. Troubleshooting &amp; FAQ">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#q1-terralings-doctor-reports-missing-iac-engine-binary-how-do-i-install-opentofu-or-terraform" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Q1: terralings doctor reports missing IaC engine binary. How do I install OpenTofu or Terraform?
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#q2-do-i-need-aws-gcp-or-azure-credentials-to-complete-the-exercises" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Q2: Do I need AWS, GCP, or Azure credentials to complete the exercises?
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#q3-how-do-i-verify-all-exercises-at-once" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Q3: How do I verify all exercises at once?
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#q4-my-editor-is-not-showing-error-diagnostics-how-do-i-troubleshoot-terralings-lsp" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Q4: My editor is not showing error diagnostics. How do I troubleshoot terralings lsp?
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#q5-how-do-i-generate-shell-completions-for-tab-navigation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Q5: How do I generate shell completions for tab navigation?
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#q6-where-is-my-progress-saved-can-i-backup-or-transfer-it" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Q6: Where is my progress saved? Can I backup or transfer it?
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../syllabus/" class="md-nav__link">
         
   
@@ -943,7 +321,7 @@
   <span class="md-ellipsis">
     
   
-    Curriculum Syllabus
+    Syllabus & Curriculum
   
 
     
@@ -962,15 +340,67 @@
   
   
   
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core HCL & Data Flow
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Core HCL & Data Flow
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../cli-reference/" class="md-nav__link">
+      <a href="../guides/01-primitives/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    CLI Reference
+    01. HCL Foundations & Primitives
   
 
     
@@ -982,22 +412,23 @@
     </li>
   
 
-    
-      
-      
+              
+            
+              
+                
   
   
   
   
     <li class="md-nav__item">
-      <a href="../vscode-extension/" class="md-nav__link">
+      <a href="../guides/02-variables/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    VS Code Companion
+    02. Input Variables & Validations
   
 
     
@@ -1006,6 +437,440 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/03-outputs-locals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03. Outputs, Locals & Expressions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/04-functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04. Functions & Collections
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamic Logic & Modules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Dynamic Logic & Modules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/05-meta-arguments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05. Meta-Arguments & Scaling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/06-dynamic-blocks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06. Dynamic Blocks & Logic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/07-data-sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07. Data Sources & Queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/08-modules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08. Modular Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    State Surgery, Testing & Governance
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    State Surgery, Testing & Governance
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/09-state-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09. State Management & Refactoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/10-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10. Native Testing (.tftest.hcl)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/11-production-patterns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11. Production Patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/12-opentofu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12. OpenTofu Innovations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/13-governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13. Architecture Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 

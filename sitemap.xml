@@ -29,6 +29,58 @@
          <lastmod>2026-09-02</lastmod>
     </url>
     <url>
+         <loc>https://dnf0.github.io/terralings/guides/01-primitives/</loc>
+         <lastmod>2026-09-02</lastmod>
+    </url>
+    <url>
+         <loc>https://dnf0.github.io/terralings/guides/02-variables/</loc>
+         <lastmod>2026-09-02</lastmod>
+    </url>
+    <url>
+         <loc>https://dnf0.github.io/terralings/guides/03-outputs-locals/</loc>
+         <lastmod>2026-09-02</lastmod>
+    </url>
+    <url>
+         <loc>https://dnf0.github.io/terralings/guides/04-functions/</loc>
+         <lastmod>2026-09-02</lastmod>
+    </url>
+    <url>
+         <loc>https://dnf0.github.io/terralings/guides/05-meta-arguments/</loc>
+         <lastmod>2026-09-02</lastmod>
+    </url>
+    <url>
+         <loc>https://dnf0.github.io/terralings/guides/06-dynamic-blocks/</loc>
+         <lastmod>2026-09-02</lastmod>
+    </url>
+    <url>
+         <loc>https://dnf0.github.io/terralings/guides/07-data-sources/</loc>
+         <lastmod>2026-09-02</lastmod>
+    </url>
+    <url>
+         <loc>https://dnf0.github.io/terralings/guides/08-modules/</loc>
+         <lastmod>2026-09-02</lastmod>
+    </url>
+    <url>
+         <loc>https://dnf0.github.io/terralings/guides/09-state-management/</loc>
+         <lastmod>2026-09-02</lastmod>
+    </url>
+    <url>
+         <loc>https://dnf0.github.io/terralings/guides/10-testing/</loc>
+         <lastmod>2026-09-02</lastmod>
+    </url>
+    <url>
+         <loc>https://dnf0.github.io/terralings/guides/11-production-patterns/</loc>
+         <lastmod>2026-09-02</lastmod>
+    </url>
+    <url>
+         <loc>https://dnf0.github.io/terralings/guides/12-opentofu/</loc>
+         <lastmod>2026-09-02</lastmod>
+    </url>
+    <url>
+         <loc>https://dnf0.github.io/terralings/guides/13-governance/</loc>
+         <lastmod>2026-09-02</lastmod>
+    </url>
+    <url>
          <loc>https://dnf0.github.io/terralings/superpowers/plans/2026-08-26-terralings-implementation/</loc>
          <lastmod>2026-09-02</lastmod>
     </url>

@@ -12,27 +12,31 @@
         <meta name="author" content="Daniel Fisher">
       
       
-        <link rel="canonical" href="https://dnf0.github.io/terralings/vscode-extension/">
+        <link rel="canonical" href="https://dnf0.github.io/terralings/guides/11-production-patterns/">
       
       
+        <link rel="prev" href="../10-testing/">
+      
+      
+        <link rel="next" href="../12-opentofu/">
       
       
         
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
-        <title>VS Code Companion Extension - Terralings</title>
+        <title>11. Production Patterns - Terralings</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -51,7 +55,7 @@
       
     
     
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -76,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#vs-code-companion-extension" class="md-skip">
+        <a href="#chapter-11-production-patterns-anti-patterns" class="md-skip">
           Skip to content
         </a>
       
@@ -92,7 +96,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="Terralings" class="md-header__button md-logo" aria-label="Terralings" data-md-component="logo">
+    <a href="../.." title="Terralings" class="md-header__button md-logo" aria-label="Terralings" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -112,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              VS Code Companion Extension
+              11. Production Patterns
             
           </span>
         </div>
@@ -230,7 +234,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="Terralings" class="md-nav__button md-logo" aria-label="Terralings" data-md-component="logo">
+    <a href="../.." title="Terralings" class="md-nav__button md-logo" aria-label="Terralings" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -260,7 +264,7 @@
   
   
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -287,7 +291,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../playground/" class="md-nav__link">
+      <a href="../../playground/" class="md-nav__link">
         
   
   
@@ -314,7 +318,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../syllabus/" class="md-nav__link">
+      <a href="../../syllabus/" class="md-nav__link">
         
   
   
@@ -393,7 +397,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../guides/01-primitives/" class="md-nav__link">
+      <a href="../01-primitives/" class="md-nav__link">
         
   
   
@@ -421,7 +425,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../guides/02-variables/" class="md-nav__link">
+      <a href="../02-variables/" class="md-nav__link">
         
   
   
@@ -449,7 +453,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../guides/03-outputs-locals/" class="md-nav__link">
+      <a href="../03-outputs-locals/" class="md-nav__link">
         
   
   
@@ -477,7 +481,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../guides/04-functions/" class="md-nav__link">
+      <a href="../04-functions/" class="md-nav__link">
         
   
   
@@ -564,7 +568,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../guides/05-meta-arguments/" class="md-nav__link">
+      <a href="../05-meta-arguments/" class="md-nav__link">
         
   
   
@@ -592,7 +596,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../guides/06-dynamic-blocks/" class="md-nav__link">
+      <a href="../06-dynamic-blocks/" class="md-nav__link">
         
   
   
@@ -620,7 +624,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../guides/07-data-sources/" class="md-nav__link">
+      <a href="../07-data-sources/" class="md-nav__link">
         
   
   
@@ -648,7 +652,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../guides/08-modules/" class="md-nav__link">
+      <a href="../08-modules/" class="md-nav__link">
         
   
   
@@ -680,8 +684,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -692,11 +698,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
           <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
@@ -717,7 +723,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -735,7 +741,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../guides/09-state-management/" class="md-nav__link">
+      <a href="../09-state-management/" class="md-nav__link">
         
   
   
@@ -763,7 +769,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../guides/10-testing/" class="md-nav__link">
+      <a href="../10-testing/" class="md-nav__link">
         
   
   
@@ -788,10 +794,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../guides/11-production-patterns/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11. Production Patterns
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -807,6 +840,70 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-architectural-overview-hardening-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Architectural Overview &amp; Hardening Patterns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-annotated-hcl-anatomy-common-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Annotated HCL Anatomy &amp; Common Patterns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-production-best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Production Best Practices
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-hands-on-exercises-in-this-chapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Hands-on Exercises in this Chapter
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -819,7 +916,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../guides/12-opentofu/" class="md-nav__link">
+      <a href="../12-opentofu/" class="md-nav__link">
         
   
   
@@ -847,7 +944,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../guides/13-governance/" class="md-nav__link">
+      <a href="../13-governance/" class="md-nav__link">
         
   
   
@@ -882,7 +979,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../contributing/" class="md-nav__link">
+      <a href="../../contributing/" class="md-nav__link">
         
   
   
@@ -929,10 +1026,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#key-features" class="md-nav__link">
+  <a href="#1-architectural-overview-hardening-patterns" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Key Features
+        1. Architectural Overview &amp; Hardening Patterns
       
     </span>
   </a>
@@ -940,88 +1037,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#installation" class="md-nav__link">
+  <a href="#2-annotated-hcl-anatomy-common-patterns" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Installation
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Installation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#method-1-install-from-vs-code-marketplace-recommended" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Method 1: Install from VS Code Marketplace (Recommended)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#method-2-install-from-vsix-package" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Method 2: Install from VSIX Package
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#method-3-manual-installation-via-vs-code-ui" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Method 3: Manual Installation via VS Code UI
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#extension-configuration-settings" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Extension Configuration Settings
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Extension Configuration Settings">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#example-settingsjson" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Example settings.json
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#command-palette-reference" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Command Palette Reference
+        2. Annotated HCL Anatomy &amp; Common Patterns
       
     </span>
   </a>
@@ -1029,80 +1048,24 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#sidebar-editor-integration" class="md-nav__link">
+  <a href="#3-production-best-practices" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Sidebar &amp; Editor Integration
+        3. Production Best Practices
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Sidebar &amp; Editor Integration">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#activity-bar-sidebar-tree" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Activity Bar Sidebar Tree
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#editor-title-actions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Editor Title Actions
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#troubleshooting" class="md-nav__link">
+  <a href="#4-hands-on-exercises-in-this-chapter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Troubleshooting
+        4. Hands-on Exercises in this Chapter
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Troubleshooting">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#issue-terralings-binary-not-found-in-path" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Issue: "Terralings binary not found in PATH"
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#issue-lsp-diagnostics-not-appearing" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Issue: LSP Diagnostics Not Appearing
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1126,174 +1089,104 @@
   
 
 
-<h1 id="vs-code-companion-extension">VS Code Companion Extension</h1>
-<p>The <strong>Terralings Companion Extension for Visual Studio Code</strong> provides a seamless, integrated learning experience directly within your editor.</p>
+<h1 id="chapter-11-production-patterns-anti-patterns">Chapter 11: Production Patterns &amp; Anti-Patterns</h1>
+<div class="grid cards" markdown>
+
+-   :material-school: **Topic Focus** &bull; Environment Mapping, Feature Flags, Tagging Factories, and Production IaC Hardening
+-   :material-play-circle: **Interactive Challenges** &bull; 4 Hands-on Exercises
+-   :material-rocket-launch: [**Launch Playground in Wasm →**](../playground/index.html){ .md-button .md-button--primary }
+
+</div>
+
 <hr />
-<h2 id="key-features">Key Features</h2>
-<ul>
-<li><strong>Activity Bar Curriculum Explorer (<code>terralings-exercises</code>)</strong>: Visual sidebar tree displaying all 13 chapters and 56 exercises with live passing (<code>✓</code>), in-progress, or failing status icons.</li>
-<li><strong>Embedded Language Server Protocol (LSP) Client</strong>: Automatically connects to <code>terralings lsp</code> to provide real-time compilation diagnostics, error squiggles, and hover hints directly in <code>.tf</code> and <code>.tftest.hcl</code> files.</li>
-<li><strong>Interactive 5-Step Walkthrough</strong>: Onboarding guide integrated into VS Code's Welcome experience (<code>Welcome to Terralings</code>).</li>
-<li><strong>Integrated Terminal Runners</strong>: One-click actions to launch <code>terralings watch</code>, <code>terralings tui</code>, <code>terralings doctor</code>, or verify the active exercise.</li>
-<li><strong>Status Bar Progress Indicator</strong>: Real-time completion counter and progress badge in the VS Code status bar.</li>
-<li><strong>Inline Context Menus</strong>: Quick actions in the editor title bar and sidebar context menu to run, hint, or reset exercises.</li>
-</ul>
+<h2 id="1-architectural-overview-hardening-patterns">1. Architectural Overview &amp; Hardening Patterns</h2>
+<p>Production Infrastructure as Code requires strategies for managing environment drift, feature toggles, centralized tagging policies, and eliminating common anti-patterns like hardcoded credentials or brittle conditional logic.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>    ┌──────────────────────────────┐
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    │     Environment Strategy     │
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    │  (lookup table / map matrix) │
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    └──────────────┬───────────────┘
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>                   │
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>                   ▼
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    ┌──────────────────────────────┐
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    │  Standardized Tag Factory    │ ──► [ Compliance &amp; Cost Attribution ]
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    │  (CostCenter, Owner, Tier)   │
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    └──────────────┬───────────────┘
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>                   │
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>                   ▼
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    ┌──────────────────────────────┐
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    │ Feature Toggles &amp; Guards     │ ──► [ Safe Phased Rollouts ]
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    └──────────────────────────────┘
+</span></code></pre></div>
 <hr />
-<h2 id="installation">Installation</h2>
-<h3 id="method-1-install-from-vs-code-marketplace-recommended">Method 1: Install from VS Code Marketplace (Recommended)</h3>
-<p>Install the official extension directly from the <a href="https://marketplace.visualstudio.com/items?itemName=dnf0.terralings-vscode">Visual Studio Marketplace</a>:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>code<span class="w"> </span>--install-extension<span class="w"> </span>dnf0.terralings-vscode
+<h2 id="2-annotated-hcl-anatomy-common-patterns">2. Annotated HCL Anatomy &amp; Common Patterns</h2>
+<div class="language-hcl highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">locals</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="c1">  # Environment configuration matrix pattern</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nb">env_specs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="nb">dev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">      </span><span class="na">instance_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">      </span><span class="na">backup_enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">false</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="nb">prod</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">      </span><span class="na">instance_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">5</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">      </span><span class="na">backup_enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">  </span><span class="na">current_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">local.env_specs[var.environment</span><span class="p">]</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="c1">  # Standardized enterprise tag factory</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">  </span><span class="nb">mandatory_tags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span><span class="na">ManagedBy</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s2">"Terraform"</span>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">    </span><span class="na">Environment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">var.environment</span>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="w">    </span><span class="na">Repository</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2">"infra-core"</span>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>Alternatively, open the Extensions view in VS Code (<code>Cmd+Shift+X</code> / <code>Ctrl+Shift+X</code>), search for <strong>Terralings</strong>, and click <strong>Install</strong>.</p>
-<h3 id="method-2-install-from-vsix-package">Method 2: Install from VSIX Package</h3>
-<p>You can also install the packaged extension directly from the repository build or downloaded <code>.vsix</code> file:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Build the VSIX locally from the repo root</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nb">cd</span><span class="w"> </span>extensions/vscode
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>npm<span class="w"> </span>install
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>npm<span class="w"> </span>run<span class="w"> </span>build
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>npx<span class="w"> </span>@vscode/vsce<span class="w"> </span>package<span class="w"> </span>-o<span class="w"> </span>../../dist/terralings-vscode.vsix
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1"># Install via VS Code CLI</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>code<span class="w"> </span>--install-extension<span class="w"> </span>../../dist/terralings-vscode.vsix
-</span></code></pre></div>
-<h3 id="method-3-manual-installation-via-vs-code-ui">Method 3: Manual Installation via VS Code UI</h3>
+<hr />
+<h2 id="3-production-best-practices">3. Production Best Practices</h2>
 <ol>
-<li>Open Visual Studio Code.</li>
-<li>Open the <strong>Extensions</strong> view (<code>Cmd+Shift+X</code> on macOS, <code>Ctrl+Shift+X</code> on Linux/Windows).</li>
-<li>Click the <strong>Views and More Actions</strong> menu (<code>...</code>) at the top-right of the Extensions pane.</li>
-<li>Select <strong>Install from VSIX...</strong>.</li>
-<li>Navigate to and select <code>terralings-vscode.vsix</code>.</li>
-<li>Reload or restart VS Code when prompted.</li>
+<li><strong>Use Lookup Tables over Deep Ternaries</strong>: Model multi-environment configuration variations as structured maps rather than deeply nested <code>a ? b : (c ? d : e)</code> expressions.</li>
+<li><strong>Centralize Tagging</strong>: Enforce tag schemas at the root or provider level using <code>default_tags</code> or merged local tag factories.</li>
+<li><strong>Avoid Unbounded Cardinality</strong>: Guard collection expansions to avoid accidental runaway resource creation.</li>
 </ol>
 <hr />
-<h2 id="extension-configuration-settings">Extension Configuration Settings</h2>
-<p>Configure extension behaviors in VS Code Settings (<code>Cmd+,</code> or <code>Ctrl+,</code>), searching for <code>terralings</code>:</p>
+<h2 id="4-hands-on-exercises-in-this-chapter">4. Hands-on Exercises in this Chapter</h2>
 <table>
 <thead>
 <tr>
-<th>Setting Key</th>
-<th style="text-align: center;">Type</th>
-<th style="text-align: center;">Default</th>
-<th>Description</th>
+<th>Exercise ID</th>
+<th>Name</th>
+<th style="text-align: center;">Mode</th>
+<th>Key Learning Objective</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>terralings.binaryPath</code></td>
-<td style="text-align: center;"><code>string</code></td>
-<td style="text-align: center;"><code>"terralings"</code></td>
-<td>Path to the <code>terralings</code> CLI executable. If <code>terralings</code> is in your system <code>$PATH</code>, the default value works automatically.</td>
+<td><code>patterns01</code></td>
+<td>Environment Lookup Matrix</td>
+<td style="text-align: center;"><code>plan</code></td>
+<td>Implement clean environment-specific configuration maps.</td>
 </tr>
 <tr>
-<td><code>terralings.enableLsp</code></td>
-<td style="text-align: center;"><code>boolean</code></td>
-<td style="text-align: center;"><code>true</code></td>
-<td>Enable or disable the built-in Terralings Language Server client for diagnostics and hover tooltips.</td>
+<td><code>patterns02</code></td>
+<td>Boolean Feature Flags</td>
+<td style="text-align: center;"><code>plan</code></td>
+<td>Control resource creation and optional features with flags.</td>
 </tr>
 <tr>
-<td><code>terralings.autoOpenWalkthrough</code></td>
-<td style="text-align: center;"><code>boolean</code></td>
-<td style="text-align: center;"><code>true</code></td>
-<td>Automatically show the Welcome walkthrough when opening an exercise workspace for the first time.</td>
+<td><code>patterns03</code></td>
+<td>Centralized Tag Factory</td>
+<td style="text-align: center;"><code>plan</code></td>
+<td>Merge organizational and resource-specific tags cleanly.</td>
+</tr>
+<tr>
+<td><code>patterns04</code></td>
+<td>Anti-Pattern Remediation</td>
+<td style="text-align: center;"><code>plan</code></td>
+<td>Identify and fix hardcoded credentials and brittle conditional logic.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="example-settingsjson">Example <code>settings.json</code></h3>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">"terralings.binaryPath"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/usr/local/bin/terralings"</span><span class="p">,</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">"terralings.enableLsp"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nt">"terralings.autoOpenWalkthrough"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">}</span>
-</span></code></pre></div>
-<hr />
-<h2 id="command-palette-reference">Command Palette Reference</h2>
-<p>All extension commands can be triggered via the VS Code Command Palette (<code>Cmd+Shift+P</code> on macOS, <code>Ctrl+Shift+P</code> on Linux/Windows):</p>
-<table>
-<thead>
-<tr>
-<th>Command Identifier</th>
-<th>Command Palette Title</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>terralings.openExercise</code></td>
-<td><code>Terralings: Open Exercise</code></td>
-<td>Prompt for and open a specific curriculum exercise file</td>
-</tr>
-<tr>
-<td><code>terralings.runCurrent</code></td>
-<td><code>Terralings: Verify Current Exercise</code></td>
-<td>Run instant evaluation against the active editor file</td>
-</tr>
-<tr>
-<td><code>terralings.watch</code></td>
-<td><code>Terralings: Start Watch Mode</code></td>
-<td>Launch <code>terralings watch</code> in an integrated terminal</td>
-</tr>
-<tr>
-<td><code>terralings.tui</code></td>
-<td><code>Terralings: Open Terminal Dashboard (TUI)</code></td>
-<td>Open <code>terralings tui</code> in an integrated terminal</td>
-</tr>
-<tr>
-<td><code>terralings.hint</code></td>
-<td><code>Terralings: Show Hint</code></td>
-<td>Display progressive hints for the currently active exercise</td>
-</tr>
-<tr>
-<td><code>terralings.reset</code></td>
-<td><code>Terralings: Reset Exercise Template</code></td>
-<td>Reset current exercise back to its starting template</td>
-</tr>
-<tr>
-<td><code>terralings.doctor</code></td>
-<td><code>Terralings: Run Environment Diagnostics (Doctor)</code></td>
-<td>Run pre-flight health checks in terminal</td>
-</tr>
-<tr>
-<td><code>terralings.tour</code></td>
-<td><code>Terralings: Open Guided Tour</code></td>
-<td>Start interactive onboarding tour in terminal</td>
-</tr>
-<tr>
-<td><code>terralings.refreshTree</code></td>
-<td><code>Terralings: Refresh Exercises</code></td>
-<td>Force refresh of the curriculum sidebar tree and status badges</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="sidebar-editor-integration">Sidebar &amp; Editor Integration</h2>
-<h3 id="activity-bar-sidebar-tree">Activity Bar Sidebar Tree</h3>
-<p>Click the Terralings icon on the VS Code Activity Bar to reveal the <strong>Curriculum &amp; Exercises</strong> view:</p>
-<ul>
-<li><strong>Chapters</strong>: Collapsible chapters showing overall chapter progress.</li>
-<li><strong>Exercises</strong>: Click any exercise to open the file in the editor.</li>
-<li><strong>Inline Actions</strong>: Hover over any exercise to see quick action buttons:</li>
-<li><code>$(play)</code> Verify exercise</li>
-<li><code>$(lightbulb)</code> Show hint</li>
-<li><code>$(discard)</code> Reset to template</li>
-</ul>
-<h3 id="editor-title-actions">Editor Title Actions</h3>
-<p>When viewing any <code>.tf</code> or <code>.tftest.hcl</code> file in an exercise folder, action buttons appear in the upper-right corner of the editor title bar:
-- Click <strong>▶</strong> to verify the active file.
-- Click <strong>💡</strong> to view hints for the active file.</p>
-<hr />
-<h2 id="troubleshooting">Troubleshooting</h2>
-<h3 id="issue-terralings-binary-not-found-in-path">Issue: "Terralings binary not found in PATH"</h3>
-<p><strong>Symptom</strong>: The extension warns that it cannot find the <code>terralings</code> executable.</p>
-<p><strong>Resolution</strong>:
-1. Confirm where <code>terralings</code> is installed by running <code>which terralings</code> in your terminal.
-2. Open VS Code Settings (<code>Cmd+,</code> / <code>Ctrl+,</code>).
-3. Set <code>terralings.binaryPath</code> to the absolute path (e.g., <code>/usr/local/bin/terralings</code> or <code>/Users/username/go/bin/terralings</code>).</p>
-<h3 id="issue-lsp-diagnostics-not-appearing">Issue: LSP Diagnostics Not Appearing</h3>
-<p><strong>Symptom</strong>: Syntax errors or hover hints are not displayed in <code>.tf</code> files.</p>
-<p><strong>Resolution</strong>:
-1. Ensure <code>terralings.enableLsp</code> is set to <code>true</code>.
-2. Ensure you have an IaC engine (<code>tofu</code> or <code>terraform</code>) installed and working (<code>terralings doctor</code>).
-3. Open the VS Code Output panel (<code>Cmd+Shift+U</code> / <code>Ctrl+Shift+U</code>) and select <strong>Terralings Language Server</strong> from the dropdown to view LSP connection logs.</p>
 
 
 
@@ -1349,10 +1242,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

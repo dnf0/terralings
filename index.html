@@ -6,10 +6,10 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="An interactive, hands-on CLI learning environment for Terraform and OpenTofu.">
+        <meta name="description" content="An interactive, client-side WebAssembly learning platform and comprehensive reference manual for Terraform and OpenTofu.">
       
       
-        <meta name="author" content="Terralings Contributors">
+        <meta name="author" content="Daniel Fisher">
       
       
         <link rel="canonical" href="https://dnf0.github.io/terralings/">
@@ -322,10 +322,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#mission" class="md-nav__link">
+  <a href="#the-modern-way-to-master-infrastructure-as-code" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Mission
+        ⚡ The Modern Way to Master Infrastructure as Code
       
     </span>
   </a>
@@ -333,10 +333,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#pedagogical-philosophy" class="md-nav__link">
+  <a href="#comprehensive-13-chapter-reference-guides" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pedagogical Philosophy
+        📚 Comprehensive 13-Chapter Reference Guides
       
     </span>
   </a>
@@ -344,30 +344,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#architecture-overview" class="md-nav__link">
+  <a href="#how-the-playground-works" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Architecture Overview
+        💡 How the Playground Works
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Architecture Overview">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#key-components" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Key Components
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -375,18 +358,7 @@
   <a href="#quick-navigation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Quick Navigation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#key-feature-highlights" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Key Feature Highlights
+        🚀 Quick Navigation
       
     </span>
   </a>
@@ -435,60 +407,6 @@
   
   
     <li class="md-nav__item">
-      <a href="getting-started/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Getting Started
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="onboarding-guide/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Onboarding Guide
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="syllabus/" class="md-nav__link">
         
   
@@ -496,7 +414,7 @@
   <span class="md-ellipsis">
     
   
-    Curriculum Syllabus
+    Syllabus & Curriculum
   
 
     
@@ -515,15 +433,67 @@
   
   
   
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core HCL & Data Flow
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Core HCL & Data Flow
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
-      <a href="cli-reference/" class="md-nav__link">
+      <a href="guides/01-primitives/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    CLI Reference
+    01. HCL Foundations & Primitives
   
 
     
@@ -535,22 +505,23 @@
     </li>
   
 
-    
-      
-      
+              
+            
+              
+                
   
   
   
   
     <li class="md-nav__item">
-      <a href="vscode-extension/" class="md-nav__link">
+      <a href="guides/02-variables/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    VS Code Companion
+    02. Input Variables & Validations
   
 
     
@@ -559,6 +530,440 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="guides/03-outputs-locals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03. Outputs, Locals & Expressions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="guides/04-functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04. Functions & Collections
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamic Logic & Modules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Dynamic Logic & Modules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="guides/05-meta-arguments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05. Meta-Arguments & Scaling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="guides/06-dynamic-blocks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06. Dynamic Blocks & Logic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="guides/07-data-sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07. Data Sources & Queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="guides/08-modules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08. Modular Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    State Surgery, Testing & Governance
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    State Surgery, Testing & Governance
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="guides/09-state-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09. State Management & Refactoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="guides/10-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10. Native Testing (.tftest.hcl)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="guides/11-production-patterns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11. Production Patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="guides/12-opentofu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12. OpenTofu Innovations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="guides/13-governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13. Architecture Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -617,10 +1022,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#mission" class="md-nav__link">
+  <a href="#the-modern-way-to-master-infrastructure-as-code" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Mission
+        ⚡ The Modern Way to Master Infrastructure as Code
       
     </span>
   </a>
@@ -628,10 +1033,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#pedagogical-philosophy" class="md-nav__link">
+  <a href="#comprehensive-13-chapter-reference-guides" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pedagogical Philosophy
+        📚 Comprehensive 13-Chapter Reference Guides
       
     </span>
   </a>
@@ -639,30 +1044,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#architecture-overview" class="md-nav__link">
+  <a href="#how-the-playground-works" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Architecture Overview
+        💡 How the Playground Works
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Architecture Overview">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#key-components" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Key Components
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -670,18 +1058,7 @@
   <a href="#quick-navigation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Quick Navigation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#key-feature-highlights" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Key Feature Highlights
+        🚀 Quick Navigation
       
     </span>
   </a>
@@ -708,163 +1085,98 @@
   
 
 
-<h1 id="terralings">Terralings</h1>
-<p align="center">
-  <img src="assets/demo.svg" alt="Terralings Terminal Demo" width="800">
-</p>
-
-<p align="center">
-  <strong>An interactive, terminal-driven learning environment for mastering Terraform and OpenTofu.</strong>
-</p>
-
-<p align="center">
-  <a href="playground/index.html"><strong>Interactive Playground</strong></a> •
-  <a href="getting-started.md">Getting Started</a> •
-  <a href="onboarding-guide.md">Onboarding Guide</a> •
-  <a href="syllabus.md">Curriculum Syllabus</a> •
-  <a href="cli-reference.md">CLI Reference</a> •
-  <a href="vscode-extension.md">VS Code Companion</a> •
-  <a href="contributing.md">Contributing</a>
-</p>
-
-<p align="center" style="margin-top: 1.2rem;">
-  <a href="playground/index.html" class="md-button md-button--primary">🚀 Launch In-Browser Playground (Zero Install)</a>
-</p>
-
+<h1 id="terralings">Terralings 🌍</h1>
+<p><strong>An interactive, client-side WebAssembly learning platform and comprehensive reference manual for Terraform &amp; OpenTofu.</strong></p>
+<p><a href="playground/"><img alt="Playground" src="https://img.shields.io/badge/Playground-⚡%20Launch%20Interactive%20IDE-blueviolet" /></a>
+<a href="https://opensource.org/licenses/Apache-2.0"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" /></a>
+<a href="syllabus/"><img alt="Curriculum" src="https://img.shields.io/badge/Curriculum-13%20Chapters%20%7C%2056%20Exercises-brightgreen" /></a></p>
 <hr />
-<h2 id="mission">Mission</h2>
-<p><strong>Terralings</strong> bridges the gap between passive syntax reading and real-world Infrastructure as Code (IaC) engineering. Inspired by <a href="https://github.com/rust-lang/rustlings">Rustlings</a>, <a href="https://github.com/ziglings/exercises">Ziglings</a>, and <a href="https://github.com/ray-project/raylings">Raylings</a>, Terralings provides an interactive, hands-on curriculum that takes you from foundational HCL syntax to complex production-grade architectures, state migrations, and enterprise governance.</p>
-<p>Whether you are configuring your first resource block or orchestrating zero-downtime state refactors with <code>moved</code> blocks and <code>.tftest.hcl</code> suites, Terralings gives you an immediate, friction-free feedback loop right in your terminal.</p>
-<hr />
-<h2 id="pedagogical-philosophy">Pedagogical Philosophy</h2>
-<p>Terralings is built on five core educational pillars:</p>
-<ol>
-<li><strong>Active Debugging over Passive Reading</strong>: Each exercise presents realistic broken or incomplete configuration code with clear <code># TODO:</code> instructions. You learn by identifying compilation errors, diagnosing plan discrepancies, and writing working declarative code.</li>
-<li><strong>Instant Feedback Loop</strong>: Powered by a sub-30ms file watcher (<code>fsnotify</code>), Terralings re-evaluates your changes immediately upon saving the file. Hotkeys allow instant navigation, progressive hints, and manual re-evaluation without restarting your session.</li>
-<li><strong>Dual-Engine Compatibility</strong>: Terralings natively detects and executes against either <strong>OpenTofu</strong> (<code>tofu</code> &ge; 1.6.0) or <strong>Terraform</strong> (<code>terraform</code> &ge; 1.5.0), ensuring universal applicability across open-source and enterprise toolchains.</li>
-<li><strong>Progressive Hinting System</strong>: When you get stuck, multi-tiered contextual hints provide gentle nudges and concept reminders before revealing targeted syntax patterns, preserving the learning challenge.</li>
-<li><strong>Zero-Friction Validation</strong>: Terralings eliminates cumbersome "magic comments" or manual completion markers. Your code is validated directly against canonical parser checks, execution plans, and native test runners.</li>
-</ol>
-<hr />
-<h2 id="architecture-overview">Architecture Overview</h2>
-<p>Terralings is engineered in Go for extreme performance, offline reliability, and zero cloud credential requirements. The complete 56-exercise curriculum is embedded directly in the standalone binary.</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>                            +-----------------------+
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>                            |     User Terminal     |
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>                            +-----------+-----------+
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>                                        |
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>                                        v
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>                            +-----------------------+
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>                            |  Terralings CLI (Go)  |
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>                            +-----------+-----------+
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>                                        |
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>               +------------------------+------------------------+
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>               |                                                 |
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>               v                                                 v
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>   +-----------------------+                         +-----------------------+
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>   |  File Watcher Engine  |                         |  Bubble Tea TUI &amp; UI  |
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>   |       (fsnotify)      |                         | (diagnostics / tree)  |
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>   +-----------+-----------+                         +-----------------------+
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>               |
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>               v
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>   +-----------------------+
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>   |  Curriculum Manifest  |  (13 Chapters / 56 Exercises)
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>   +-----------+-----------+
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>               |
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>               v
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>   +-----------------------+
-</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>   |   Exercise Runner     |
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>   +-----------+-----------+
-</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>               |
-</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>   +-----------+-----------+
-</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>   |                       |
-</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>   v                       v
-</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>+---------------+   +------------------+
-</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>|  OpenTofu CLI |   |  Terraform CLI   |
-</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>| (tofu binary) |   | (terraform bin)  |
-</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>+---------------+   +------------------+
-</span></code></pre></div>
-<h3 id="key-components">Key Components</h3>
-<ul>
-<li><strong>Embedded Assets (<code>exercises/</code>)</strong>: Complete curriculum embedded via Go's <code>embed.FS</code>—extract instantly anywhere with <code>terralings init</code>.</li>
-<li><strong>Diagnostic Engine (<code>terralings doctor</code>)</strong>: Pre-flight system probe checking binary availability, filesystem permissions, and cache health.</li>
-<li><strong>Interactive Tour (<code>terralings tour</code>)</strong>: Built-in 5-step terminal walkthrough covering IaC fundamentals, TUI shortcuts, and LSP setup.</li>
-<li><strong>Bubble Tea TUI (<code>terralings tui</code> / <code>watch -i</code>)</strong>: Full-screen dual-pane terminal interface with real-time compilation viewport, fuzzy search, and hints drawer.</li>
-<li><strong>Language Server Protocol Daemon (<code>terralings lsp</code>)</strong>: JSON-RPC 2.0 language server delivering in-editor diagnostics, hover tooltips, and quick-fixes for VS Code, Neovim, and Helix.</li>
-</ul>
-<hr />
-<h2 id="quick-navigation">Quick Navigation</h2>
+<h2 id="the-modern-way-to-master-infrastructure-as-code">⚡ The Modern Way to Master Infrastructure as Code</h2>
+<p>Terralings combines a <strong>zero-install, 100% client-side WebAssembly interactive playground</strong> with <strong>13 comprehensive architectural reference guides</strong> spanning the entire Terraform &amp; OpenTofu ecosystem.</p>
 <div class="grid cards" markdown>
 
--   :material-rocket-launch: **[Getting Started](getting-started.md)**
-
+-   :material-play-circle-outline: **Zero-Install Web IDE**
     ---
+    Run Monaco Editor, Pyodide WebAssembly, and real-time HCL validation 100% in your browser. No cloud credentials, no local binary installs, and zero backend servers required.
 
-    Prerequisites, installation options (1-line script, Go toolchain, source), pre-flight checks, and first exercise walkthrough.
+    [**Launch Playground →**](playground/index.html){ .md-button .md-button--primary }
 
--   :material-book-open-page-variant: **[Curriculum Syllabus](syllabus.md)**
-
+-   :material-book-open-page-variant-outline: **13-Chapter Reference Manual**
     ---
+    Deep architectural documentation, annotated HCL specs, production best practices, and state surgery workflows for modern IaC.
 
-    Explore all 13 chapters and 56 exercises covering primitives, variables, modules, testing, OpenTofu encryption, and architecture governance.
-
--   :material-console: **[CLI Reference](cli-reference.md)**
-
-    ---
-
-    Comprehensive guide to all 15 subcommands, interactive hotkeys, flags, NDJSON event streaming, and environment variables.
-
--   :material-microsoft-visual-studio-code: **[VS Code Companion](vscode-extension.md)**
-
-    ---
-
-    Install the official extension for curriculum tree views, live diagnostic badges, interactive walkthroughs, and one-click runners.
-
--   :material-compass: **[Onboarding Guide](onboarding-guide.md)**
-
-    ---
-
-    Deep-dive onboarding journey explaining pedagogical concepts, terminal workflows, analytics, and troubleshooting tips.
-
--   :material-account-group: **[Contributing](contributing.md)**
-
-    ---
-
-    Guidelines for authoring new exercises, maintaining solutions, running test suites, and submitting pull requests.
+    [**Explore Reference Guides →**](#-comprehensive-13-chapter-reference-guides){ .md-button }
 
 </div>
 
 <hr />
-<h2 id="key-feature-highlights">Key Feature Highlights</h2>
-<table>
-<thead>
-<tr>
-<th>Feature</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Zero Cloud Dependencies</strong></td>
-<td>Executes purely locally using built-in providers (<code>local</code>, <code>random</code>, <code>archive</code>, <code>terraform_data</code>, <code>test_mock</code>)—no AWS/GCP/Azure credentials or cloud spend required.</td>
-</tr>
-<tr>
-<td><strong>Sub-100ms Runner</strong></td>
-<td>Shared plugin cache (<code>~/.terralings/plugin-cache</code>) eliminates redundant network downloads during provider initialization.</td>
-</tr>
-<tr>
-<td><strong>Progress Persistence</strong></td>
-<td>Automatically tracks attempts, pass/fail status, hint usage, and time invested in <code>.terralings/state.json</code>.</td>
-</tr>
-<tr>
-<td><strong>Full-Text Curriculum Search</strong></td>
-<td>Search topics, error messages, and HCL concepts across all exercises using <code>terralings search &lt;term&gt;</code>.</td>
-</tr>
-<tr>
-<td><strong>Shell Autocompletions</strong></td>
-<td>First-class tab completion for Bash, Zsh, Fish, and PowerShell with dynamic exercise name suggestions.</td>
-</tr>
-</tbody>
-</table>
+<h2 id="comprehensive-13-chapter-reference-guides">📚 Comprehensive 13-Chapter Reference Guides</h2>
+<p>Explore in-depth architectural guides and launch linked practice exercises directly into the playground:</p>
+<div class="grid cards" markdown>
+
+-   ### Core HCL & Data Flow
+    ---
+    - [**01. HCL Foundations & Core Primitives**](guides/01-primitives.md) &bull; Blocks, provider constraints, resources, heredocs, lifecycle
+    - [**02. Input Variables, Types & Validations**](guides/02-variables.md) &bull; Primitives, collections, objects, custom validation rules
+    - [**03. Outputs, Locals & Expressions**](guides/03-outputs-locals.md) &bull; Outputs, sensitive masking, locals, ternaries, splat expressions
+    - [**04. Built-in Functions & Collections**](guides/04-functions.md) &bull; String ops, collection math, encoding, files, `try`/`can`
+
+-   ### Dynamic Logic & Modules
+    ---
+    - [**05. Meta-Arguments & Scaling**](guides/05-meta-arguments.md) &bull; `count`, `for_each`, `depends_on`, lifecycle rules, replacement triggers
+    - [**06. Dynamic Blocks & Advanced HCL**](guides/06-dynamic-blocks.md) &bull; `dynamic` block generators, custom iterators, nested loops
+    - [**07. Data Sources & State Querying**](guides/07-data-sources.md) &bull; Local files, archive zips, external scripts, preconditions
+    - [**08. Modular Infrastructure Architecture**](guides/08-modules.md) &bull; Child modules, multi-instance calling, provider aliases
+
+-   ### State Surgery, Testing & Governance
+    ---
+    - [**09. State Management & Refactoring Surgery**](guides/09-state-management.md) &bull; Declarative `moved` blocks, `import` blocks, replacements
+    - [**10. Native Unit & Integration Testing**](guides/10-testing.md) &bull; `.tftest.hcl`, `run` blocks, mocks, `expect_failures`
+    - [**11. Production Patterns & Anti-Patterns**](guides/11-production-patterns.md) &bull; Environment mapping, feature flags, tagging factories
+    - [**12. OpenTofu Innovations & Enterprise**](guides/12-opentofu.md) &bull; State encryption at rest, key providers, open registries
+    - [**13. Architecture Governance & Standards**](guides/13-governance.md) &bull; Root encapsulation, policy scoping, ephemeral isolation
+
+</div>
+
+<hr />
+<h2 id="how-the-playground-works">💡 How the Playground Works</h2>
+<p>The Terralings web playground runs entirely on client-side WebAssembly technology:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌────────────────────────────────────────────────────────────────────────┐
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│                          Web Browser Tab                               │
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│  ┌───────────────────────┐             ┌─────────────────────────────┐ │
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│  │     Monaco Editor     │   HCL Code  │  Web Worker (Pyodide Wasm)  │ │
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│  │  (VS Code in Browser) ├────────────►│  • Python 3.12 Engine       │ │
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│  └───────────────────────┘             │  • 13 Chapter Validators    │ │
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│                                        │  • Progressive Hint Engine  │ │
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│  ┌───────────────────────┐             └──────────────┬──────────────┘ │
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│  │   Interactive xterm   │◄───────────────────────────┘                │
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│  │    Terminal Output    │         Instant Test &amp; Validation Result    │
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│  └───────────────────────┘         (&lt; 1ms in WebAssembly)              │
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>└────────────────────────────────────────────────────────────────────────┘
+</span></code></pre></div>
+<hr />
+<h2 id="quick-navigation">🚀 Quick Navigation</h2>
+<div class="grid cards" markdown>
+
+-   :material-laptop: **Interactive Playground**
+    ---
+    Dive straight into the browser IDE with real-time feedback.
+
+    [Open Playground →](playground/index.html)
+
+-   :material-format-list-numbered: **Curriculum Syllabus**
+    ---
+    View the complete breakdown of all 56 exercises and concepts.
+
+    [Explore Syllabus →](syllabus.md)
+
+-   :material-github: **Contribute on GitHub**
+    ---
+    Add new exercises, improve validators, or submit guides.
+
+    [Contributing Guide →](contributing.md)
+
+</div>
 
 
 
