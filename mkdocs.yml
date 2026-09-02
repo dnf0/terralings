@@ -1,7 +1,7 @@
 site_name: Terralings
-site_description: An interactive, hands-on CLI learning environment for Terraform and OpenTofu.
+site_description: An interactive, client-side WebAssembly learning platform and comprehensive reference manual for Terraform and OpenTofu.
 site_url: https://dnf0.github.io/terralings/
-site_author: Terralings Contributors
+site_author: Daniel Fisher
 repo_name: dnf0/terralings
 repo_url: https://github.com/dnf0/terralings
 
@@ -49,14 +49,31 @@ markdown_extensions:
 nav:
   - Overview: index.md
   - Interactive Playground: playground/index.html
-  - Getting Started: getting-started.md
-  - Onboarding Guide: onboarding-guide.md
-  - Curriculum Syllabus: syllabus.md
-  - CLI Reference: cli-reference.md
-  - VS Code Companion: vscode-extension.md
+  - Syllabus & Curriculum: syllabus.md
+  - Core HCL & Data Flow:
+      - 01. HCL Foundations & Primitives: guides/01-primitives.md
+      - 02. Input Variables & Validations: guides/02-variables.md
+      - 03. Outputs, Locals & Expressions: guides/03-outputs-locals.md
+      - 04. Functions & Collections: guides/04-functions.md
+  - Dynamic Logic & Modules:
+      - 05. Meta-Arguments & Scaling: guides/05-meta-arguments.md
+      - 06. Dynamic Blocks & Logic: guides/06-dynamic-blocks.md
+      - 07. Data Sources & Queries: guides/07-data-sources.md
+      - 08. Modular Architecture: guides/08-modules.md
+  - State Surgery, Testing & Governance:
+      - 09. State Management & Refactoring: guides/09-state-management.md
+      - 10. Native Testing (.tftest.hcl): guides/10-testing.md
+      - 11. Production Patterns: guides/11-production-patterns.md
+      - 12. OpenTofu Innovations: guides/12-opentofu.md
+      - 13. Architecture Governance: guides/13-governance.md
   - Contributing: contributing.md
 
 not_in_nav: |
   superpowers/**
   plans/**
   playground/**
+  getting-started.md
+  onboarding-guide.md
+  cli-reference.md
+  vscode-extension.md
+
