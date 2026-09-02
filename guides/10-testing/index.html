@@ -1350,35 +1350,40 @@
 <hr />
 <h2 id="1-architectural-overview-test-framework-mechanics">1. Architectural Overview &amp; Test Framework Mechanics</h2>
 <p>In modern Terraform and OpenTofu, <strong>Native Testing</strong> executes via <code>.tftest.hcl</code> files. The testing framework provisions isolated ephemeral environments, mocks external cloud providers without credentials, runs assertion rules against planned or applied states, and verifies defensive failure paths.</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌─────────────────────────────────────────────────────────────┐
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│                 Native `.tftest.hcl` Test Engine            │
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│                                                             │
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│   Ephemeral Test Harness                                    │
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│   ┌───────────────────────────────────────────────────────┐ │
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│   │ `run "unit_plan"` {                                   │ │
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│   │   command = plan                                      │ │
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│   │   variables = { env = "prod" }                        │ │
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│   │   assert {                                            │ │
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│   │     condition     = terraform_data.db.input.tier != ""│ │
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│   │     error_message = "Tier must not be empty"          │ │
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│   │   }                                                   │ │
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│   │ }                                                     │ │
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│   └──────────────────────────┬────────────────────────────┘ │
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│                              │                              │
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>│                              ▼                              │
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>│   ┌───────────────────────────────────────────────────────┐ │
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│   │ Mock Provider Subsystem (Zero Cloud Credentials)      │ │
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>│   │ ├── `mock_provider "aws"`                             │ │
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>│   │ └── `override_resource`                               │ │
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>│   └──────────────────────────┬────────────────────────────┘ │
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>│                              │                              │
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>│                              ▼                              │
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>│   ┌───────────────────────────────────────────────────────┐ │
-</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>│   │ Negative Testing Guard                                │ │
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>│   │ └── `expect_failures = [var.invalid_param]`           │ │
-</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>│   └───────────────────────────────────────────────────────┘ │
-</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>└─────────────────────────────────────────────────────────────┘
-</span></code></pre></div>
+<pre class="mermaid"><code>flowchart TD
+    subgraph TestHarness["Native .tftest.hcl Test Engine"]
+        direction TB
+
+        subgraph Setup["Test Setup &amp; Isolation"]
+            TFTest["🧪 .tftest.hcl Harness"]
+            Mock["🎭 mock_provider 'aws' / 'google'&lt;br/&gt;&lt;i&gt;Zero Real Cloud Credentials Required&lt;/i&gt;"]
+            Overrides["⚙️ override_resource / override_data"]
+            TFTest --&gt; Mock --&gt; Overrides
+        end
+
+        subgraph RunBlocks["Sequential run Blocks"]
+            direction TB
+            PlanRun["📋 run 'plan_verification'&lt;br/&gt;&lt;code&gt;command = plan&lt;/code&gt;&lt;br/&gt;&lt;i&gt;In-Memory Static Plan Verification&lt;/i&gt;"]
+            ApplyRun["🚀 run 'apply_integration'&lt;br/&gt;&lt;code&gt;command = apply&lt;/code&gt;&lt;br/&gt;&lt;i&gt;Ephemeral State Execution&lt;/i&gt;"]
+            PlanRun --&gt; ApplyRun
+        end
+
+        subgraph Assertions["Assertion &amp; Negative Testing Gates"]
+            AssertGate{"⚖️ assert { condition }"}
+            NegGate{"🛡️ expect_failures = [...]"}
+
+            Pass["✅ Test Step Passed"]
+            Fail["❌ Test Step Failed (Emit error_message)"]
+
+            AssertGate --&gt;|"condition = true"| Pass
+            AssertGate --&gt;|"condition = false"| Fail
+            NegGate --&gt;|"Expected Error Caught"| Pass
+            NegGate --&gt;|"No Error Raised"| Fail
+        end
+    end
+
+    Overrides --&gt; RunBlocks
+    RunBlocks --&gt; Assertions</code></pre>
 <p>Testing Modes:
 1. <strong><code>command = plan</code> (Unit Testing)</strong>: Validates variable validations, locals, and planned resource values in memory without issuing cloud API calls.
 2. <strong><code>command = apply</code> (Integration Testing)</strong>: Provisions real or mocked resources to test computed output contracts.
@@ -1387,45 +1392,45 @@
 <hr />
 <h2 id="2-annotated-production-hcl-anatomy-field-reference">2. Annotated Production HCL Anatomy &amp; Field Reference</h2>
 <p>Below is a production-grade <code>.tftest.hcl</code> specification demonstrating plan-time assertions, provider mocking, and negative test verification:</p>
-<div class="language-hcl highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># tests/cluster_validation.tftest.hcl</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="c1"># 1. Mock external cloud provider for isolated unit tests</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="err">mock_</span><span class="kr">provider</span><span class="w"> </span><span class="nv">"aws"</span><span class="w"> </span><span class="p">{}</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="c1"># 2. Plan-time unit test block</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="err">run</span><span class="w"> </span><span class="s2">"validate_production_sizing"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">  </span><span class="na">command</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">plan</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="nb">variables</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="na">environment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"production"</span>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">    </span><span class="na">cluster_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">5</span>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">  </span><span class="nb">assert</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">    </span><span class="na">condition</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="nv">terraform_data.cluster.input.desired_nodes</span><span class="w"> </span><span class="p">==</span><span class="w"> </span><span class="m">5</span>
-</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">    </span><span class="na">error_message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Production cluster must initialize with exactly 5 nodes."</span>
-</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>
-</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="w">  </span><span class="nb">assert</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">    </span><span class="na">condition</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="nv">terraform_data.cluster.input.tier</span><span class="w"> </span><span class="p">==</span><span class="w"> </span><span class="s2">"enterprise"</span>
-</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">    </span><span class="na">error_message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Production cluster must use enterprise tier."</span>
-</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="p">}</span>
-</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>
-</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="c1"># 3. Negative test asserting that invalid inputs are blocked</span>
-</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="err">run</span><span class="w"> </span><span class="s2">"reject_invalid_cluster_size"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="w">  </span><span class="na">command</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">plan</span>
-</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>
-</span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a><span class="w">  </span><span class="nb">variables</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-31"><a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a><span class="w">    </span><span class="na">environment</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2">"production"</span>
-</span><span id="__span-1-32"><a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a><span class="w">    </span><span class="na">cluster_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">999</span><span class="c1">  # Exceeds allowed limit</span>
-</span><span id="__span-1-33"><a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-1-34"><a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>
-</span><span id="__span-1-35"><a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a><span class="c1">  # Expect variable validation condition to trigger failure</span>
-</span><span id="__span-1-36"><a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a><span class="w">  </span><span class="na">expect_failures</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
-</span><span id="__span-1-37"><a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a><span class="w">    </span><span class="nv">var.cluster_size</span>
-</span><span id="__span-1-38"><a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a><span class="w">  </span><span class="p">]</span>
-</span><span id="__span-1-39"><a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a><span class="p">}</span>
+<div class="language-hcl highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># tests/cluster_validation.tftest.hcl</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># 1. Mock external cloud provider for isolated unit tests</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="err">mock_</span><span class="kr">provider</span><span class="w"> </span><span class="nv">"aws"</span><span class="w"> </span><span class="p">{}</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c1"># 2. Plan-time unit test block</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="err">run</span><span class="w"> </span><span class="s2">"validate_production_sizing"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="na">command</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">plan</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">  </span><span class="nb">variables</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="na">environment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"production"</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="na">cluster_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">5</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span><span class="nb">assert</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="na">condition</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="nv">terraform_data.cluster.input.desired_nodes</span><span class="w"> </span><span class="p">==</span><span class="w"> </span><span class="m">5</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span><span class="na">error_message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Production cluster must initialize with exactly 5 nodes."</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">  </span><span class="nb">assert</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">    </span><span class="na">condition</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="nv">terraform_data.cluster.input.tier</span><span class="w"> </span><span class="p">==</span><span class="w"> </span><span class="s2">"enterprise"</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">    </span><span class="na">error_message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Production cluster must use enterprise tier."</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="p">}</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="c1"># 3. Negative test asserting that invalid inputs are blocked</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="err">run</span><span class="w"> </span><span class="s2">"reject_invalid_cluster_size"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">  </span><span class="na">command</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">plan</span>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">  </span><span class="nb">variables</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="w">    </span><span class="na">environment</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2">"production"</span>
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="w">    </span><span class="na">cluster_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">999</span><span class="c1">  # Exceeds allowed limit</span>
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>
+</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="c1">  # Expect variable validation condition to trigger failure</span>
+</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="w">  </span><span class="na">expect_failures</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a><span class="w">    </span><span class="nv">var.cluster_size</span>
+</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="w">  </span><span class="p">]</span>
+</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="key-test-schema-reference-table">Key Test Schema Reference Table</h3>
 <table>
@@ -1482,36 +1487,36 @@
 <hr />
 <h2 id="3-real-world-architectural-patterns">3. Real-World Architectural Patterns</h2>
 <h3 id="pattern-1-multi-step-sequential-integration-test">Pattern 1: Multi-Step Sequential Integration Test</h3>
-<div class="language-hcl highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Step 1: Create network foundation</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="err">run</span><span class="w"> </span><span class="s2">"setup_network"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="na">command</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">apply</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nb">variables</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="na">enable_vpc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="p">}</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="c1"># Step 2: Test dependent application deployment</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="err">run</span><span class="w"> </span><span class="s2">"deploy_application"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">  </span><span class="na">command</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">apply</span>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">  </span><span class="nb">variables</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="na">vpc_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">run.setup_network.vpc_id</span>
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>
-</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">  </span><span class="nb">assert</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">    </span><span class="na">condition</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="nv">terraform_data.app_nodes</span><span class="p">)</span><span class="w"> </span><span class="err">&gt;</span><span class="w"> </span><span class="m">0</span>
-</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">    </span><span class="na">error_message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Application nodes failed to deploy into VPC."</span>
-</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="p">}</span>
+<div class="language-hcl highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Step 1: Create network foundation</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="err">run</span><span class="w"> </span><span class="s2">"setup_network"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="na">command</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">apply</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nb">variables</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="na">enable_vpc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">}</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="c1"># Step 2: Test dependent application deployment</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="err">run</span><span class="w"> </span><span class="s2">"deploy_application"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">  </span><span class="na">command</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">apply</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">  </span><span class="nb">variables</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="na">vpc_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">run.setup_network.vpc_id</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">  </span><span class="nb">assert</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">    </span><span class="na">condition</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="nv">terraform_data.app_nodes</span><span class="p">)</span><span class="w"> </span><span class="err">&gt;</span><span class="w"> </span><span class="m">0</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span><span class="na">error_message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Application nodes failed to deploy into VPC."</span>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="pattern-2-mocking-computed-resource-attributes">Pattern 2: Mocking Computed Resource Attributes</h3>
-<div class="language-hcl highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="err">mock_</span><span class="kr">provider</span><span class="w"> </span><span class="nv">"aws"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="err">mock_</span><span class="kr">data</span><span class="w"> </span><span class="nv">"aws_ami"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nb">defaults</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">      </span><span class="na">id</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s2">"ami-0123456789mock"</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">      </span><span class="na">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"ubuntu-22.04-mocked"</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="p">}</span>
+<div class="language-hcl highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="err">mock_</span><span class="kr">provider</span><span class="w"> </span><span class="nv">"aws"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="err">mock_</span><span class="kr">data</span><span class="w"> </span><span class="nv">"aws_ami"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nb">defaults</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">      </span><span class="na">id</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s2">"ami-0123456789mock"</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">      </span><span class="na">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"ubuntu-22.04-mocked"</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="p">}</span>
 </span></code></pre></div>
 <hr />
 <h2 id="4-production-hardening-operational-governance">4. Production Hardening &amp; Operational Governance</h2>

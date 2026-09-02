@@ -1350,27 +1350,31 @@
 <hr />
 <h2 id="1-architectural-overview-scaling-mechanics">1. Architectural Overview &amp; Scaling Mechanics</h2>
 <p>In Terraform and OpenTofu, <strong>Meta-Arguments</strong> are engine-level directives applicable to any resource or module block. They control how many instances are generated, how dependencies are sequenced, and how the resource lifecycle responds to changes and drift.</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌─────────────────────────────────────────────────────────────┐
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│                    Meta-Arguments Engine                    │
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│                                                             │
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│   Scaling: `count` vs `for_each`                            │
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│   ┌───────────────────────────┐ ┌─────────────────────────┐ │
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│   │ `count = 3`               │ │ `for_each = toset(...)` │ │
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│   │ Index-based addressing    │ │ Key-based addressing    │ │
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│   │ - res[0], res[1], res[2]  │ │ - res["web"], res["api"]│ │
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│   │ ⚠️ Index shift on delete  │ │ ✅ Idempotent removal   │ │
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│   └───────────────────────────┘ └─────────────────────────┘ │
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│                                                             │
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│   Graph Ordering: `depends_on`                              │
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│   └── Injects explicit edge between two DAG vertices        │
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│                                                             │
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│   Lifecycle Hooks: `lifecycle { ... }`                      │
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>│   ├── `create_before_destroy` - Zero-downtime replacement   │
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>│   ├── `prevent_destroy`       - Guard against accidental del│
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│   ├── `ignore_changes`        - Exclude out-of-band updates │
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>│   └── `replace_triggered_by`  - Force recreation on trigger │
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>└─────────────────────────────────────────────────────────────┘
-</span></code></pre></div>
+<pre class="mermaid"><code>flowchart TD
+    subgraph ResourceBlock["Resource Definition"]
+        Decl["📦 resource 'type' 'name'"]
+    end
+
+    subgraph ScalingStrategies["Scaling &amp; Instantiation Strategy"]
+        direction TB
+        CountNode["🔢 count = N&lt;br/&gt;&lt;i&gt;• Index Addressing: res[0], res[1]&lt;br/&gt;⚠️ Shifting Index on Deletions&lt;/i&gt;"]
+        ForEachNode["🗺️ for_each = toset() / map&lt;br/&gt;&lt;i&gt;• Key Addressing: res['web'], res['db']&lt;br/&gt;✅ Safe, Idempotent Mutations&lt;/i&gt;"]
+    end
+
+    subgraph LifecycleEngine["Lifecycle Control &amp; Hook Engine"]
+        CBD["⚡ create_before_destroy&lt;br/&gt;&lt;i&gt;Zero-Downtime Provisioning&lt;/i&gt;"]
+        PD["🛡️ prevent_destroy&lt;br/&gt;&lt;i&gt;Accidental Deletion Guard&lt;/i&gt;"]
+        IC["👁️ ignore_changes&lt;br/&gt;&lt;i&gt;External Drift Suppression&lt;/i&gt;"]
+        RTB["🔄 replace_triggered_by&lt;br/&gt;&lt;i&gt;Explicit State Recreation&lt;/i&gt;"]
+    end
+
+    subgraph DAGOrder["Graph Dependency"]
+        DO["🔗 depends_on = [...]&lt;br/&gt;&lt;i&gt;Explicit DAG Edge Injection&lt;/i&gt;"]
+    end
+
+    Decl --&gt; ScalingStrategies
+    Decl --&gt; LifecycleEngine
+    Decl --&gt; DAGOrder</code></pre>
 <p>Core Mechanics:
 1. <strong><code>count</code></strong>: Replicates resources based on an integer count. Instances are addressed as <code>resource.name[index]</code>. Removing an element from the middle of a list shifts subsequent indices, causing destructive recreation of downstream resources.
 2. <strong><code>for_each</code></strong>: Maps instances by distinct set or map keys. Instances are addressed as <code>resource.name["key"]</code>. Adding or removing keys modifies only the specific target instance.
@@ -1378,55 +1382,55 @@
 <hr />
 <h2 id="2-annotated-production-hcl-anatomy-field-reference">2. Annotated Production HCL Anatomy &amp; Field Reference</h2>
 <p>Below is a production-grade configuration demonstrating idempotent <code>for_each</code> mapping, explicit graph dependencies, and lifecycle rules:</p>
-<div class="language-hcl highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kr">variable</span><span class="w"> </span><span class="nv">"storage_buckets"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">map</span><span class="p">(</span><span class="kt">object</span><span class="p">({</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="na">purpose</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="na">retention_days</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">number</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="p">}))</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="nb">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="s2">"logs"</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="na">purpose</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"access-logging"</span><span class="p">,</span><span class="w"> </span><span class="na">retention_days</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">90</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="s2">"backups"</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="na">purpose</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"database-dumps"</span><span class="p">,</span><span class="w"> </span><span class="na">retention_days</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">365</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="s2">"assets"</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="na">purpose</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"static-media"</span><span class="p">,</span><span class="w">   </span><span class="na">retention_days</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">30</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="p">}</span>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="c1"># Prerequisites resource</span>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="kr">resource</span><span class="w"> </span><span class="nc">"terraform_data"</span><span class="w"> </span><span class="nv">"kms_key"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">  </span><span class="nb">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">    </span><span class="na">key_alias</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"alias/storage-encryption-key"</span>
-</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">    </span><span class="na">status</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s2">"enabled"</span>
-</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="p">}</span>
-</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>
-</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="c1"># Scaled resources mapped by unique map keys</span>
-</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="kr">resource</span><span class="w"> </span><span class="nc">"terraform_data"</span><span class="w"> </span><span class="nv">"buckets"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="w">  </span><span class="na">for_each</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">var.storage_buckets</span>
-</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>
-</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="w">  </span><span class="nb">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="w">    </span><span class="na">bucket_name</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s2">"acme-corp-${each.key}"</span>
-</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="w">    </span><span class="na">purpose</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="nv">each.value.purpose</span>
-</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="w">    </span><span class="na">retention_days</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">each.value.retention_days</span>
-</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="w">    </span><span class="na">encryption_key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">terraform_data.kms_key.id</span>
-</span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-1-31"><a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>
-</span><span id="__span-1-32"><a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a><span class="c1">  # Explicit graph ordering</span>
-</span><span id="__span-1-33"><a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a><span class="w">  </span><span class="na">depends_on</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
-</span><span id="__span-1-34"><a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a><span class="w">    </span><span class="nv">terraform_data.kms_key</span>
-</span><span id="__span-1-35"><a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a><span class="w">  </span><span class="p">]</span>
-</span><span id="__span-1-36"><a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>
-</span><span id="__span-1-37"><a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a><span class="w">  </span><span class="nb">lifecycle</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-38"><a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a><span class="c1">    # Zero-downtime replacement</span>
-</span><span id="__span-1-39"><a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a><span class="w">    </span><span class="na">create_before_destroy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
-</span><span id="__span-1-40"><a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a>
-</span><span id="__span-1-41"><a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a><span class="c1">    # Prevent accidental destruction in production</span>
-</span><span id="__span-1-42"><a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a><span class="w">    </span><span class="na">prevent_destroy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">false</span>
-</span><span id="__span-1-43"><a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a>
-</span><span id="__span-1-44"><a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a><span class="c1">    # Ignore drift on external tags</span>
-</span><span id="__span-1-45"><a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a><span class="w">    </span><span class="na">ignore_changes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
-</span><span id="__span-1-46"><a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a><span class="w">      </span><span class="err">input</span><span class="p">[</span><span class="s2">"retention_days"</span><span class="p">]</span>
-</span><span id="__span-1-47"><a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a><span class="w">    </span><span class="p">]</span>
-</span><span id="__span-1-48"><a id="__codelineno-1-48" name="__codelineno-1-48" href="#__codelineno-1-48"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-1-49"><a id="__codelineno-1-49" name="__codelineno-1-49" href="#__codelineno-1-49"></a><span class="p">}</span>
+<div class="language-hcl highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kr">variable</span><span class="w"> </span><span class="nv">"storage_buckets"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">map</span><span class="p">(</span><span class="kt">object</span><span class="p">({</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="na">purpose</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="na">retention_days</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">number</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="p">}))</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="nb">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="s2">"logs"</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="na">purpose</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"access-logging"</span><span class="p">,</span><span class="w"> </span><span class="na">retention_days</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">90</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="s2">"backups"</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="na">purpose</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"database-dumps"</span><span class="p">,</span><span class="w"> </span><span class="na">retention_days</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">365</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="s2">"assets"</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="na">purpose</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"static-media"</span><span class="p">,</span><span class="w">   </span><span class="na">retention_days</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">30</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="p">}</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="c1"># Prerequisites resource</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="kr">resource</span><span class="w"> </span><span class="nc">"terraform_data"</span><span class="w"> </span><span class="nv">"kms_key"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span><span class="nb">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="na">key_alias</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"alias/storage-encryption-key"</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span><span class="na">status</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s2">"enabled"</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="p">}</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="c1"># Scaled resources mapped by unique map keys</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="kr">resource</span><span class="w"> </span><span class="nc">"terraform_data"</span><span class="w"> </span><span class="nv">"buckets"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">  </span><span class="na">for_each</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">var.storage_buckets</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">  </span><span class="nb">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="w">    </span><span class="na">bucket_name</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s2">"acme-corp-${each.key}"</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">    </span><span class="na">purpose</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="nv">each.value.purpose</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">    </span><span class="na">retention_days</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">each.value.retention_days</span>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="w">    </span><span class="na">encryption_key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">terraform_data.kms_key.id</span>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="c1">  # Explicit graph ordering</span>
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="w">  </span><span class="na">depends_on</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="w">    </span><span class="nv">terraform_data.kms_key</span>
+</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="w">  </span><span class="p">]</span>
+</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>
+</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a><span class="w">  </span><span class="nb">lifecycle</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="c1">    # Zero-downtime replacement</span>
+</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="w">    </span><span class="na">create_before_destroy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
+</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>
+</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a><span class="c1">    # Prevent accidental destruction in production</span>
+</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a><span class="w">    </span><span class="na">prevent_destroy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">false</span>
+</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>
+</span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a><span class="c1">    # Ignore drift on external tags</span>
+</span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a><span class="w">    </span><span class="na">ignore_changes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-0-46"><a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a><span class="w">      </span><span class="err">input</span><span class="p">[</span><span class="s2">"retention_days"</span><span class="p">]</span>
+</span><span id="__span-0-47"><a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a><span class="w">    </span><span class="p">]</span>
+</span><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-49"><a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="key-meta-arguments-reference-table">Key Meta-Arguments Reference Table</h3>
 <table>
@@ -1478,34 +1482,34 @@
 <hr />
 <h2 id="3-real-world-architectural-patterns">3. Real-World Architectural Patterns</h2>
 <h3 id="pattern-1-count-for-conditional-toggling-vs-for_each-for-scaling">Pattern 1: <code>count</code> for Conditional Toggling vs <code>for_each</code> for Scaling</h3>
-<div class="language-hcl highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kr">variable</span><span class="w"> </span><span class="nv">"enable_bastion"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="na">type</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="kt">bool</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="na">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">false</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="p">}</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="c1"># Conditional 0 or 1 instance toggle</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="kr">resource</span><span class="w"> </span><span class="nc">"terraform_data"</span><span class="w"> </span><span class="nv">"bastion_host"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="na">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">var.enable_bastion</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="m">0</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">  </span><span class="nb">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="na">hostname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"bastion.internal"</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">    </span><span class="na">role</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s2">"jumpbox"</span>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="p">}</span>
+<div class="language-hcl highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kr">variable</span><span class="w"> </span><span class="nv">"enable_bastion"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="na">type</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="kt">bool</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="na">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">false</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="p">}</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="c1"># Conditional 0 or 1 instance toggle</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="kr">resource</span><span class="w"> </span><span class="nc">"terraform_data"</span><span class="w"> </span><span class="nv">"bastion_host"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">  </span><span class="na">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">var.enable_bastion</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="m">0</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">  </span><span class="nb">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="na">hostname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"bastion.internal"</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="na">role</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s2">"jumpbox"</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="pattern-2-dynamic-ignore_changes-for-autoscaling-drift">Pattern 2: Dynamic <code>ignore_changes</code> for Autoscaling Drift</h3>
-<div class="language-hcl highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kr">resource</span><span class="w"> </span><span class="nc">"terraform_data"</span><span class="w"> </span><span class="nv">"web_cluster"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nb">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="na">desired_capacity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">3</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="na">ami_id</span><span class="w">           </span><span class="o">=</span><span class="w"> </span><span class="s2">"ami-0123456789"</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">  </span><span class="nb">lifecycle</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="c1">    # Ignore desired_capacity drift caused by AWS Auto Scaling Groups</span>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="na">ignore_changes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">      </span><span class="err">input</span><span class="p">[</span><span class="s2">"desired_capacity"</span><span class="p">]</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">    </span><span class="p">]</span>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="p">}</span>
+<div class="language-hcl highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kr">resource</span><span class="w"> </span><span class="nc">"terraform_data"</span><span class="w"> </span><span class="nv">"web_cluster"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nb">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="na">desired_capacity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">3</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="na">ami_id</span><span class="w">           </span><span class="o">=</span><span class="w"> </span><span class="s2">"ami-0123456789"</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="nb">lifecycle</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="c1">    # Ignore desired_capacity drift caused by AWS Auto Scaling Groups</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="na">ignore_changes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">      </span><span class="err">input</span><span class="p">[</span><span class="s2">"desired_capacity"</span><span class="p">]</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">    </span><span class="p">]</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="p">}</span>
 </span></code></pre></div>
 <hr />
 <h2 id="4-production-hardening-operational-governance">4. Production Hardening &amp; Operational Governance</h2>

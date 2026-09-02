@@ -1350,28 +1350,36 @@
 <hr />
 <h2 id="1-architectural-overview-data-flow-mechanics">1. Architectural Overview &amp; Data Flow Mechanics</h2>
 <p>In Terraform and OpenTofu, <strong>Outputs, Locals &amp; Expressions</strong> manage data flow and transformations across resource boundaries. While <code>output</code> blocks expose state to callers and CLI consumers, <code>locals</code> blocks encapsulate intermediate computations to keep configurations DRY (Don't Repeat Yourself).</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌─────────────────────────────────────────────────────────────┐
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│                    Data Pipeline &amp; Scope                    │
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│                                                             │
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│   Input Variables            Resource Attributes            │
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│   (var.environment)          (local_file.config.id)         │
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│          │                              │                   │
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│          └──────────────┬───────────────┘                   │
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│                         ▼                                   │
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│            ┌─────────────────────────┐                      │
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│            │      Locals Scope       │                      │
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│            │  (local.normalized_env) │                      │
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│            │  (local.common_tags)    │                      │
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│            └────────────┬────────────┘                      │
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│                         │                                   │
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│          ┌──────────────┴───────────────┐                   │
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>│          ▼                              ▼                   │
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>│   Downstream Resources           Outputs Scope              │
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│   (terraform_data.audit)         (output.database_endpoint) │
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>│                                  - `sensitive = true`       │
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>│                                  - State File Persistence   │
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>└─────────────────────────────────────────────────────────────┘
-</span></code></pre></div>
+<pre class="mermaid"><code>flowchart TD
+    subgraph Upstream["Upstream Inputs &amp; Attributes"]
+        Vars["📥 Input Variables&lt;br/&gt;&lt;code&gt;var.environment&lt;/code&gt;"]
+        Attrs["📦 Resource Attributes&lt;br/&gt;&lt;code&gt;local_file.config.id&lt;/code&gt;"]
+    end
+
+    subgraph Intermediate["Intermediate Locals Scope"]
+        Locals["⚙️ locals Block&lt;br/&gt;&lt;i&gt;• Normalization &amp; Ternaries&lt;br/&gt;• Tagging Factories&lt;br/&gt;• Splat Projections&lt;/i&gt;"]
+    end
+
+    subgraph Downstream["Downstream Consumers"]
+        Resources["🏗️ Dependent Resources&lt;br/&gt;&lt;code&gt;terraform_data.audit&lt;/code&gt;"]
+
+        subgraph OutputsPipe["Output Pipeline"]
+            RawOut["📤 output Block"]
+            SensCheck{"🔒 sensitive = true?"}
+            Masked["🛡️ (sensitive value) Redacted in CLI"]
+            Plain["👁️ Plaintext CLI Display"]
+            StatePersist["💾 Persisted in State File"]
+
+            RawOut --&gt; SensCheck
+            SensCheck --&gt;|"Yes"| Masked --&gt; StatePersist
+            SensCheck --&gt;|"No"| Plain --&gt; StatePersist
+        end
+    end
+
+    Vars --&gt; Locals
+    Attrs --&gt; Locals
+    Locals --&gt; Resources
+    Locals --&gt; RawOut</code></pre>
 <p>Expressions are evaluated during graph resolution:
 1. <strong>Locals Scope</strong>: Evaluated dynamically and cached for repeated references within the same module scope.
 2. <strong>Conditional Expressions</strong>: <code>condition ? true_val : false_val</code> evaluate lazily, returning a single type-unified value.
@@ -1380,52 +1388,52 @@
 <hr />
 <h2 id="2-annotated-production-hcl-anatomy-field-reference">2. Annotated Production HCL Anatomy &amp; Field Reference</h2>
 <p>Below is a production-grade configuration demonstrating intermediate local computations, sensitive output masking, and conditional expressions:</p>
-<div class="language-hcl highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kr">variable</span><span class="w"> </span><span class="nv">"environment"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="na">type</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="na">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"production"</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="p">}</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="kr">variable</span><span class="w"> </span><span class="nv">"db_password"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span><span class="na">type</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">  </span><span class="na">sensitive</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="p">}</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="c1"># Intermediate calculations and consolidated tag factories</span>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="nb">locals</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">  </span><span class="na">is_production</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">var.environment</span><span class="w"> </span><span class="p">==</span><span class="w"> </span><span class="s2">"production"</span>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">  </span><span class="na">tier_prefix</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="nv">local.is_production</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="s2">"prd"</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">"dev"</span>
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">  </span><span class="na">cluster_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"${local.tier_prefix}-core-cluster"</span>
-</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>
-</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">  </span><span class="nb">common_tags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">    </span><span class="na">Environment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">var.environment</span>
-</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="w">    </span><span class="na">ManagedBy</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s2">"Terralings"</span>
-</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">    </span><span class="na">Cluster</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="nv">local.cluster_name</span>
-</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="p">}</span>
-</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>
-</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="kr">resource</span><span class="w"> </span><span class="nc">"terraform_data"</span><span class="w"> </span><span class="nv">"db_instance"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="w">  </span><span class="nb">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="w">    </span><span class="na">name</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="nv">local.cluster_name</span>
-</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="w">    </span><span class="na">password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">var.db_password</span>
-</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="w">    </span><span class="na">tags</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="nv">local.common_tags</span>
-</span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-1-31"><a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a><span class="p">}</span>
-</span><span id="__span-1-32"><a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>
-</span><span id="__span-1-33"><a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a><span class="c1"># Exposed outputs with sensitive masking</span>
-</span><span id="__span-1-34"><a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a><span class="kr">output</span><span class="w"> </span><span class="nv">"cluster_identifier"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-35"><a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a><span class="w">  </span><span class="na">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"The normalized cluster identifier for downstream service consumption."</span>
-</span><span id="__span-1-36"><a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a><span class="w">  </span><span class="na">value</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="nv">terraform_data.db_instance.input.name</span>
-</span><span id="__span-1-37"><a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a><span class="p">}</span>
-</span><span id="__span-1-38"><a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>
-</span><span id="__span-1-39"><a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a><span class="kr">output</span><span class="w"> </span><span class="nv">"db_credentials"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-40"><a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a><span class="w">  </span><span class="na">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Sensitive database connection credentials."</span>
-</span><span id="__span-1-41"><a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a><span class="w">  </span><span class="nb">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-42"><a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a><span class="w">    </span><span class="na">cluster</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nv">terraform_data.db_instance.input.name</span>
-</span><span id="__span-1-43"><a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a><span class="w">    </span><span class="na">password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">terraform_data.db_instance.input.password</span>
-</span><span id="__span-1-44"><a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-1-45"><a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a><span class="w">  </span><span class="na">sensitive</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
-</span><span id="__span-1-46"><a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a><span class="p">}</span>
+<div class="language-hcl highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kr">variable</span><span class="w"> </span><span class="nv">"environment"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="na">type</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="na">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"production"</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">}</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="kr">variable</span><span class="w"> </span><span class="nv">"db_password"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="na">type</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="na">sensitive</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">}</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="c1"># Intermediate calculations and consolidated tag factories</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="nb">locals</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">  </span><span class="na">is_production</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">var.environment</span><span class="w"> </span><span class="p">==</span><span class="w"> </span><span class="s2">"production"</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span><span class="na">tier_prefix</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="nv">local.is_production</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="s2">"prd"</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">"dev"</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">  </span><span class="na">cluster_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"${local.tier_prefix}-core-cluster"</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">  </span><span class="nb">common_tags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="na">Environment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">var.environment</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">    </span><span class="na">ManagedBy</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s2">"Terralings"</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">    </span><span class="na">Cluster</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="nv">local.cluster_name</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="p">}</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="kr">resource</span><span class="w"> </span><span class="nc">"terraform_data"</span><span class="w"> </span><span class="nv">"db_instance"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="w">  </span><span class="nb">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">    </span><span class="na">name</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="nv">local.cluster_name</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">    </span><span class="na">password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">var.db_password</span>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="w">    </span><span class="na">tags</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="nv">local.common_tags</span>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="p">}</span>
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="c1"># Exposed outputs with sensitive masking</span>
+</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="kr">output</span><span class="w"> </span><span class="nv">"cluster_identifier"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="w">  </span><span class="na">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"The normalized cluster identifier for downstream service consumption."</span>
+</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="w">  </span><span class="na">value</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="nv">terraform_data.db_instance.input.name</span>
+</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a><span class="p">}</span>
+</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>
+</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="kr">output</span><span class="w"> </span><span class="nv">"db_credentials"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a><span class="w">  </span><span class="na">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Sensitive database connection credentials."</span>
+</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a><span class="w">  </span><span class="nb">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a><span class="w">    </span><span class="na">cluster</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nv">terraform_data.db_instance.input.name</span>
+</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a><span class="w">    </span><span class="na">password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">terraform_data.db_instance.input.password</span>
+</span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a><span class="w">  </span><span class="na">sensitive</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
+</span><span id="__span-0-46"><a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="key-field-schema-reference">Key Field Schema Reference</h3>
 <table>
@@ -1472,40 +1480,40 @@
 <hr />
 <h2 id="3-real-world-architectural-patterns">3. Real-World Architectural Patterns</h2>
 <h3 id="pattern-1-splat-projections-vs-for-comprehensions">Pattern 1: Splat Projections vs For Comprehensions</h3>
-<div class="language-hcl highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Resource scaling via count</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kr">resource</span><span class="w"> </span><span class="nc">"terraform_data"</span><span class="w"> </span><span class="nv">"servers"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="na">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">3</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nb">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="na">hostname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"srv-0${count.index + 1}.internal"</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="na">ip</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s2">"10.0.1.${10 + count.index}"</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="p">}</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="c1"># Splat operator extraction</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="kr">output</span><span class="w"> </span><span class="nv">"all_hostnames"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">  </span><span class="na">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">terraform_data.servers</span><span class="p">[</span><span class="err">*</span><span class="p">].</span><span class="nv">input.hostname</span>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="p">}</span>
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="c1"># Advanced filtering with for comprehension</span>
-</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="kr">output</span><span class="w"> </span><span class="nv">"filtered_ips"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">  </span><span class="na">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
-</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">    </span><span class="err">for</span><span class="w"> </span><span class="err">s</span><span class="w"> </span><span class="err">in</span><span class="w"> </span><span class="nv">terraform_data.servers</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nv">s.input.ip</span>
-</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">    </span><span class="err">if</span><span class="w"> </span><span class="nv">s.input.hostname</span><span class="w"> </span><span class="p">!=</span><span class="w"> </span><span class="s2">"srv-01.internal"</span>
-</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="w">  </span><span class="p">]</span>
-</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="p">}</span>
+<div class="language-hcl highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Resource scaling via count</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kr">resource</span><span class="w"> </span><span class="nc">"terraform_data"</span><span class="w"> </span><span class="nv">"servers"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="na">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">3</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nb">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="na">hostname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"srv-0${count.index + 1}.internal"</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="na">ip</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s2">"10.0.1.${10 + count.index}"</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="p">}</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="c1"># Splat operator extraction</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="kr">output</span><span class="w"> </span><span class="nv">"all_hostnames"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">  </span><span class="na">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">terraform_data.servers</span><span class="p">[</span><span class="err">*</span><span class="p">].</span><span class="nv">input.hostname</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="p">}</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="c1"># Advanced filtering with for comprehension</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="kr">output</span><span class="w"> </span><span class="nv">"filtered_ips"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">  </span><span class="na">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span><span class="err">for</span><span class="w"> </span><span class="err">s</span><span class="w"> </span><span class="err">in</span><span class="w"> </span><span class="nv">terraform_data.servers</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nv">s.input.ip</span>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">    </span><span class="err">if</span><span class="w"> </span><span class="nv">s.input.hostname</span><span class="w"> </span><span class="p">!=</span><span class="w"> </span><span class="s2">"srv-01.internal"</span>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="w">  </span><span class="p">]</span>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="pattern-2-nested-ternary-evaluation-with-default-fallbacks">Pattern 2: Nested Ternary Evaluation with Default Fallbacks</h3>
-<div class="language-hcl highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kr">variable</span><span class="w"> </span><span class="nv">"replica_count_override"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="na">type</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="kt">number</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="na">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">null</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="p">}</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="nb">locals</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1">  # Cascading fallback ternary expression</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="na">effective_replicas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">var.replica_count_override</span><span class="w"> </span><span class="p">!=</span><span class="w"> </span><span class="kt">null</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="nv">var.replica_count_override</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">(</span>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="nv">local.is_production</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="m">1</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="p">)</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="p">}</span>
+<div class="language-hcl highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kr">variable</span><span class="w"> </span><span class="nv">"replica_count_override"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="na">type</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="kt">number</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="na">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">null</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="p">}</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="nb">locals</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1">  # Cascading fallback ternary expression</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="na">effective_replicas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">var.replica_count_override</span><span class="w"> </span><span class="p">!=</span><span class="w"> </span><span class="kt">null</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="nv">var.replica_count_override</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="nv">local.is_production</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="m">1</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span><span class="p">)</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="p">}</span>
 </span></code></pre></div>
 <hr />
 <h2 id="4-production-hardening-operational-governance">4. Production Hardening &amp; Operational Governance</h2>

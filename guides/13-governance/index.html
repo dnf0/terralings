@@ -1350,30 +1350,38 @@
 <hr />
 <h2 id="1-architectural-overview-governance-principles">1. Architectural Overview &amp; Governance Principles</h2>
 <p>Enterprise-scale Infrastructure as Code requires rigorous architectural governance. <strong>Architecture Governance Standards</strong> ensure repositories remain auditable, secure, and maintainable over years of operation.</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌─────────────────────────────────────────────────────────────┐
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│                 Architecture Governance Tenets              │
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│                                                             │
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│   1. Root Module Encapsulation                              │
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│   ┌───────────────────────────────────────────────────────┐ │
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│   │ [ Root Module: envs/prod ]                            │ │
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│   │ ├── module "networking" { source = "..." }            │ │
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│   │ ├── module "database"   { source = "..." }            │ │
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│   │ └── module "compute"    { source = "..." }            │ │
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│   │ ❌ NO loose `resource "aws_..."` blocks in root!      │ │
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│   └───────────────────────────────────────────────────────┘ │
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│                                                             │
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│   2. Policy Encapsulation (ADR-0005 Standard)               │
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│   ┌───────────────────────────────────────────────────────┐ │
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│   │ "The module that owns the resource owns the policies   │ │
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>│   │  that talk to it."                                    │ │
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>│   │ - Child module exports least-privilege policy ARNs    │ │
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│   │ - Root never writes raw wildcard IAM policy documents │ │
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>│   └───────────────────────────────────────────────────────┘ │
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>│                                                             │
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>│   3. Ephemeral Workload Isolation                           │
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>│   └── Ephemeral CI/batch jobs must not pollute root state   │
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>└─────────────────────────────────────────────────────────────┘
-</span></code></pre></div>
+<pre class="mermaid"><code>flowchart TD
+    subgraph GovernanceArchitecture["Architecture Governance Standards"]
+        direction TB
+
+        subgraph RootBoundary["1. Root Module Encapsulation Boundary (envs/prod)"]
+            Root["🏢 Root Orchestrator (main.tf)"]
+            NetMod["📦 module 'networking'"]
+            DBMod["📦 module 'database'"]
+            AppMod["📦 module 'compute'"]
+
+            Root --&gt; NetMod
+            Root --&gt; DBMod
+            Root --&gt; AppMod
+        end
+
+        subgraph PolicyEncapsulation["2. ADR-0005: Policy Encapsulation Standard"]
+            direction TB
+            ResourceNode["🏗️ Resource Boundary&lt;br/&gt;&lt;i&gt;(aws_s3_bucket.data)&lt;/i&gt;"]
+            PolicyNode["🛡️ Integrated IAM Policy&lt;br/&gt;&lt;i&gt;(Least-Privilege Scoped Document)&lt;/i&gt;"]
+            ExportedPolicy["📤 Output: read_policy_arn"]
+
+            ResourceNode --&gt; PolicyNode --&gt; ExportedPolicy
+        end
+
+        subgraph Enforcement["3. Anti-Pattern Prevention Gate"]
+            Anti1["❌ NO loose resource blocks in root"]
+            Anti2["❌ NO wildcard IAM policies (*:*) in root"]
+            Anti3["❌ NO unmanaged ephemeral test resources"]
+        end
+    end
+
+    AppMod -.-&gt;|"Attaches Scoped Policy"| ExportedPolicy</code></pre>
 <p>Core Architectural Standards:
 1. <strong>Zero Loose Root Resources</strong>: The root module serves exclusively as an orchestrator of cohesive child modules. No loose <code>resource</code> blocks should exist in environment roots.
 2. <strong>Policy Encapsulation (ADR-0005)</strong>: Security boundaries and IAM policies are defined directly inside the child module that manages the resource, exporting strictly scoped policy documents to consumers.
@@ -1381,91 +1389,91 @@
 <hr />
 <h2 id="2-annotated-production-hcl-anatomy-field-reference">2. Annotated Production HCL Anatomy &amp; Field Reference</h2>
 <p>Below is a production-grade configuration demonstrating root encapsulation and policy encapsulation (ADR-0005):</p>
-<div class="language-hcl highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># envs/production/main.tf - Clean Orchestrator Root Module</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nb">terraform</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="na">required_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"&gt;= 1.6.0"</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="nb">required_providers</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="nb">terraform_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">      </span><span class="na">source</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2">"hashicorp/terraform_data"</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">      </span><span class="na">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"~&gt; 1.0"</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="p">}</span>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="kr">variable</span><span class="w"> </span><span class="nv">"environment"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">  </span><span class="na">type</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span>
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">  </span><span class="na">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"production"</span>
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="p">}</span>
-</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>
-</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="c1"># 1. Encapsulated Storage Module (Owns the resource AND its access policy)</span>
-</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="kr">module</span><span class="w"> </span><span class="nv">"audit_storage"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="w">  </span><span class="na">source</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">"./modules/audit_storage"</span>
-</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">  </span><span class="na">bucket_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"corp-compliance-audit-logs"</span>
-</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">  </span><span class="na">environment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">var.environment</span>
-</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="p">}</span>
-</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>
-</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="c1"># 2. Encapsulated Compute Module (Attaches storage-owned policy)</span>
-</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="kr">module</span><span class="w"> </span><span class="nv">"ingestion_worker"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="w">  </span><span class="na">source</span><span class="w">              </span><span class="o">=</span><span class="w"> </span><span class="s2">"./modules/worker"</span>
-</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="w">  </span><span class="na">service_name</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s2">"telemetry-ingestion"</span>
-</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="w">  </span><span class="na">environment</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="nv">var.environment</span>
-</span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a><span class="w">  </span><span class="na">attached_policy_arn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">module.audit_storage.read_write_policy_arn</span>
-</span><span id="__span-1-31"><a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a><span class="p">}</span>
-</span><span id="__span-1-32"><a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>
-</span><span id="__span-1-33"><a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a><span class="c1"># 3. Encapsulated Ephemeral Task Runner</span>
-</span><span id="__span-1-34"><a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a><span class="kr">module</span><span class="w"> </span><span class="nv">"batch_indexer"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-35"><a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a><span class="w">  </span><span class="na">source</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="s2">"./modules/ephemeral_task"</span>
-</span><span id="__span-1-36"><a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a><span class="w">  </span><span class="na">task_name</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">"nightly-audit-index"</span>
-</span><span id="__span-1-37"><a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a><span class="w">  </span><span class="na">is_ephemeral</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
-</span><span id="__span-1-38"><a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a><span class="w">  </span><span class="na">target_storage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">module.audit_storage.bucket_arn</span>
-</span><span id="__span-1-39"><a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a><span class="p">}</span>
+<div class="language-hcl highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># envs/production/main.tf - Clean Orchestrator Root Module</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nb">terraform</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="na">required_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"&gt;= 1.6.0"</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="nb">required_providers</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="nb">terraform_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">      </span><span class="na">source</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2">"hashicorp/terraform_data"</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">      </span><span class="na">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"~&gt; 1.0"</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="p">}</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="kr">variable</span><span class="w"> </span><span class="nv">"environment"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span><span class="na">type</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span><span class="na">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"production"</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="p">}</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="c1"># 1. Encapsulated Storage Module (Owns the resource AND its access policy)</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="kr">module</span><span class="w"> </span><span class="nv">"audit_storage"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">  </span><span class="na">source</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">"./modules/audit_storage"</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">  </span><span class="na">bucket_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"corp-compliance-audit-logs"</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">  </span><span class="na">environment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">var.environment</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="p">}</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="c1"># 2. Encapsulated Compute Module (Attaches storage-owned policy)</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="kr">module</span><span class="w"> </span><span class="nv">"ingestion_worker"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">  </span><span class="na">source</span><span class="w">              </span><span class="o">=</span><span class="w"> </span><span class="s2">"./modules/worker"</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">  </span><span class="na">service_name</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s2">"telemetry-ingestion"</span>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="w">  </span><span class="na">environment</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="nv">var.environment</span>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">  </span><span class="na">attached_policy_arn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">module.audit_storage.read_write_policy_arn</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="p">}</span>
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="c1"># 3. Encapsulated Ephemeral Task Runner</span>
+</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="kr">module</span><span class="w"> </span><span class="nv">"batch_indexer"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="w">  </span><span class="na">source</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="s2">"./modules/ephemeral_task"</span>
+</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="w">  </span><span class="na">task_name</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">"nightly-audit-index"</span>
+</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a><span class="w">  </span><span class="na">is_ephemeral</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
+</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="w">  </span><span class="na">target_storage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">module.audit_storage.bucket_arn</span>
+</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="policy-encapsulation-interface-adr-0005">Policy Encapsulation Interface (ADR-0005)</h3>
-<div class="language-hcl highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># modules/audit_storage/outputs.tf</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="kr">output</span><span class="w"> </span><span class="nv">"bucket_arn"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="na">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"The ARN of the managed audit bucket."</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="na">value</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="nv">terraform_data.bucket.input.arn</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="p">}</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="kr">output</span><span class="w"> </span><span class="nv">"read_write_policy_arn"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">  </span><span class="na">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Scoped IAM policy granting read/write access strictly to this bucket."</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span><span class="na">value</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="nv">terraform_data.rw_policy.input.arn</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="p">}</span>
+<div class="language-hcl highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># modules/audit_storage/outputs.tf</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kr">output</span><span class="w"> </span><span class="nv">"bucket_arn"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="na">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"The ARN of the managed audit bucket."</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="na">value</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="nv">terraform_data.bucket.input.arn</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">}</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="kr">output</span><span class="w"> </span><span class="nv">"read_write_policy_arn"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">  </span><span class="na">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Scoped IAM policy granting read/write access strictly to this bucket."</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="na">value</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="nv">terraform_data.rw_policy.input.arn</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="p">}</span>
 </span></code></pre></div>
 <hr />
 <h2 id="3-real-world-architectural-patterns">3. Real-World Architectural Patterns</h2>
 <h3 id="pattern-1-component-owned-iam-policy-scoping-adr-0005">Pattern 1: Component-Owned IAM Policy Scoping (ADR-0005)</h3>
-<div class="language-hcl highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># modules/sqs_queue/main.tf</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kr">resource</span><span class="w"> </span><span class="nc">"terraform_data"</span><span class="w"> </span><span class="nv">"queue"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nb">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="na">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"order-processing-queue"</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="p">}</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="c1"># Policy owned and exported by the queue module itself</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="kr">resource</span><span class="w"> </span><span class="nc">"terraform_data"</span><span class="w"> </span><span class="nv">"producer_policy"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="nb">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="na">name</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s2">"OrderQueueProducerPolicy"</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">    </span><span class="na">statement</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s2">"Allow SendMessage on ${terraform_data.queue.input.name}"</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="p">}</span>
-</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>
-</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="kr">output</span><span class="w"> </span><span class="nv">"producer_policy_arn"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">  </span><span class="na">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">terraform_data.producer_policy.id</span>
-</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="p">}</span>
+<div class="language-hcl highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># modules/sqs_queue/main.tf</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kr">resource</span><span class="w"> </span><span class="nc">"terraform_data"</span><span class="w"> </span><span class="nv">"queue"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nb">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="na">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"order-processing-queue"</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="p">}</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="c1"># Policy owned and exported by the queue module itself</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="kr">resource</span><span class="w"> </span><span class="nc">"terraform_data"</span><span class="w"> </span><span class="nv">"producer_policy"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="nb">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="na">name</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s2">"OrderQueueProducerPolicy"</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="na">statement</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s2">"Allow SendMessage on ${terraform_data.queue.input.name}"</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="p">}</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="kr">output</span><span class="w"> </span><span class="nv">"producer_policy_arn"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">  </span><span class="na">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">terraform_data.producer_policy.id</span>
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="pattern-2-ephemeral-workload-state-segregation">Pattern 2: Ephemeral Workload State Segregation</h3>
-<div class="language-hcl highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Isolating transient compute from long-lived persistent foundations</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kr">module</span><span class="w"> </span><span class="nv">"ephemeral_runner"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="na">source</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s2">"./modules/ephemeral_compute"</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="na">ttl_minutes</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="m">120</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="na">auto_teardown</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span><span class="nb">lifecycle</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="c1">    # Guarantees new runner is provisioned before old runner dies</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="na">create_before_destroy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="p">}</span>
+<div class="language-hcl highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Isolating transient compute from long-lived persistent foundations</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kr">module</span><span class="w"> </span><span class="nv">"ephemeral_runner"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="na">source</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s2">"./modules/ephemeral_compute"</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="na">ttl_minutes</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="m">120</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="na">auto_teardown</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">  </span><span class="nb">lifecycle</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="c1">    # Guarantees new runner is provisioned before old runner dies</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="na">create_before_destroy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="p">}</span>
 </span></code></pre></div>
 <hr />
 <h2 id="4-production-hardening-operational-governance">4. Production Hardening &amp; Operational Governance</h2>

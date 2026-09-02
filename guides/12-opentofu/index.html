@@ -1350,27 +1350,33 @@
 <hr />
 <h2 id="1-architectural-overview-opentofu-engine-innovations">1. Architectural Overview &amp; OpenTofu Engine Innovations</h2>
 <p><strong>OpenTofu</strong> is an open-source, community-driven Infrastructure as Code engine under the Linux Foundation. OpenTofu introduces foundational architectural innovations including <strong>End-to-End State Encryption at Rest</strong>, <strong>Early Variable Evaluation</strong> in providers and backends, and an open, decentralized provider registry ecosystem.</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌─────────────────────────────────────────────────────────────┐
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│                 OpenTofu Architecture Enhancements          │
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│                                                             │
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│   1. Native State Encryption Engine (AES-GCM / PBKDF2)      │
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│   ┌───────────────────────────────────────────────────────┐ │
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│   │ `terraform { encryption { ... } }`                    │ │
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│   │ - State is encrypted BEFORE writing to backend        │ │
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│   │ - Plan files are encrypted on disk                    │ │
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│   │ - Zero plaintext secrets leakage in remote S3/GCS/Blob│ │
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│   └───────────────────────────────────────────────────────┘ │
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│                                                             │
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│   2. Early Variable Evaluation Engine                       │
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│   ┌───────────────────────────────────────────────────────┐ │
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│   │ `backend "s3" { bucket = var.backend_bucket }`        │ │
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│   │ `provider "aws" { region = var.aws_region }`          │ │
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>│   │ - Dynamic backend and provider parameterization       │ │
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>│   └───────────────────────────────────────────────────────┘ │
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│                                                             │
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>│   3. Decentralized Open Registry (get.opentofu.org)        │
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>└─────────────────────────────────────────────────────────────┘
-</span></code></pre></div>
+<pre class="mermaid"><code>flowchart TD
+    subgraph TofuInnovations["OpenTofu Architectural Innovations"]
+        direction TB
+
+        subgraph EncryptionPipeline["1. Client-Side State Encryption Engine"]
+            direction LR
+            RawState["📄 In-Memory State AST&lt;br/&gt;&lt;i&gt;(Plaintext Secrets)&lt;/i&gt;"]
+            AES["🔐 AES-GCM Encryption Engine&lt;br/&gt;&lt;code&gt;key_provider 'pbkdf2' / 'kms'&lt;/code&gt;"]
+            EncryptedState["🛡️ Encrypted State Payload&lt;br/&gt;&lt;i&gt;(Zero Secrets at Rest)&lt;/i&gt;"]
+            RemoteStorage[("☁️ Remote Backend&lt;br/&gt;&lt;i&gt;S3 / GCS / Azure Blob&lt;/i&gt;")]
+
+            RawState --&gt; AES --&gt; EncryptedState --&gt; RemoteStorage
+        end
+
+        subgraph EarlyEval["2. Early Variable Evaluation Engine"]
+            VarInputs["📥 Input Variables (var.region, var.bucket)"]
+            BackendBlock["🗄️ backend 's3' { bucket = var.bucket }"]
+            ProviderBlock["🔌 provider 'aws' { region = var.region }"]
+
+            VarInputs --&gt; BackendBlock
+            VarInputs --&gt; ProviderBlock
+        end
+
+        subgraph OpenRegistry["3. Decentralized Registry Ecosystem"]
+            OpenReg["🌐 get.opentofu.org&lt;br/&gt;&lt;i&gt;Decentralized, Open-Source Provider Mirror&lt;/i&gt;"]
+        end
+    end</code></pre>
 <p>Key Architectural Innovations:
 1. <strong>Native Client-Side State Encryption</strong>: Encrypts sensitive state files, plan files, and state caches locally using AES-GCM or KMS key providers before any data is sent to remote backends.
 2. <strong>Early Variable Evaluation</strong>: Allows input variables to be referenced directly inside <code>backend</code> and <code>provider</code> configuration blocks without requiring external wrapper scripts (e.g. Terragrunt).
@@ -1378,56 +1384,56 @@
 <hr />
 <h2 id="2-annotated-production-hcl-anatomy-field-reference">2. Annotated Production HCL Anatomy &amp; Field Reference</h2>
 <p>Below is a production-grade OpenTofu configuration demonstrating native client-side state encryption with PBKDF2 and AES-GCM:</p>
-<div class="language-hcl highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">terraform</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="na">required_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"&gt;= 1.7.0"</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1">  # Native Client-Side State Encryption Block</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="nb">encryption</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="c1">    # 1. Key Provider (PBKDF2 Passphrase or KMS)</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="err">key_</span><span class="kr">provider</span><span class="w"> </span><span class="nc">"pbkdf2"</span><span class="w"> </span><span class="nv">"primary_key"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">      </span><span class="na">passphrase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"enterprise-master-encryption-passphrase-secure"</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">      </span><span class="na">key_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">32</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">      </span><span class="na">iterations</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">600000</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">      </span><span class="na">salt_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">32</span>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">      </span><span class="na">hash_function</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"sha512"</span>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="c1">    # 2. Encryption Cipher Method</span>
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">    </span><span class="err">method</span><span class="w"> </span><span class="s2">"aes_gcm" "app_state_cipher"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">      </span><span class="na">keys</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">key_provider.pbkdf2.primary_key</span>
-</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>
-</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="c1">    # 3. Enforce Encryption on State Files &amp; Plan Caches</span>
-</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">    </span><span class="nb">state</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">      </span><span class="na">method</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="nv">method.aes_gcm.app_state_cipher</span>
-</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="w">      </span><span class="na">enforced</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
-</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>
-</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="w">    </span><span class="nb">plan</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="w">      </span><span class="na">method</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="nv">method.aes_gcm.app_state_cipher</span>
-</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="w">      </span><span class="na">enforced</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
-</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-1-31"><a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>
-</span><span id="__span-1-32"><a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a><span class="w">  </span><span class="nb">required_providers</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-33"><a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a><span class="w">    </span><span class="nb">terraform_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-34"><a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a><span class="w">      </span><span class="na">source</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2">"opentofu/terraform_data"</span>
-</span><span id="__span-1-35"><a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a><span class="w">      </span><span class="na">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"~&gt; 1.0"</span>
-</span><span id="__span-1-36"><a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-1-37"><a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-1-38"><a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a><span class="p">}</span>
-</span><span id="__span-1-39"><a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>
-</span><span id="__span-1-40"><a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a><span class="kr">variable</span><span class="w"> </span><span class="nv">"deployment_region"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-41"><a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a><span class="w">  </span><span class="na">type</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span>
-</span><span id="__span-1-42"><a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a><span class="w">  </span><span class="na">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"eu-west-1"</span>
-</span><span id="__span-1-43"><a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a><span class="p">}</span>
-</span><span id="__span-1-44"><a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a>
-</span><span id="__span-1-45"><a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a><span class="kr">resource</span><span class="w"> </span><span class="nc">"terraform_data"</span><span class="w"> </span><span class="nv">"encrypted_workload"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-46"><a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a><span class="w">  </span><span class="nb">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-47"><a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a><span class="w">    </span><span class="na">region</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="nv">var.deployment_region</span>
-</span><span id="__span-1-48"><a id="__codelineno-1-48" name="__codelineno-1-48" href="#__codelineno-1-48"></a><span class="w">    </span><span class="na">db_password</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2">"super-secret-vault-token"</span>
-</span><span id="__span-1-49"><a id="__codelineno-1-49" name="__codelineno-1-49" href="#__codelineno-1-49"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-1-50"><a id="__codelineno-1-50" name="__codelineno-1-50" href="#__codelineno-1-50"></a><span class="p">}</span>
+<div class="language-hcl highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">terraform</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="na">required_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"&gt;= 1.7.0"</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1">  # Native Client-Side State Encryption Block</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="nb">encryption</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c1">    # 1. Key Provider (PBKDF2 Passphrase or KMS)</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="err">key_</span><span class="kr">provider</span><span class="w"> </span><span class="nc">"pbkdf2"</span><span class="w"> </span><span class="nv">"primary_key"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">      </span><span class="na">passphrase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"enterprise-master-encryption-passphrase-secure"</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">      </span><span class="na">key_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">32</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">      </span><span class="na">iterations</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">600000</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">      </span><span class="na">salt_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">32</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">      </span><span class="na">hash_function</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"sha512"</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="c1">    # 2. Encryption Cipher Method</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="err">method</span><span class="w"> </span><span class="s2">"aes_gcm" "app_state_cipher"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">      </span><span class="na">keys</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">key_provider.pbkdf2.primary_key</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="c1">    # 3. Enforce Encryption on State Files &amp; Plan Caches</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">    </span><span class="nb">state</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">      </span><span class="na">method</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="nv">method.aes_gcm.app_state_cipher</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">      </span><span class="na">enforced</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="w">    </span><span class="nb">plan</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">      </span><span class="na">method</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="nv">method.aes_gcm.app_state_cipher</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">      </span><span class="na">enforced</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="w">  </span><span class="nb">required_providers</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="w">    </span><span class="nb">terraform_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="w">      </span><span class="na">source</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2">"opentofu/terraform_data"</span>
+</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="w">      </span><span class="na">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"~&gt; 1.0"</span>
+</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="p">}</span>
+</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>
+</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a><span class="kr">variable</span><span class="w"> </span><span class="nv">"deployment_region"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a><span class="w">  </span><span class="na">type</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span>
+</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a><span class="w">  </span><span class="na">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"eu-west-1"</span>
+</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a><span class="p">}</span>
+</span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>
+</span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a><span class="kr">resource</span><span class="w"> </span><span class="nc">"terraform_data"</span><span class="w"> </span><span class="nv">"encrypted_workload"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-46"><a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a><span class="w">  </span><span class="nb">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-47"><a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a><span class="w">    </span><span class="na">region</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="nv">var.deployment_region</span>
+</span><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a><span class="w">    </span><span class="na">db_password</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2">"super-secret-vault-token"</span>
+</span><span id="__span-0-49"><a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-50"><a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="key-encryption-field-schema-reference">Key Encryption Field Schema Reference</h3>
 <table>
@@ -1474,40 +1480,40 @@
 <hr />
 <h2 id="3-real-world-architectural-patterns">3. Real-World Architectural Patterns</h2>
 <h3 id="pattern-1-early-variable-evaluation-in-backend-blocks">Pattern 1: Early Variable Evaluation in Backend Blocks</h3>
-<div class="language-hcl highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kr">variable</span><span class="w"> </span><span class="nv">"environment"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="na">type</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="na">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"production"</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="p">}</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="c1"># OpenTofu evaluates var.environment early during backend initialization</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="nb">terraform</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="kr">backend</span><span class="w"> </span><span class="nv">"local"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"state/${var.environment}/terraform.tfstate"</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="p">}</span>
+<div class="language-hcl highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kr">variable</span><span class="w"> </span><span class="nv">"environment"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="na">type</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="na">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"production"</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="p">}</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="c1"># OpenTofu evaluates var.environment early during backend initialization</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="nb">terraform</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">  </span><span class="kr">backend</span><span class="w"> </span><span class="nv">"local"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"state/${var.environment}/terraform.tfstate"</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="pattern-2-key-migration-rotation-pipeline">Pattern 2: Key Migration &amp; Rotation Pipeline</h3>
-<div class="language-hcl highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">encryption</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="err">key_</span><span class="kr">provider</span><span class="w"> </span><span class="nc">"pbkdf2"</span><span class="w"> </span><span class="nv">"key_v1"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="na">passphrase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"old-passphrase-2025"</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="err">key_</span><span class="kr">provider</span><span class="w"> </span><span class="nc">"pbkdf2"</span><span class="w"> </span><span class="nv">"key_v2"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="na">passphrase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"new-rotated-passphrase-2026"</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="err">method</span><span class="w"> </span><span class="s2">"aes_gcm" "current_cipher"</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="c1">    # Primary key for new writes, fallback keys for decryption</span>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">    </span><span class="na">keys</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
-</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">      </span><span class="nv">key_provider.pbkdf2.key_v2</span><span class="p">,</span>
-</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">      </span><span class="nv">key_provider.pbkdf2.key_v1</span>
-</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">    </span><span class="p">]</span>
-</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>
-</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="w">  </span><span class="nb">state</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="w">    </span><span class="na">method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">method.aes_gcm.current_cipher</span>
-</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="p">}</span>
+<div class="language-hcl highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">encryption</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="err">key_</span><span class="kr">provider</span><span class="w"> </span><span class="nc">"pbkdf2"</span><span class="w"> </span><span class="nv">"key_v1"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="na">passphrase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"old-passphrase-2025"</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="err">key_</span><span class="kr">provider</span><span class="w"> </span><span class="nc">"pbkdf2"</span><span class="w"> </span><span class="nv">"key_v2"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="na">passphrase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"new-rotated-passphrase-2026"</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span><span class="err">method</span><span class="w"> </span><span class="s2">"aes_gcm" "current_cipher"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="c1">    # Primary key for new writes, fallback keys for decryption</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">    </span><span class="na">keys</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">      </span><span class="nv">key_provider.pbkdf2.key_v2</span><span class="p">,</span>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">      </span><span class="nv">key_provider.pbkdf2.key_v1</span>
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">    </span><span class="p">]</span>
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">  </span><span class="nb">state</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">    </span><span class="na">method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">method.aes_gcm.current_cipher</span>
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="p">}</span>
 </span></code></pre></div>
 <hr />
 <h2 id="4-production-hardening-operational-governance">4. Production Hardening &amp; Operational Governance</h2>
