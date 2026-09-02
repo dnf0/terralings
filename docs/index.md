@@ -69,6 +69,8 @@ Explore in-depth architectural guides and launch linked practice exercises direc
 
 ## 💡 How the Playground Works
 
+The Terralings web playground runs entirely on client-side WebAssembly technology:
+
 ```mermaid
 flowchart LR
     subgraph Browser["Web Browser Client (100% In-Memory Wasm)"]
@@ -76,17 +78,16 @@ flowchart LR
         Monaco["💻 Monaco Editor<br/><i>(VS Code in Browser)</i>"]
         
         subgraph Worker["Web Worker (Pyodide WebAssembly)"]
-            direction TB
             Engine["⚡ Python 3.12 Runtime"]
             Validators["🛡️ 15 Chapter Validators"]
             Hints["💡 Progressive Hint Engine"]
-            Engine --- Validators --- Hints
+            Engine --> Validators --> Hints
         end
 
-        Terminal["📟 Interactive xterm.js<br/><i>Instant Output (< 1ms)</i>"]
+        Terminal["📟 Interactive xterm.js<br/><i>Instant Output (&lt; 1ms)</i>"]
 
-        Monaco -->|"HCL Source Code"| Worker
-        Worker -->|"Test Results & Diagnostics"| Terminal
+        Monaco -->|"HCL Source Code"| Engine
+        Validators -->|"Test Results & Diagnostics"| Terminal
     end
 ```
 
