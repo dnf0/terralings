@@ -11,6 +11,22 @@
 
   const STORAGE_KEY = "terralings_learning_state_v1";
 
+  const CHAPTER_GUIDES = {
+    1: { slug: "01-primitives", title: "HCL Foundations & Core Primitives" },
+    2: { slug: "02-variables", title: "Input Variables, Types & Validations" },
+    3: { slug: "03-outputs-locals", title: "Outputs, Locals & Expressions" },
+    4: { slug: "04-functions", title: "Built-in Functions & Collections" },
+    5: { slug: "05-meta-arguments", title: "Meta-Arguments & Resource Scaling" },
+    6: { slug: "06-dynamic-blocks", title: "Dynamic Blocks & Advanced HCL" },
+    7: { slug: "07-data-sources", title: "Data Sources & State Querying" },
+    8: { slug: "08-modules", title: "Modular Infrastructure Architecture" },
+    9: { slug: "09-state-management", title: "State Management & Refactoring Surgery" },
+    10: { slug: "10-testing", title: "Native Unit & Integration Testing (.tftest.hcl)" },
+    11: { slug: "11-production-patterns", title: "Production Patterns & Anti-Patterns" },
+    12: { slug: "12-opentofu", title: "OpenTofu Innovations & Enterprise Features" },
+    13: { slug: "13-governance", title: "Architecture Governance & Enterprise Standards" }
+  };
+
   /**
    * ==========================================================================
    * 1. Storage & State Management Layer
@@ -280,6 +296,11 @@
               <span class="btn-icon">🔍</span>
               <span class="diff-label">Compare Solution</span>
             </button>
+            <a id="playground-guide-btn" class="playground-btn playground-btn-guide" href="../guides/01-primitives/" target="_blank" rel="noopener noreferrer" title="Open Chapter Reference Guide in new tab">
+              <span class="btn-icon">📖</span>
+              <span id="pg-guide-btn-text">Reference Guide</span>
+              <span style="font-size: 10px; opacity: 0.7;">↗</span>
+            </a>
           </div>
 
           <!-- Progressive Hints Card -->
@@ -335,6 +356,8 @@
       hintLabel: container.querySelector("#playground-hint-btn .hint-label"),
       diffBtn: container.querySelector("#playground-diff-btn"),
       diffLabel: container.querySelector("#playground-diff-btn .diff-label"),
+      guideBtn: container.querySelector("#playground-guide-btn"),
+      guideBtnText: container.querySelector("#pg-guide-btn-text"),
       hintsCard: container.querySelector("#playground-hints"),
       workspace: container.querySelector(".playground-workspace"),
       editorContainer: container.querySelector("#playground-editor"),
@@ -560,6 +583,7 @@
       try {
         const url = new URL(window.location.href);
         url.searchParams.set("exercise", exerciseId);
+        url.searchParams.delete("chapter");
         window.history.replaceState({}, "", url.toString());
       } catch (e) {
         // Ignore if restricted
@@ -571,12 +595,35 @@
       state.expandedChapters.add(ex.chapter_number);
     }
 
+    const chNum = ex.chapter_number || 1;
+    const guideInfo = CHAPTER_GUIDES[chNum] || { slug: "01-primitives", title: "Reference Guide" };
+    const guideUrl = `../guides/${guideInfo.slug}/`;
+
     // Update Header
     if (state.elements.chapterBadge) {
-      state.elements.chapterBadge.textContent = `Chapter ${String(ex.chapter_number || 1).padStart(2, "0")}: ${ex.chapter_title || ex.chapter}`;
+      state.elements.chapterBadge.textContent = `Chapter ${String(chNum).padStart(2, "0")}: ${ex.chapter_title || ex.chapter}`;
     }
     if (state.elements.exerciseTitle) {
       state.elements.exerciseTitle.textContent = `${ex.id} — ${ex.title}`;
+    }
+
+    // Update standalone top header link
+    const headerGuideBtn = document.getElementById("btn-chapter-guide");
+    const headerGuideText = document.getElementById("btn-chapter-guide-text");
+    if (headerGuideBtn) {
+      headerGuideBtn.href = guideUrl;
+    }
+    if (headerGuideText) {
+      headerGuideText.textContent = `Guide: Ch ${String(chNum).padStart(2, "0")}`;
+    }
+
+    // Update in-editor exercise bar guide button
+    if (state.elements.guideBtn) {
+      state.elements.guideBtn.href = guideUrl;
+      state.elements.guideBtn.title = `Read Chapter ${chNum} Reference Guide: ${guideInfo.title} in new tab`;
+    }
+    if (state.elements.guideBtnText) {
+      state.elements.guideBtnText.textContent = `Ch ${String(chNum).padStart(2, "0")} Guide`;
     }
 
     // Load saved user code from localStorage
@@ -676,6 +723,14 @@
         </div>
       `;
     }
+
+    const chNum = (ex && ex.chapter_number) || 1;
+    const guideInfo = CHAPTER_GUIDES[chNum] || { slug: "01-primitives", title: "Reference Guide" };
+    html += `
+      <div style="margin-top: 6px; font-size: 12px; opacity: 0.85;">
+        Need full architecture diagrams & syntax specs? <a href="../guides/${guideInfo.slug}/" target="_blank" rel="noopener noreferrer" style="color: #38bdf8; text-decoration: underline; font-weight: 600;">Open Chapter ${String(chNum).padStart(2, "0")} Reference Guide (${escapeHtml(guideInfo.title)}) ↗</a>
+      </div>
+    `;
 
     card.innerHTML = html;
     if (label) {
@@ -822,10 +877,12 @@ ${hasNext ? `<button id="pg-next-ex-inline-btn" class="term-inline-btn">Next Exe
         nextBtn.addEventListener("click", goToNextExercise);
       }
     } else {
+      const chNum = (ex && ex.chapter_number) || 1;
+      const guideInfo = CHAPTER_GUIDES[chNum] || { slug: "01-primitives", title: "Reference Guide" };
       out.innerHTML = `
 <span class="term-banner-fail">✕ EXERCISE FAILED: ${escapeHtml(ex.id)}</span>
 <span class="term-fail">${escapeHtml(res.output || res.error || "Validation failed.")}</span>
-<span class="term-dim">Review the syntax errors or missing attributes above, edit the code, and try again.</span>
+<span class="term-dim">💡 Tip: Reveal hints (💡), compare solution (🔍), or review the <a href="../guides/${guideInfo.slug}/" target="_blank" rel="noopener noreferrer" style="color:#38bdf8;text-decoration:underline;font-weight:600;">Chapter ${String(chNum).padStart(2, "0")} Reference Guide ↗</a> for syntax rules & triage steps.</span>
 `;
     }
   }
@@ -1154,11 +1211,18 @@ ${hasNext ? `<button id="pg-next-ex-inline-btn" class="term-inline-btn">Next Exe
       // Determine initial active exercise (URL query param -> saved active -> first exercise)
       const urlParams = new URLSearchParams(window.location.search);
       const urlExercise = urlParams.get("exercise");
+      const urlChapter = urlParams.get("chapter");
       const ordered = getOrderedExerciseList();
-      let startExId = ordered[0] || "01_syntax_basics_01";
+      let startExId = ordered[0] || "primitives01";
 
       if (urlExercise && state.bundle.exercises[urlExercise]) {
         startExId = urlExercise;
+      } else if (urlChapter) {
+        const chNum = parseInt(urlChapter, 10);
+        const match = state.bundle.chapters.find(c => c.index === chNum || c.id.startsWith(String(chNum).padStart(2, "0")) || c.id.includes(String(chNum).padStart(2, "0")));
+        if (match && match.exercises && match.exercises.length > 0) {
+          startExId = match.exercises[0].id;
+        }
       } else if (TerralingsStorage.state.lastActiveExerciseId && state.bundle.exercises[TerralingsStorage.state.lastActiveExerciseId]) {
         startExId = TerralingsStorage.state.lastActiveExerciseId;
       }
