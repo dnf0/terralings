@@ -9,11 +9,11 @@
   --pg-sidebar-bg: #f8fafc;
   --pg-header-bg: #f8fafc;
   --pg-border: #e2e8f0;
-  --pg-border-focus: #7c3aed;
+  --pg-border-focus: #0284c7;
   --pg-text: #0f172a;
   --pg-text-muted: #64748b;
-  --pg-accent: #7c3aed;
-  --pg-accent-hover: #6d28d9;
+  --pg-accent: #0284c7;
+  --pg-accent-hover: #0369a1;
   --pg-accent-fg: #ffffff;
   --pg-btn-bg: #f1f5f9;
   --pg-btn-hover: #e2e8f0;
@@ -33,9 +33,9 @@
   --pg-warning-bg: #fef3c7;
   --pg-warning-text: #92400e;
   --pg-warning-border: #fcd34d;
-  --pg-info-bg: #f3e8ff;
-  --pg-info-text: #6b21a8;
-  --pg-info-border: #d8b4fe;
+  --pg-info-bg: #e0f2fe;
+  --pg-info-text: #075985;
+  --pg-info-border: #7dd3fc;
   --pg-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
   --pg-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --pg-radius: 8px;
@@ -49,10 +49,10 @@
   --pg-sidebar-bg: #11111b;
   --pg-header-bg: #11111b;
   --pg-border: #313244;
-  --pg-border-focus: #cba6f7;
+  --pg-border-focus: #89b4fa;
   --pg-text: #cdd6f4;
   --pg-text-muted: #9399b2;
-  --pg-accent: #cba6f7;
+  --pg-accent: #89b4fa;
   --pg-accent-hover: #b4befe;
   --pg-accent-fg: #11111b;
   --pg-btn-bg: #313244;
@@ -73,9 +73,9 @@
   --pg-warning-bg: rgba(245, 158, 11, 0.15);
   --pg-warning-text: #fcd34d;
   --pg-warning-border: rgba(245, 158, 11, 0.35);
-  --pg-info-bg: rgba(203, 166, 247, 0.15);
-  --pg-info-text: #cba6f7;
-  --pg-info-border: rgba(203, 166, 247, 0.35);
+  --pg-info-bg: rgba(56, 189, 248, 0.15);
+  --pg-info-text: #7dd3fc;
+  --pg-info-border: rgba(56, 189, 248, 0.35);
   --pg-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
 }
 
@@ -545,7 +545,7 @@
 }
 
 .playground-status-pill.status-running .status-dot {
-  background-color: #7c3aed;
+  background-color: #0284c7;
   animation: pg-pulse 0.8s infinite;
 }
 
@@ -773,7 +773,7 @@
 .term-pass { color: #4ade80; }
 .term-fail { color: #f87171; }
 .term-warn { color: #fbbf24; }
-.term-info { color: #c084fc; }
+.term-info { color: #38bdf8; }
 .term-bold { font-weight: 700; }
 .term-dim { color: var(--pg-term-dim); }
 
@@ -800,9 +800,9 @@
 .term-banner-info {
   display: block;
   padding: 4px 8px;
-  background: rgba(168, 85, 247, 0.2);
-  color: #c084fc;
-  border-left: 3px solid #7c3aed;
+  background: rgba(56, 189, 248, 0.2);
+  color: #38bdf8;
+  border-left: 3px solid #0284c7;
   font-weight: 700;
   margin-bottom: 8px;
 }
