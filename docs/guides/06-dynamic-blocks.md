@@ -14,27 +14,25 @@
 
 In Terraform and OpenTofu, **Dynamic Blocks** generate repeated, nested configuration blocks inside resource, data source, or provider declarations. Unlike top-level `for_each` which replicates whole resources, dynamic blocks replicate inner structural blocks (e.g. `ingress`, `tag`, `setting`).
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                 Dynamic Block Expansion AST                 │
-│                                                             │
-│   Input Collection                   Expanded Resource Body │
-│   [ { port: 80 }, { port: 443 } ]                           │
-│                 │                                           │
-│                 ▼                                           │
-│   ┌───────────────────────────┐      ┌────────────────────┐ │
-│   │ dynamic "ingress" {       │      │ ingress {          │ │
-│   │   for_each = var.rules    │ ───► │   from_port = 80   │ │
-│   │   content {               │      │ }                  │ │
-│   │     from_port = ...       │      │ ingress {          │ │
-│   │   }                       │      │   from_port = 443  │ │
-│   │ }                         │      │ }                  │ │
-│   └───────────────────────────┘      └────────────────────┘ │
-│                                                             │
-│   Iterator Mechanics                                        │
-│   ├── Default: `<block_label>.value` and `<label>.key`      │
-│   └── Custom:  `iterator = rule` ──► `rule.value`           │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    subgraph InputCollection["Input Collection (List / Map)"]
+        Coll["📋 var.rules = [<br/><code>{ port = 80, desc = 'HTTP' }</code>,<br/><code>{ port = 443, desc = 'HTTPS' }</code><br/>]"]
+    end
+
+    subgraph DynamicGenerator["Dynamic Generator Block"]
+        Dyn["⚙️ dynamic 'ingress' {<br/>&nbsp;&nbsp;for_each = var.rules<br/>&nbsp;&nbsp;iterator = rule<br/>&nbsp;&nbsp;content { ... }<br/>}"]
+    end
+
+    subgraph ExpandedAST["Expanded Resource AST Body"]
+        direction TB
+        B1["🧱 ingress {<br/>&nbsp;&nbsp;from_port = 80<br/>&nbsp;&nbsp;description = 'HTTP'<br/>}"]
+        B2["🧱 ingress {<br/>&nbsp;&nbsp;from_port = 443<br/>&nbsp;&nbsp;description = 'HTTPS'<br/>}"]
+        B1 --- B2
+    end
+
+    Coll --> Dyn
+    Dyn -->|"AST Expansion Loop"| ExpandedAST
 ```
 
 Core Rules:

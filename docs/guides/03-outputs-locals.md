@@ -14,28 +14,37 @@
 
 In Terraform and OpenTofu, **Outputs, Locals & Expressions** manage data flow and transformations across resource boundaries. While `output` blocks expose state to callers and CLI consumers, `locals` blocks encapsulate intermediate computations to keep configurations DRY (Don't Repeat Yourself).
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                    Data Pipeline & Scope                    │
-│                                                             │
-│   Input Variables            Resource Attributes            │
-│   (var.environment)          (local_file.config.id)         │
-│          │                              │                   │
-│          └──────────────┬───────────────┘                   │
-│                         ▼                                   │
-│            ┌─────────────────────────┐                      │
-│            │      Locals Scope       │                      │
-│            │  (local.normalized_env) │                      │
-│            │  (local.common_tags)    │                      │
-│            └────────────┬────────────┘                      │
-│                         │                                   │
-│          ┌──────────────┴───────────────┐                   │
-│          ▼                              ▼                   │
-│   Downstream Resources           Outputs Scope              │
-│   (terraform_data.audit)         (output.database_endpoint) │
-│                                  - `sensitive = true`       │
-│                                  - State File Persistence   │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph Upstream["Upstream Inputs & Attributes"]
+        Vars["📥 Input Variables<br/><code>var.environment</code>"]
+        Attrs["📦 Resource Attributes<br/><code>local_file.config.id</code>"]
+    end
+
+    subgraph Intermediate["Intermediate Locals Scope"]
+        Locals["⚙️ locals Block<br/><i>• Normalization & Ternaries<br/>• Tagging Factories<br/>• Splat Projections</i>"]
+    end
+
+    subgraph Downstream["Downstream Consumers"]
+        Resources["🏗️ Dependent Resources<br/><code>terraform_data.audit</code>"]
+        
+        subgraph OutputsPipe["Output Pipeline"]
+            RawOut["📤 output Block"]
+            SensCheck{"🔒 sensitive = true?"}
+            Masked["🛡️ (sensitive value) Redacted in CLI"]
+            Plain["👁️ Plaintext CLI Display"]
+            StatePersist["💾 Persisted in State File"]
+            
+            RawOut --> SensCheck
+            SensCheck -->|"Yes"| Masked --> StatePersist
+            SensCheck -->|"No"| Plain --> StatePersist
+        end
+    end
+
+    Vars --> Locals
+    Attrs --> Locals
+    Locals --> Resources
+    Locals --> RawOut
 ```
 
 Expressions are evaluated during graph resolution:

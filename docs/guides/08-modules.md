@@ -14,27 +14,29 @@
 
 In Terraform and OpenTofu, **Modules** are the foundational unit of abstraction, encapsulation, and code reuse. Every configuration has at least one root module (the directory containing your active `.tf` files) and can instantiate child modules locally or from remote registries.
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                 Modular Hierarchy & Data Flow               │
-│                                                             │
-│   Root Module Scope                                         │
-│   ┌───────────────────────────────────────────────────────┐ │
-│   │ module "network" {                                    │ │
-│   │   source = "./modules/vpc"                            │ │
-│   │   cidr   = var.vpc_cidr ────► [ Child Module Inputs ] │ │
-│   │ }                                 │                   │ │
-│   │                                   ▼                   │ │
-│   │ module "app" {            [ Internal Resources ]      │ │
-│   │   source = "./modules/app"        │                   │ │
-│   │   vpc_id = module.network.id ◄────┘ [ Child Outputs ] │ │
-│   │ }                                                     │ │
-│   └───────────────────────────────────────────────────────┘ │
-│                                                             │
-│   Provider Inheritance & Aliases                            │
-│   ├── Default: Child modules inherit root default providers │
-│   └── Explicit: `providers = { aws.west = aws.us_west_2 }`  │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph RootModule["Root Module Scope (Caller)"]
+        direction TB
+        Vars["📥 Root Variables<br/><code>var.vpc_cidr</code>"]
+        DefProv["🔌 Default Providers<br/><code>provider 'aws'</code>"]
+        AliasProv["🔌 Alias Provider<br/><code>provider 'aws' { alias = 'west' }</code>"]
+    end
+
+    subgraph ChildVPC["Child Module: module.network (./modules/vpc)"]
+        direction TB
+        VPCInputs["📥 Inputs: cidr"] --> VPCRes["🏗️ aws_vpc.main"] --> VPCOutputs["📤 Outputs: vpc_id, subnet_ids"]
+    end
+
+    subgraph ChildApp["Child Module: module.app (./modules/app)"]
+        direction TB
+        AppInputs["📥 Inputs: vpc_id"] --> AppRes["🏗️ aws_instance.web"] --> AppOutputs["📤 Outputs: app_url"]
+    end
+
+    Vars -->|"Pass Argument"| VPCInputs
+    DefProv -.->|"Inherit Provider"| ChildVPC
+    AliasProv -.->|"providers = { aws = aws.west }"| ChildApp
+    VPCOutputs -->|"module.network.vpc_id"| AppInputs
 ```
 
 Core Architectural Rules:
