@@ -1,299 +1,288 @@
 /**
- * Terralings In-Browser Interactive Learning Platform.
+ * Terralings WebAssembly Playground UI Controller & State Engine
  *
- * Implements:
- * 1. TerralingsStorage: Zero-backend localStorage state persistence, auto-save,
- *    progress calculation, and JSON backup export/import.
- * 2. TerralingsUI: Monaco Editor integration, Pyodide Web Worker communication,
- *    320px collapsible syllabus sidebar, search filter, progressive hints, diff viewer,
- *    fullscreen mode, and keyboard shortcuts.
+ * Full 56-exercise browser learning environment powered by Pyodide WebAssembly.
+ * Features client-side localStorage persistence, interactive split-pane syllabus sidebar,
+ * real-time search & filters, progressive hints, side-by-side solution diffs, and progress backup.
  */
 
-/* global monaco, require */
+(function () {
+  "use strict";
 
-const STORAGE_KEY = "terralings_learning_state_v1";
+  const STORAGE_KEY = "terralings_learning_state_v1";
 
-// ============================================================================
-// 1. Storage Manager (localStorage)
-// ============================================================================
+  /**
+   * ==========================================================================
+   * 1. TerralingsStorage: Client-Side Progress & Working Code Persistence
+   * ==========================================================================
+   */
+  const TerralingsStorage = {
+    state: null,
+    saveTimeout: null,
 
-class TerralingsStorage {
-  constructor(bundle) {
-    this.bundle = bundle;
-    this.state = this.loadState();
-  }
+    init(bundle) {
+      let saved = null;
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          saved = JSON.parse(raw);
+        }
+      } catch (e) {
+        console.warn("Failed to read Terralings state from localStorage:", e);
+      }
 
-  loadState() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (parsed && parsed.version === 1 && parsed.exercises) {
-          return parsed;
+      const totalExercises =
+        bundle && bundle.exercises ? Object.keys(bundle.exercises).length : 56;
+
+      if (!saved || saved.version !== 1 || !saved.exercises) {
+        saved = {
+          version: 1,
+          lastActiveExerciseId: "primitives01",
+          exercises: {},
+          stats: {
+            completedCount: 0,
+            totalCount: totalExercises,
+            completionPercentage: 0,
+          },
+        };
+      }
+
+      if (bundle && bundle.exercises) {
+        for (const [id, ex] of Object.entries(bundle.exercises)) {
+          if (!saved.exercises[id]) {
+            saved.exercises[id] = {
+              status: "not_started",
+              userCode: ex.starter_code || "",
+              hintsRevealed: 0,
+            };
+          }
         }
       }
-    } catch (e) {
-      console.warn("Failed to read Terralings state from localStorage", e);
-    }
 
-    return this.initDefaultState();
-  }
+      this.state = saved;
+      this.recalculateStats(bundle);
+      this.persist();
+      return this.state;
+    },
 
-  initDefaultState() {
-    const state = {
-      version: 1,
-      lastActiveExerciseId: "primitives01",
-      exercises: {},
-      stats: {
-        completedCount: 0,
-        totalCount: this.bundle.stats.totalExercises || 56,
-        completionPercentage: 0,
-      },
-    };
+    recalculateStats(bundle) {
+      if (!this.state || !this.state.exercises) return;
+      let completed = 0;
+      const total =
+        bundle && bundle.exercises
+          ? Object.keys(bundle.exercises).length
+          : Object.keys(this.state.exercises).length;
 
-    for (const exId in this.bundle.exercises) {
-      state.exercises[exId] = {
+      for (const exState of Object.values(this.state.exercises)) {
+        if (exState.status === "completed") {
+          completed++;
+        }
+      }
+
+      this.state.stats = {
+        completedCount: completed,
+        totalCount: total || 1,
+        completionPercentage:
+          total > 0 ? Math.round((completed / total) * 100) : 0,
+      };
+    },
+
+    persist() {
+      if (!this.state) return;
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
+      } catch (e) {
+        console.warn("Failed to write Terralings state to localStorage:", e);
+      }
+    },
+
+    getExerciseState(exerciseId, defaultStarterCode = "") {
+      if (!this.state)
+        return {
+          status: "not_started",
+          userCode: defaultStarterCode,
+          hintsRevealed: 0,
+        };
+      if (!this.state.exercises[exerciseId]) {
+        this.state.exercises[exerciseId] = {
+          status: "not_started",
+          userCode: defaultStarterCode,
+          hintsRevealed: 0,
+        };
+        this.persist();
+      }
+      return this.state.exercises[exerciseId];
+    },
+
+    saveExerciseCode(exerciseId, code) {
+      if (!this.state) return;
+      const exState = this.getExerciseState(exerciseId, code);
+      exState.userCode = code;
+      if (exState.status === "not_started") {
+        exState.status = "in_progress";
+      }
+      exState.lastEvaluatedAt = new Date().toISOString();
+
+      clearTimeout(this.saveTimeout);
+      this.saveTimeout = setTimeout(() => {
+        this.persist();
+      }, 300);
+    },
+
+    markCompleted(exerciseId, bundle) {
+      if (!this.state) return;
+      const exState = this.getExerciseState(exerciseId);
+      exState.status = "completed";
+      exState.passedAt = new Date().toISOString();
+      this.recalculateStats(bundle);
+      this.persist();
+    },
+
+    setHintsRevealed(exerciseId, count) {
+      if (!this.state) return;
+      const exState = this.getExerciseState(exerciseId);
+      exState.hintsRevealed = count;
+      this.persist();
+    },
+
+    resetExercise(exerciseId, starterCode) {
+      if (!this.state) return;
+      this.state.exercises[exerciseId] = {
         status: "not_started",
-        userCode: this.bundle.exercises[exId].starterCode,
+        userCode: starterCode || "",
         hintsRevealed: 0,
       };
-    }
+      this.persist();
+    },
 
-    this.saveState(state);
-    return state;
-  }
-
-  saveState(stateToSave = null) {
-    if (stateToSave) {
-      this.state = stateToSave;
-    }
-    this.recalculateStats();
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
-    } catch (e) {
-      console.error("Failed to write Terralings state to localStorage", e);
-    }
-  }
-
-  recalculateStats() {
-    let completed = 0;
-    const total = Object.keys(this.bundle.exercises).length;
-
-    for (const exId in this.bundle.exercises) {
-      if (
-        this.state.exercises[exId] &&
-        this.state.exercises[exId].status === "completed"
-      ) {
-        completed++;
-      }
-    }
-
-    this.state.stats = {
-      completedCount: completed,
-      totalCount: total,
-      completionPercentage:
-        total > 0 ? Math.round((completed / total) * 100) : 0,
-    };
-  }
-
-  getExerciseCode(exId) {
-    if (this.state.exercises[exId] && this.state.exercises[exId].userCode) {
-      return this.state.exercises[exId].userCode;
-    }
-    return this.bundle.exercises[exId]
-      ? this.bundle.exercises[exId].starterCode
-      : "";
-  }
-
-  saveExerciseCode(exId, code) {
-    if (!this.state.exercises[exId]) {
-      this.state.exercises[exId] = {
-        status: "in_progress",
-        userCode: code,
-        hintsRevealed: 0,
+    resetAll(bundle) {
+      const total =
+        bundle && bundle.exercises ? Object.keys(bundle.exercises).length : 56;
+      this.state = {
+        version: 1,
+        lastActiveExerciseId: "primitives01",
+        exercises: {},
+        stats: {
+          completedCount: 0,
+          totalCount: total,
+          completionPercentage: 0,
+        },
       };
-    } else {
-      this.state.exercises[exId].userCode = code;
-      if (this.state.exercises[exId].status === "not_started") {
-        this.state.exercises[exId].status = "in_progress";
+      if (bundle && bundle.exercises) {
+        for (const [id, ex] of Object.entries(bundle.exercises)) {
+          this.state.exercises[id] = {
+            status: "not_started",
+            userCode: ex.starter_code || "",
+            hintsRevealed: 0,
+          };
+        }
       }
-    }
-    this.state.lastActiveExerciseId = exId;
-    this.saveState();
-  }
+      this.persist();
+    },
 
-  markCompleted(exId) {
-    if (!this.state.exercises[exId]) {
-      this.state.exercises[exId] = {
-        status: "completed",
-        userCode: this.getExerciseCode(exId),
-        hintsRevealed: 0,
-        passedAt: new Date().toISOString(),
-      };
-    } else {
-      this.state.exercises[exId].status = "completed";
-      this.state.exercises[exId].passedAt = new Date().toISOString();
-    }
-    this.saveState();
-  }
-
-  getHintsRevealed(exId) {
-    return (
-      (this.state.exercises[exId] &&
-        this.state.exercises[exId].hintsRevealed) ||
-      0
-    );
-  }
-
-  revealNextHint(exId) {
-    if (!this.state.exercises[exId]) {
-      this.state.exercises[exId] = {
-        status: "in_progress",
-        userCode: this.getExerciseCode(exId),
-        hintsRevealed: 1,
-      };
-    } else {
-      const current = this.state.exercises[exId].hintsRevealed || 0;
-      this.state.exercises[exId].hintsRevealed = current + 1;
-    }
-    this.saveState();
-    return this.state.exercises[exId].hintsRevealed;
-  }
-
-  resetExercise(exId) {
-    const starter = this.bundle.exercises[exId]
-      ? this.bundle.exercises[exId].starterCode
-      : "";
-    this.state.exercises[exId] = {
-      status: "not_started",
-      userCode: starter,
-      hintsRevealed: 0,
-    };
-    this.saveState();
-    return starter;
-  }
-
-  exportProgress() {
-    const dataStr =
-      "data:text/json;charset=utf-8," +
-      encodeURIComponent(JSON.stringify(this.state, null, 2));
-    const downloadAnchor = document.createElement("a");
-    const dateStr = new Date().toISOString().slice(0, 10);
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute(
-      "download",
-      `terralings-progress-${dateStr}.json`
-    );
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
-  }
-
-  importProgress(jsonString) {
-    try {
-      const imported = JSON.parse(jsonString);
-      if (imported && imported.version === 1 && imported.exercises) {
-        this.state = imported;
-        this.saveState();
-        return true;
-      }
-    } catch (e) {
-      console.error("Invalid progress JSON", e);
-    }
-    return false;
-  }
-
-  resetAllProgress() {
-    localStorage.removeItem(STORAGE_KEY);
-    this.state = this.initDefaultState();
-  }
-}
-
-// ============================================================================
-// 2. UI Controller & Monaco Integration
-// ============================================================================
-
-class TerralingsUI {
-  constructor() {
-    this.bundle = null;
-    this.storage = null;
-    this.currentExerciseId = null;
-    this.monacoEditor = null;
-    this.diffEditor = null;
-    this.worker = null;
-    this.saveTimeout = null;
-    this.isDiffMode = false;
-    this.filterStatus = "all";
-    this.searchQuery = "";
-  }
-
-  async init() {
-    this.renderLoadingPlaceholder("Loading Terralings Curriculum Bundle...");
-
-    try {
-      // Find relative or absolute path for bundle
-      const bundlePath = this.getAssetPath("playground-bundle.json");
-      const resp = await fetch(bundlePath);
-      this.bundle = await resp.json();
-    } catch (err) {
-      console.error("Error loading bundle:", err);
-      this.renderErrorPlaceholder(
-        "Failed to load curriculum bundle. Please refresh or check connection."
+    exportJson() {
+      if (!this.state) return;
+      const dataStr =
+        "data:text/json;charset=utf-8," +
+        encodeURIComponent(JSON.stringify(this.state, null, 2));
+      const downloadAnchor = document.createElement("a");
+      const dateStr = new Date().toISOString().slice(0, 10);
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute(
+        "download",
+        `terralings-progress-${dateStr}.json`
       );
-      return;
-    }
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    },
 
-    this.storage = new TerralingsStorage(this.bundle);
-    this.currentExerciseId =
-      this.storage.state.lastActiveExerciseId || "primitives01";
-    if (!this.bundle.exercises[this.currentExerciseId]) {
-      this.currentExerciseId = Object.keys(this.bundle.exercises)[0];
-    }
-
-    this.initWorker();
-    this.renderLayout();
-    this.initMonaco();
-    this.bindEvents();
-  }
-
-  getAssetPath(fileName) {
-    // MkDocs material site location detection
-    const currentHref = window.location.pathname;
-    if (currentHref.includes("/playground")) {
-      return `../assets/playground/${fileName}`;
-    }
-    return `./assets/playground/${fileName}`;
-  }
-
-  initWorker() {
-    const workerPath = this.getAssetPath("playground-worker.js");
-    this.worker = new Worker(workerPath);
-
-    this.worker.onmessage = (e) => {
-      const msg = e.data;
-      if (!msg) return;
-
-      if (msg.type === "STATUS") {
-        this.updateStatusBadge(msg.message, msg.stage);
-      } else if (msg.type === "RUN_RESULT") {
-        this.handleRunResult(msg);
+    importJson(jsonText, bundle) {
+      try {
+        const parsed = JSON.parse(jsonText);
+        if (parsed && parsed.exercises) {
+          this.state = parsed;
+          this.recalculateStats(bundle);
+          this.persist();
+          return true;
+        }
+      } catch (e) {
+        console.error("Invalid progress JSON", e);
       }
-    };
+      return false;
+    },
+  };
 
-    this.worker.postMessage({
-      type: "INIT",
-      bundle: this.bundle,
-    });
+  /**
+   * ==========================================================================
+   * 2. State & DOM References
+   * ==========================================================================
+   */
+  const state = {
+    bundle: null,
+    worker: null,
+    workerReady: false,
+    monacoLoaded: false,
+    editor: null,
+    diffEditor: null,
+    originalModel: null,
+    modifiedModel: null,
+    currentExerciseId: "primitives01",
+    revealedHints: 0,
+    isDiffMode: false,
+    isRunning: false,
+    sidebarFilter: "all",
+    searchQuery: "",
+    expandedChapters: new Set(["01"]),
+    container: null,
+    elements: {},
+  };
+
+  function resolveAssetUrl(filename) {
+    if (document.currentScript && document.currentScript.src) {
+      return new URL(filename, document.currentScript.src).href;
+    }
+    const scripts = document.querySelectorAll('script[src*="playground.js"]');
+    if (scripts.length > 0) {
+      const src = scripts[scripts.length - 1].src;
+      return new URL(filename, src).href;
+    }
+    return "assets/playground/" + filename;
   }
 
-  renderLayout() {
-    const container = document.getElementById("terralings-app");
-    if (!container) return;
+  function escapeHtml(str) {
+    if (!str) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
 
+  function getMonacoTheme() {
+    const scheme = document.body.getAttribute("data-md-color-scheme");
+    if (scheme === "slate") return "vs-dark";
+    if (scheme === "default") return "vs";
+    if (
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+    ) {
+      return "vs-dark";
+    }
+    return "vs";
+  }
+
+  /**
+   * ==========================================================================
+   * 3. UI Layout Rendering & DOM Binding
+   * ==========================================================================
+   */
+  function renderPlaygroundSkeleton(container) {
     container.innerHTML = `
       <div class="terralings-wrapper" id="terralings-workspace">
         <!-- Sidebar Navigation (320px) -->
-        <aside class="terralings-sidebar">
+        <aside class="terralings-sidebar" aria-label="Curriculum Sidebar">
           <div class="terralings-sidebar-header">
             <div class="terralings-brand">
               <span class="terralings-logo">🏗️</span>
@@ -301,7 +290,7 @@ class TerralingsUI {
             </div>
             <div class="terralings-progress-bar-container">
               <div class="terralings-progress-text">
-                <span id="progress-count">0 / ${this.bundle.stats.totalExercises} Completed</span>
+                <span id="progress-count">0 / 56 Completed</span>
                 <span id="progress-percent" class="progress-badge">0%</span>
               </div>
               <div class="terralings-progress-track">
@@ -368,95 +357,166 @@ class TerralingsUI {
               <h4>💡 Progressive Hints</h4>
               <button id="btn-close-hint" class="close-btn">×</button>
             </div>
-            <div id="hint-content" class="hint-body"></div>
+            <div id="hint-content"></div>
           </div>
 
-          <!-- Editor Container -->
-          <div class="terralings-editor-container">
-            <div id="monaco-code-editor" class="editor-pane"></div>
-            <div id="monaco-diff-editor" class="editor-pane" style="display: none;"></div>
+          <!-- Monaco Editor Area -->
+          <div class="terralings-editor-container" id="editor-container">
+            <div id="monaco-editor" class="editor-pane"></div>
+            <div id="monaco-diff" class="editor-pane" style="display: none;"></div>
           </div>
 
-          <!-- Terminal Diagnostics Pane -->
-          <section class="terralings-terminal">
+          <!-- Diagnostics Terminal -->
+          <div class="terralings-terminal">
             <div class="terminal-header">
               <div class="terminal-title">
                 <span class="terminal-dot"></span>
                 <span>Diagnostics & Output</span>
               </div>
-              <div class="terminal-status" id="terminal-status-badge">⚡ Pyodide Ready</div>
+              <span id="terminal-status-badge" class="terminal-status loading">⚡ Initializing WebAssembly...</span>
             </div>
-            <pre class="terminal-body" id="terminal-output">Ready. Press ▶ Run Solution or Ctrl+Enter to validate your HCL code.</pre>
-          </section>
+            <pre class="terminal-body" id="terminal-output">⚡ Starting Pyodide Python 3.12 WebAssembly Engine...</pre>
+          </div>
         </main>
       </div>
     `;
-
-    this.renderSyllabusTree();
-    this.updateGlobalProgress();
   }
 
-  renderSyllabusTree() {
-    const tree = document.getElementById("syllabus-tree");
-    if (!tree) return;
+  function bindElements(container) {
+    state.elements = {
+      workspace: container.querySelector("#terralings-workspace"),
+      syllabusTree: container.querySelector("#syllabus-tree"),
+      progressCount: container.querySelector("#progress-count"),
+      progressPercent: container.querySelector("#progress-percent"),
+      progressFill: container.querySelector("#progress-fill"),
+      chapterBadge: container.querySelector("#ex-chapter-badge"),
+      exTitle: container.querySelector("#ex-title"),
+      exStatusPill: container.querySelector("#ex-status-pill"),
+      hintBadge: container.querySelector("#hint-count-badge"),
+      hintDrawer: container.querySelector("#hint-drawer"),
+      hintContent: container.querySelector("#hint-content"),
+      monacoPane: container.querySelector("#monaco-editor"),
+      diffPane: container.querySelector("#monaco-diff"),
+      terminalStatus: container.querySelector("#terminal-status-badge"),
+      terminalOutput: container.querySelector("#terminal-output"),
+      searchInput: container.querySelector("#syllabus-search"),
+      filterTabs: container.querySelectorAll(".filter-tab"),
+      runBtn: container.querySelector("#btn-run"),
+      hintBtn: container.querySelector("#btn-hint"),
+      closeHintBtn: container.querySelector("#btn-close-hint"),
+      resetCodeBtn: container.querySelector("#btn-reset-code"),
+      diffBtn: container.querySelector("#btn-diff-view"),
+      prevBtn: container.querySelector("#btn-prev-ex"),
+      nextBtn: container.querySelector("#btn-next-ex"),
+      fullscreenBtn: container.querySelector("#btn-fullscreen"),
+      exportBtn: container.querySelector("#btn-export-json"),
+      importBtn: container.querySelector("#btn-import-json"),
+      resetAllBtn: container.querySelector("#btn-reset-all"),
+      fileInput: container.querySelector("#file-import-input"),
+    };
+  }
 
+  function updateStatus(stage, text) {
+    const badge = state.elements.terminalStatus;
+    if (badge) {
+      badge.textContent = text;
+      badge.className = `terminal-status ${stage}`;
+    }
+  }
+
+  function updateGlobalProgress() {
+    TerralingsStorage.recalculateStats(state.bundle);
+    const stats = TerralingsStorage.state.stats;
+    if (state.elements.progressCount) {
+      state.elements.progressCount.textContent = `${stats.completedCount} / ${stats.totalCount} Completed`;
+    }
+    if (state.elements.progressPercent) {
+      state.elements.progressPercent.textContent = `${stats.completionPercentage}%`;
+    }
+    if (state.elements.progressFill) {
+      state.elements.progressFill.style.width = `${stats.completionPercentage}%`;
+    }
+  }
+
+  function renderSyllabusTree() {
+    const tree = state.elements.syllabusTree;
+    if (!tree || !state.bundle) return;
     tree.innerHTML = "";
 
-    this.bundle.chapters.forEach((ch) => {
-      // Filter exercises in chapter
+    state.bundle.chapters.forEach((ch) => {
       const matchingExercises = ch.exercises.filter((ex) => {
         const matchesSearch =
-          !this.searchQuery ||
-          ex.name.toLowerCase().includes(this.searchQuery) ||
-          ex.title.toLowerCase().includes(this.searchQuery) ||
-          ch.title.toLowerCase().includes(this.searchQuery);
+          !state.searchQuery ||
+          ex.name.toLowerCase().includes(state.searchQuery) ||
+          ex.title.toLowerCase().includes(state.searchQuery) ||
+          ch.title.toLowerCase().includes(state.searchQuery);
 
-        const exState = this.storage.state.exercises[ex.name] || {};
+        const exState =
+          (TerralingsStorage.state &&
+            TerralingsStorage.state.exercises[ex.name]) ||
+          {};
         const status = exState.status || "not_started";
 
         let matchesStatus = true;
-        if (this.filterStatus === "todo") matchesStatus = status !== "completed";
-        if (this.filterStatus === "done") matchesStatus = status === "completed";
+        if (state.sidebarFilter === "todo")
+          matchesStatus = status !== "completed";
+        if (state.sidebarFilter === "done")
+          matchesStatus = status === "completed";
 
         return matchesSearch && matchesStatus;
       });
 
-      if (matchingExercises.length === 0 && (this.searchQuery || this.filterStatus !== "all")) {
+      if (
+        matchingExercises.length === 0 &&
+        (state.searchQuery || state.sidebarFilter !== "all")
+      ) {
         return;
       }
 
       const completedInChapter = ch.exercises.filter((ex) => {
-        const s = this.storage.state.exercises[ex.name];
+        const s =
+          TerralingsStorage.state && TerralingsStorage.state.exercises[ex.name];
         return s && s.status === "completed";
       }).length;
 
-      const isCurrentChapter = ch.exercises.some((e) => e.name === this.currentExerciseId);
+      const isAllDone = completedInChapter === ch.exercises.length;
+      const isExpanded = state.expandedChapters.has(ch.id);
 
       const chapterDiv = document.createElement("div");
-      chapterDiv.className = `syllabus-chapter ${isCurrentChapter ? "open" : ""}`;
+      chapterDiv.className = `syllabus-chapter ${isExpanded ? "open" : ""}`;
 
       const chapterHeader = document.createElement("div");
       chapterHeader.className = "chapter-header";
       chapterHeader.innerHTML = `
         <div class="chapter-title-row">
-          <span class="accordion-arrow">▸</span>
-          <span class="chapter-number">${String(ch.number).padStart(2, "0")}.</span>
+          <span class="accordion-arrow">▶</span>
+          <span class="chapter-number">${ch.id}</span>
           <span class="chapter-name">${ch.title}</span>
         </div>
-        <span class="chapter-count-badge ${completedInChapter === ch.exercises.length ? "all-done" : ""}">${completedInChapter}/${ch.exercises.length} ✓</span>
+        <span class="chapter-count-badge ${isAllDone ? "all-done" : ""}">
+          ${completedInChapter}/${ch.exercises.length}
+        </span>
       `;
 
       chapterHeader.onclick = () => {
-        chapterDiv.classList.toggle("open");
+        if (state.expandedChapters.has(ch.id)) {
+          state.expandedChapters.delete(ch.id);
+        } else {
+          state.expandedChapters.add(ch.id);
+        }
+        renderSyllabusTree();
       };
 
       const exerciseList = document.createElement("div");
       exerciseList.className = "exercise-list";
 
       matchingExercises.forEach((ex) => {
-        const exState = this.storage.state.exercises[ex.name] || {};
+        const exState =
+          (TerralingsStorage.state &&
+            TerralingsStorage.state.exercises[ex.name]) ||
+          {};
         const status = exState.status || "not_started";
-        const isActive = ex.name === this.currentExerciseId;
+        const isActive = ex.name === state.currentExerciseId;
 
         const item = document.createElement("div");
         item.className = `exercise-item ${isActive ? "active" : ""} ${status}`;
@@ -473,7 +533,7 @@ class TerralingsUI {
 
         item.onclick = (e) => {
           e.stopPropagation();
-          this.switchExercise(ex.name);
+          selectExercise(ex.name);
         };
 
         exerciseList.appendChild(item);
@@ -485,460 +545,573 @@ class TerralingsUI {
     });
   }
 
-  updateGlobalProgress() {
-    this.storage.recalculateStats();
-    const stats = this.storage.state.stats;
+  function selectExercise(exId) {
+    if (!state.bundle || !state.bundle.exercises[exId]) return;
+    state.currentExerciseId = exId;
+    TerralingsStorage.state.lastActiveExerciseId = exId;
+    TerralingsStorage.persist();
 
-    const countEl = document.getElementById("progress-count");
-    const percentEl = document.getElementById("progress-percent");
-    const fillEl = document.getElementById("progress-fill");
+    const ex = state.bundle.exercises[exId];
+    const ch = state.bundle.chapters.find((c) => c.id === ex.chapter);
+    if (ch) state.expandedChapters.add(ch.id);
 
-    if (countEl)
-      countEl.textContent = `${stats.completedCount} / ${stats.totalCount} Completed`;
-    if (percentEl) percentEl.textContent = `${stats.completionPercentage}%`;
-    if (fillEl) fillEl.style.width = `${stats.completionPercentage}%`;
-  }
+    // Update Header
+    if (state.elements.chapterBadge)
+      state.elements.chapterBadge.textContent = ch
+        ? `${ch.id}. ${ch.title}`
+        : `Chapter ${ex.chapter}`;
+    if (state.elements.exTitle)
+      state.elements.exTitle.textContent = `${ex.name} — ${ex.title}`;
 
-  initMonaco() {
-    // Configure Monaco Environment for AMD Loader
-    if (typeof require !== "undefined") {
-      require.config({
-        paths: {
-          vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs",
-        },
-      });
-
-      require(["vs/editor/editor.main"], () => {
-        // Register HCL / Terraform language tokens
-        monaco.languages.register({ id: "terraform" });
-        monaco.languages.setMonarchTokensProvider("terraform", {
-          keywords: [
-            "terraform",
-            "resource",
-            "data",
-            "variable",
-            "locals",
-            "output",
-            "module",
-            "moved",
-            "check",
-            "import",
-            "removed",
-            "provider",
-          ],
-          typeKeywords: [
-            "string",
-            "number",
-            "bool",
-            "list",
-            "map",
-            "set",
-            "object",
-            "tuple",
-            "any",
-          ],
-          operators: ["=", "==", "!=", "<=", ">=", "<", ">", "&&", "||", "!", "?"],
-          tokenizer: {
-            root: [
-              [/[a-zA-Z_]\w*/, { cases: { "@keywords": "keyword", "@typeKeywords": "type", "@default": "identifier" } }],
-              [/"([^"\\]|\\.)*"/, "string"],
-              [/<<-?\s*(\w+)/, "string.heredoc"],
-              [/#.*$/, "comment"],
-              [/\/\/.*$/, "comment"],
-              [/\/\*/, "comment", "@comment"],
-              [/[{}()\[\]]/, "@brackets"],
-              [/[=><!~?:]+/, "operator"],
-              [/\d+/, "number"],
-            ],
-            comment: [
-              [/[^\/*]+/, "comment"],
-              [/\*\//, "comment", "@pop"],
-              [/[\/*]/, "comment"],
-            ],
-          },
-        });
-
-        const isDark =
-          document.body.getAttribute("data-md-color-scheme") === "slate" ||
-          window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-        const codeContainer = document.getElementById("monaco-code-editor");
-        if (codeContainer) {
-          this.monacoEditor = monaco.editor.create(codeContainer, {
-            value: this.storage.getExerciseCode(this.currentExerciseId),
-            language: "terraform",
-            theme: isDark ? "vs-dark" : "vs",
-            automaticLayout: true,
-            fontSize: 14,
-            minimap: { enabled: false },
-            lineNumbers: "on",
-            scrollBeyondLastLine: false,
-            tabSize: 2,
-          });
-
-          this.monacoEditor.onDidChangeModelContent(() => {
-            clearTimeout(this.saveTimeout);
-            this.saveTimeout = setTimeout(() => {
-              const code = this.monacoEditor.getValue();
-              this.storage.saveExerciseCode(this.currentExerciseId, code);
-              this.renderSyllabusTree();
-            }, 300);
-          });
-        }
-
-        const diffContainer = document.getElementById("monaco-diff-editor");
-        if (diffContainer) {
-          this.diffEditor = monaco.editor.createDiffEditor(diffContainer, {
-            theme: isDark ? "vs-dark" : "vs",
-            automaticLayout: true,
-            fontSize: 14,
-            readOnly: true,
-            renderSideBySide: true,
-          });
-        }
-
-        this.updateExerciseView();
-      });
-    }
-  }
-
-  switchExercise(exId) {
-    if (!this.bundle.exercises[exId]) return;
-
-    this.currentExerciseId = exId;
-    this.storage.state.lastActiveExerciseId = exId;
-    this.storage.saveState();
-
-    if (this.isDiffMode) {
-      this.toggleDiffMode(false);
+    const exState = TerralingsStorage.getExerciseState(ex.name, ex.starter_code);
+    if (state.elements.exStatusPill) {
+      if (exState.status === "completed") {
+        state.elements.exStatusPill.className = "status-indicator completed";
+        state.elements.exStatusPill.textContent = "✓ Completed";
+      } else if (exState.status === "in_progress") {
+        state.elements.exStatusPill.className = "status-indicator in_progress";
+        state.elements.exStatusPill.textContent = "⏳ In Progress";
+      } else {
+        state.elements.exStatusPill.className = "status-indicator";
+        state.elements.exStatusPill.textContent = "○ Not Started";
+      }
     }
 
-    if (this.monacoEditor) {
-      this.monacoEditor.setValue(this.storage.getExerciseCode(exId));
+    state.revealedHints = exState.hintsRevealed || 0;
+    renderHints();
+
+    // Set Editor Code
+    if (state.editor) {
+      const codeToLoad = exState.userCode || ex.starter_code;
+      state.editor.setValue(codeToLoad);
     }
 
-    this.updateExerciseView();
-    this.renderSyllabusTree();
-    this.hideHints();
+    if (state.isDiffMode) {
+      updateDiffModels();
+    }
+
+    renderSyllabusTree();
+    updateGlobalProgress();
   }
 
-  updateExerciseView() {
-    const ex = this.bundle.exercises[this.currentExerciseId];
+  function renderHints() {
+    const ex = state.bundle && state.bundle.exercises[state.currentExerciseId];
     if (!ex) return;
 
-    const chBadge = document.getElementById("ex-chapter-badge");
-    const titleEl = document.getElementById("ex-title");
-    const statusPill = document.getElementById("ex-status-pill");
-    const hintBadge = document.getElementById("hint-count-badge");
-
-    if (chBadge)
-      chBadge.textContent = `Chapter ${String(ex.chapterNumber).padStart(2, "0")}: ${ex.chapterTitle}`;
-    if (titleEl) titleEl.textContent = `${ex.name} - ${ex.title}`;
-
-    const exState = this.storage.state.exercises[ex.name] || {};
-    const status = exState.status || "not_started";
-
-    if (statusPill) {
-      statusPill.className = `status-indicator ${status}`;
-      statusPill.textContent =
-        status === "completed"
-          ? "✓ Completed"
-          : status === "in_progress"
-          ? "⏳ In Progress"
-          : "○ Not Started";
+    if (state.elements.hintBadge) {
+      state.elements.hintBadge.textContent = `${state.revealedHints}/${ex.hints.length}`;
     }
 
-    const revealed = this.storage.getHintsRevealed(ex.name);
-    if (hintBadge) {
-      hintBadge.textContent = `${revealed}/${ex.hints.length}`;
+    if (!state.elements.hintContent) return;
+
+    if (state.revealedHints === 0) {
+      state.elements.hintDrawer.style.display = "none";
+      state.elements.hintContent.innerHTML = "";
+      return;
+    }
+
+    state.elements.hintDrawer.style.display = "block";
+    let html = "";
+    for (let i = 0; i < state.revealedHints && i < ex.hints.length; i++) {
+      html += `
+        <div class="hint-item">
+          <strong>Tier ${i + 1}:</strong>
+          <p>${escapeHtml(ex.hints[i])}</p>
+        </div>
+      `;
+    }
+    state.elements.hintContent.innerHTML = html;
+  }
+
+  function toggleHint() {
+    const ex = state.bundle && state.bundle.exercises[state.currentExerciseId];
+    if (!ex || ex.hints.length === 0) return;
+
+    if (state.revealedHints >= ex.hints.length) {
+      state.revealedHints = 0;
+    } else {
+      state.revealedHints++;
+    }
+
+    TerralingsStorage.setHintsRevealed(
+      state.currentExerciseId,
+      state.revealedHints
+    );
+    renderHints();
+  }
+
+  function updateDiffModels() {
+    if (!window.monaco || !state.diffEditor) return;
+    const ex = state.bundle && state.bundle.exercises[state.currentExerciseId];
+    if (!ex) return;
+
+    const userCode = state.editor
+      ? state.editor.getValue()
+      : ex.starter_code;
+    const solutionCode = ex.solution_code || "";
+
+    if (state.originalModel) state.originalModel.dispose();
+    if (state.modifiedModel) state.modifiedModel.dispose();
+
+    state.originalModel = window.monaco.editor.createModel(
+      userCode,
+      "terraform"
+    );
+    state.modifiedModel = window.monaco.editor.createModel(
+      solutionCode,
+      "terraform"
+    );
+
+    state.diffEditor.setModel({
+      original: state.originalModel,
+      modified: state.modifiedModel,
+    });
+  }
+
+  function toggleDiffView() {
+    if (!state.diffEditor || !state.editor) return;
+    state.isDiffMode = !state.isDiffMode;
+
+    if (state.isDiffMode) {
+      updateDiffModels();
+      state.elements.monacoPane.style.display = "none";
+      state.elements.diffPane.style.display = "block";
+      state.elements.diffBtn.textContent = "✕ Close Diff";
+      state.elements.diffBtn.classList.add("primary-btn");
+    } else {
+      state.elements.diffPane.style.display = "none";
+      state.elements.monacoPane.style.display = "block";
+      state.elements.diffBtn.textContent = "🔍 Solution Diff";
+      state.elements.diffBtn.classList.remove("primary-btn");
+      state.editor.layout();
     }
   }
 
-  runValidation() {
-    if (!this.worker) return;
+  function runCurrentExercise() {
+    if (!state.worker || !state.bundle) return;
+    const code = state.editor ? state.editor.getValue() : "";
+    const ex = state.bundle.exercises[state.currentExerciseId];
 
-    const code = this.monacoEditor ? this.monacoEditor.getValue() : "";
-    const ex = this.bundle ? this.bundle.exercises[this.currentExerciseId] : null;
-    this.updateTerminal("Validating HCL in WebAssembly...", "loading");
+    updateStatus("loading", "Validating HCL in WebAssembly...");
+    if (state.elements.terminalOutput) {
+      state.elements.terminalOutput.innerHTML = `<span class="term-dim">⚡ Validating exercise [${escapeHtml(state.currentExerciseId)}] in Pyodide WebAssembly...</span>`;
+    }
 
-    this.worker.postMessage({
+    state.worker.postMessage({
       type: "RUN_EXERCISE",
-      exerciseId: this.currentExerciseId,
+      exerciseId: state.currentExerciseId,
       code: code,
       rules: (ex && ex.rules) || {},
     });
   }
 
-  handleRunResult(result) {
-    const term = document.getElementById("terminal-output");
-    const badge = document.getElementById("terminal-status-badge");
+  function handleRunResult(result) {
+    const term = state.elements.terminalOutput;
 
     if (result.passed) {
-      this.storage.markCompleted(this.currentExerciseId);
-      this.updateGlobalProgress();
-      this.renderSyllabusTree();
-      this.updateExerciseView();
-
-      if (badge) {
-        badge.className = "terminal-status success";
-        badge.textContent = `✓ Passed in ${result.durationMs}ms`;
-      }
-
+      TerralingsStorage.markCompleted(state.currentExerciseId, state.bundle);
+      updateStatus("success", "✓ PASSED");
       if (term) {
-        term.innerHTML = `<span class="term-pass">${result.output}</span>\n\n🎉 <strong style="color:#4ade80;">Exercise passed!</strong> Press Next → or Alt+Right to proceed to next exercise.`;
+        term.innerHTML = `
+<span class="term-pass">✓ SUCCESS: Exercise [${escapeHtml(result.exerciseId)}] passed all validation checks!</span>
+<span class="term-dim">Execution time: ${result.durationMs.toFixed(1)} ms</span>
+
+${escapeHtml(result.output || "")}
+<span class="term-dim">Press </span><span class="term-pass">Alt + Right</span><span class="term-dim"> to proceed to next exercise!</span>
+`;
       }
     } else {
-      if (badge) {
-        badge.className = "terminal-status error";
-        badge.textContent = `✕ Failed in ${result.durationMs}ms`;
-      }
-
+      updateStatus("error", "✕ FAILED");
       if (term) {
-        let errLineMsg = result.line ? ` [Line ${result.line}]` : "";
-        term.innerHTML = `<span class="term-fail">✕ Validation Error${errLineMsg}:</span>\n${result.error}\n\n<span class="term-dim">${result.output}</span>`;
+        let errorMsg = result.error || "Validation check failed";
+        if (result.line) errorMsg += ` (at line ${result.line})`;
+
+        term.innerHTML = `
+<span class="term-fail">✕ COMPILATION / VALIDATION FAILED</span>
+<span class="term-fail">${escapeHtml(errorMsg)}</span>
+
+${escapeHtml(result.output || "")}
+<span class="term-dim">Tip: Press </span><span class="term-warn">💡 Hint (H)</span><span class="term-dim"> or compare with </span><span class="term-warn">🔍 Solution Diff</span>.
+`;
       }
     }
+
+    selectExercise(state.currentExerciseId);
   }
 
-  revealNextHint() {
-    const ex = this.bundle.exercises[this.currentExerciseId];
-    if (!ex || !ex.hints || ex.hints.length === 0) return;
-
-    const revealedCount = this.storage.revealNextHint(this.currentExerciseId);
-    this.showHints(revealedCount);
-    this.updateExerciseView();
-  }
-
-  showHints(count) {
-    const ex = this.bundle.exercises[this.currentExerciseId];
-    const drawer = document.getElementById("hint-drawer");
-    const content = document.getElementById("hint-content");
-
-    if (!drawer || !content) return;
-
-    drawer.style.display = "block";
-    let html = "";
-
-    ex.hints.slice(0, count).forEach((hint, idx) => {
-      html += `
-        <div class="hint-item">
-          <strong>Hint Tier ${idx + 1}:</strong>
-          <p>${hint}</p>
-        </div>
-      `;
-    });
-
-    if (count < ex.hints.length) {
-      html += `
-        <button id="btn-reveal-more-hints" class="action-btn secondary-btn" style="margin-top:8px;">
-          💡 Reveal Next Hint (${count + 1}/${ex.hints.length})
-        </button>
-      `;
-    }
-
-    content.innerHTML = html;
-
-    const moreBtn = document.getElementById("btn-reveal-more-hints");
-    if (moreBtn) {
-      moreBtn.onclick = () => this.revealNextHint();
+  function navigateNext() {
+    if (!state.bundle) return;
+    const keys = Object.keys(state.bundle.exercises);
+    const idx = keys.indexOf(state.currentExerciseId);
+    if (idx >= 0 && idx < keys.length - 1) {
+      selectExercise(keys[idx + 1]);
     }
   }
 
-  hideHints() {
-    const drawer = document.getElementById("hint-drawer");
-    if (drawer) drawer.style.display = "none";
-  }
-
-  toggleDiffMode(forceState = null) {
-    this.isDiffMode = forceState !== null ? forceState : !this.isDiffMode;
-
-    const codeContainer = document.getElementById("monaco-code-editor");
-    const diffContainer = document.getElementById("monaco-diff-editor");
-    const diffBtn = document.getElementById("btn-diff-view");
-
-    if (this.isDiffMode) {
-      if (codeContainer) codeContainer.style.display = "none";
-      if (diffContainer) diffContainer.style.display = "block";
-      if (diffBtn) diffBtn.textContent = "✎ Code Editor";
-
-      const currentCode = this.storage.getExerciseCode(this.currentExerciseId);
-      const solutionCode =
-        this.bundle.exercises[this.currentExerciseId].solutionCode;
-
-      if (this.diffEditor) {
-        this.diffEditor.setModel({
-          original: monaco.editor.createModel(currentCode, "terraform"),
-          modified: monaco.editor.createModel(solutionCode, "terraform"),
-        });
-      }
-    } else {
-      if (codeContainer) codeContainer.style.display = "block";
-      if (diffContainer) diffContainer.style.display = "none";
-      if (diffBtn) diffBtn.textContent = "🔍 Solution Diff";
-    }
-  }
-
-  resetCurrentCode() {
-    if (confirm("Reset current exercise to starter template? Your edits will be replaced.")) {
-      const starter = this.storage.resetExercise(this.currentExerciseId);
-      if (this.monacoEditor) {
-        this.monacoEditor.setValue(starter);
-      }
-      this.updateExerciseView();
-      this.renderSyllabusTree();
-      this.updateTerminal("Reset code to original template.", "ready");
-    }
-  }
-
-  toggleFullscreen() {
-    const ws = document.getElementById("terralings-workspace");
-    if (ws) {
-      ws.classList.toggle("terralings-fullscreen");
-      if (this.monacoEditor) this.monacoEditor.layout();
-      if (this.diffEditor) this.diffEditor.layout();
-    }
-  }
-
-  navigateNext() {
-    const allIds = Object.keys(this.bundle.exercises);
-    const idx = allIds.indexOf(this.currentExerciseId);
-    if (idx >= 0 && idx < allIds.length - 1) {
-      this.switchExercise(allIds[idx + 1]);
-    }
-  }
-
-  navigatePrev() {
-    const allIds = Object.keys(this.bundle.exercises);
-    const idx = allIds.indexOf(this.currentExerciseId);
+  function navigatePrev() {
+    if (!state.bundle) return;
+    const keys = Object.keys(state.bundle.exercises);
+    const idx = keys.indexOf(state.currentExerciseId);
     if (idx > 0) {
-      this.switchExercise(allIds[idx - 1]);
+      selectExercise(keys[idx - 1]);
     }
   }
 
-  updateTerminal(text, statusStage = "ready") {
-    const term = document.getElementById("terminal-output");
-    const badge = document.getElementById("terminal-status-badge");
-    if (term) term.textContent = text;
-    if (badge) {
-      badge.className = `terminal-status ${statusStage}`;
-      badge.textContent = statusStage === "loading" ? "⏳ Running..." : "⚡ Ready";
-    }
+  function toggleFullscreen() {
+    const ws = state.elements.workspace;
+    if (!ws) return;
+    ws.classList.toggle("terralings-fullscreen");
+    setTimeout(() => {
+      if (state.editor) state.editor.layout();
+      if (state.diffEditor) state.diffEditor.layout();
+    }, 150);
   }
 
-  updateStatusBadge(msg, stage) {
-    const badge = document.getElementById("terminal-status-badge");
-    if (badge) {
-      badge.textContent = msg;
-      badge.className = `terminal-status ${stage === "ready" ? "success" : "loading"}`;
+  /**
+   * ==========================================================================
+   * 4. Monaco Editor Initialization
+   * ==========================================================================
+   */
+  function registerHclLanguage(monaco) {
+    if (monaco.languages.getLanguages().some((l) => l.id === "terraform")) {
+      return;
     }
+
+    monaco.languages.register({ id: "terraform", extensions: [".tf", ".hcl"] });
+    monaco.languages.setMonarchTokensProvider("terraform", {
+      keywords: [
+        "terraform",
+        "resource",
+        "data",
+        "variable",
+        "locals",
+        "output",
+        "module",
+        "moved",
+        "check",
+        "import",
+        "removed",
+        "provider",
+      ],
+      typeKeywords: [
+        "string",
+        "number",
+        "bool",
+        "list",
+        "map",
+        "set",
+        "object",
+        "tuple",
+        "any",
+      ],
+      operators: ["=", "==", "!=", "<=", ">=", "<", ">", "&&", "||", "!", "?"],
+      tokenizer: {
+        root: [
+          [
+            /[a-zA-Z_]\w*/,
+            {
+              cases: {
+                "@keywords": "keyword",
+                "@typeKeywords": "type",
+                "@default": "identifier",
+              },
+            },
+          ],
+          [/"([^"\\]|\\.)*"/, "string"],
+          [/<<-?\s*(\w+)/, "string.heredoc"],
+          [/#.*$/, "comment"],
+          [/\/\/.*$/, "comment"],
+          [/\/\*/, "comment", "@comment"],
+          [/[{}()\[\]]/, "@brackets"],
+          [/[=><!~?:]+/, "operator"],
+          [/\d+/, "number"],
+        ],
+        comment: [
+          [/[^\/*]+/, "comment"],
+          [/\*\//, "comment", "@pop"],
+          [/[\/*]/, "comment"],
+        ],
+      },
+    });
   }
 
-  renderLoadingPlaceholder(message) {
-    const container = document.getElementById("terralings-app");
-    if (container) {
-      container.innerHTML = `
-        <div class="terralings-loading-screen">
-          <div class="spinner"></div>
-          <p>${message}</p>
-        </div>
-      `;
-    }
-  }
+  function initMonacoInstance() {
+    const monaco = window.monaco;
+    if (!monaco || !state.elements.monacoPane) return;
 
-  renderErrorPlaceholder(message) {
-    const container = document.getElementById("terralings-app");
-    if (container) {
-      container.innerHTML = `
-        <div class="terralings-error-screen">
-          <p>⚠️ ${message}</p>
-        </div>
-      `;
-    }
-  }
+    registerHclLanguage(monaco);
 
-  bindEvents() {
-    // Toolbar buttons
-    document.getElementById("btn-run")?.addEventListener("click", () => this.runValidation());
-    document.getElementById("btn-hint")?.addEventListener("click", () => this.revealNextHint());
-    document.getElementById("btn-close-hint")?.addEventListener("click", () => this.hideHints());
-    document.getElementById("btn-reset-code")?.addEventListener("click", () => this.resetCurrentCode());
-    document.getElementById("btn-diff-view")?.addEventListener("click", () => this.toggleDiffMode());
-    document.getElementById("btn-fullscreen")?.addEventListener("click", () => this.toggleFullscreen());
-    document.getElementById("btn-next-ex")?.addEventListener("click", () => this.navigateNext());
-    document.getElementById("btn-prev-ex")?.addEventListener("click", () => this.navigatePrev());
+    const theme = getMonacoTheme();
+    const ex = state.bundle && state.bundle.exercises[state.currentExerciseId];
+    const exState =
+      ex &&
+      TerralingsStorage.getExerciseState(state.currentExerciseId, ex.starter_code);
+    const initialCode =
+      (exState && exState.userCode) || (ex && ex.starter_code) || "";
 
-    // Storage Actions
-    document.getElementById("btn-export-json")?.addEventListener("click", () => this.storage.exportProgress());
-
-    const fileInput = document.getElementById("file-import-input");
-    document.getElementById("btn-import-json")?.addEventListener("click", () => {
-      fileInput?.click();
+    state.editor = monaco.editor.create(state.elements.monacoPane, {
+      value: initialCode,
+      language: "terraform",
+      theme: theme,
+      automaticLayout: true,
+      minimap: { enabled: false },
+      scrollBeyondLastLine: false,
+      fontSize: 13,
+      fontFamily:
+        "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+      lineNumbers: "on",
+      tabSize: 2,
     });
 
-    fileInput?.addEventListener("change", (e) => {
-      const file = e.target.files[0];
+    state.editor.onDidChangeModelContent(() => {
+      const code = state.editor.getValue();
+      TerralingsStorage.saveExerciseCode(state.currentExerciseId, code);
+    });
+
+    state.diffEditor = monaco.editor.createDiffEditor(state.elements.diffPane, {
+      theme: theme,
+      automaticLayout: true,
+      readOnly: true,
+      minimap: { enabled: false },
+      fontSize: 13,
+      fontFamily:
+        "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+    });
+
+    state.monacoLoaded = true;
+
+    // Observe MkDocs color scheme changes
+    const observer = new MutationObserver(() => {
+      if (window.monaco) {
+        window.monaco.editor.setTheme(getMonacoTheme());
+      }
+    });
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["data-md-color-scheme"],
+    });
+  }
+
+  function loadMonacoScript() {
+    if (window.monaco) {
+      initMonacoInstance();
+      return;
+    }
+
+    if (window.require && typeof window.require === "function") {
+      window.require.config({
+        paths: {
+          vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs",
+        },
+      });
+      window.require(["vs/editor/editor.main"], function () {
+        initMonacoInstance();
+      });
+      return;
+    }
+
+    const loaderScript = document.createElement("script");
+    loaderScript.src =
+      "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js";
+    loaderScript.onload = function () {
+      window.require.config({
+        paths: {
+          vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs",
+        },
+      });
+      window.require(["vs/editor/editor.main"], function () {
+        initMonacoInstance();
+      });
+    };
+    document.head.appendChild(loaderScript);
+  }
+
+  /**
+   * ==========================================================================
+   * 5. Pyodide Web Worker Setup
+   * ==========================================================================
+   */
+  async function initWorker() {
+    const workerUrl = resolveAssetUrl("playground-worker.js");
+    let worker;
+
+    try {
+      worker = new Worker(workerUrl);
+    } catch (e) {
+      try {
+        const resp = await fetch(workerUrl);
+        const code = await resp.text();
+        const blob = new Blob([code], { type: "application/javascript" });
+        worker = new Worker(URL.createObjectURL(blob));
+      } catch (err) {
+        updateStatus("error", "Failed to spawn Web Worker: " + err.message);
+        return;
+      }
+    }
+
+    state.worker = worker;
+
+    worker.onmessage = function (e) {
+      const msg = e.data;
+      if (!msg) return;
+
+      if (msg.type === "STATUS") {
+        updateStatus(msg.stage, msg.message);
+        if (msg.stage === "ready") {
+          state.workerReady = true;
+          const ex =
+            state.bundle && state.bundle.exercises[state.currentExerciseId];
+          if (state.elements.terminalOutput && ex) {
+            state.elements.terminalOutput.innerHTML = `
+<span class="term-pass">🚀 Terralings WebAssembly Sandbox Ready (Python 3.12 + Pyodide)</span>
+<span class="term-dim">Active Exercise: </span><strong>${escapeHtml(ex.name)}</strong> — ${escapeHtml(ex.title)}
+<span class="term-dim">Click </span><span class="term-pass">▶ Run Solution</span><span class="term-dim"> (Ctrl+Enter) to evaluate HCL.</span>
+`;
+          }
+        }
+      } else if (msg.type === "RUN_RESULT") {
+        handleRunResult(msg);
+      }
+    };
+
+    worker.onerror = function (err) {
+      updateStatus("error", "Worker error: " + (err.message || "Unknown error"));
+    };
+
+    worker.postMessage({
+      type: "INIT",
+      bundle: state.bundle,
+    });
+  }
+
+  /**
+   * ==========================================================================
+   * 6. Events & Main Entry Point
+   * ==========================================================================
+   */
+  function attachEventHandlers() {
+    const el = state.elements;
+
+    el.runBtn?.addEventListener("click", runCurrentExercise);
+    el.hintBtn?.addEventListener("click", toggleHint);
+    el.closeHintBtn?.addEventListener("click", () => {
+      state.revealedHints = 0;
+      TerralingsStorage.setHintsRevealed(state.currentExerciseId, 0);
+      renderHints();
+    });
+    el.diffBtn?.addEventListener("click", toggleDiffView);
+    el.prevBtn?.addEventListener("click", navigatePrev);
+    el.nextBtn?.addEventListener("click", navigateNext);
+    el.fullscreenBtn?.addEventListener("click", toggleFullscreen);
+
+    el.resetCodeBtn?.addEventListener("click", () => {
+      const ex = state.bundle && state.bundle.exercises[state.currentExerciseId];
+      if (!ex) return;
+      if (confirm(`Reset ${ex.name} to starter template?`)) {
+        TerralingsStorage.resetExercise(state.currentExerciseId, ex.starter_code);
+        selectExercise(state.currentExerciseId);
+      }
+    });
+
+    el.exportBtn?.addEventListener("click", () => TerralingsStorage.exportJson());
+    el.importBtn?.addEventListener("click", () => el.fileInput?.click());
+    el.fileInput?.addEventListener("change", (e) => {
+      const file = e.target.files?.[0];
       if (!file) return;
       const reader = new FileReader();
       reader.onload = (evt) => {
-        if (this.storage.importProgress(evt.target.result)) {
-          alert("✓ Progress imported successfully!");
-          this.updateGlobalProgress();
-          this.switchExercise(this.storage.state.lastActiveExerciseId || "primitives01");
+        const ok = TerralingsStorage.importJson(evt.target?.result, state.bundle);
+        if (ok) {
+          selectExercise(TerralingsStorage.state.lastActiveExerciseId || "primitives01");
+          alert("Progress restored successfully!");
         } else {
-          alert("✕ Failed to import progress file. Invalid JSON structure.");
+          alert("Failed to parse progress JSON file.");
         }
       };
       reader.readAsText(file);
     });
 
-    document.getElementById("btn-reset-all")?.addEventListener("click", () => {
-      if (confirm("Reset ALL progress across all 56 exercises? This cannot be undone.")) {
-        this.storage.resetAllProgress();
-        this.updateGlobalProgress();
-        this.switchExercise("primitives01");
+    el.resetAllBtn?.addEventListener("click", () => {
+      if (confirm("Reset all progress across all 56 exercises? This cannot be undone.")) {
+        TerralingsStorage.resetAll(state.bundle);
+        selectExercise("primitives01");
       }
     });
 
-    // Search and Filters
-    const searchInput = document.getElementById("syllabus-search");
-    searchInput?.addEventListener("input", (e) => {
-      this.searchQuery = e.target.value.toLowerCase().trim();
-      this.renderSyllabusTree();
+    el.searchInput?.addEventListener("input", (e) => {
+      state.searchQuery = e.target.value.toLowerCase().trim();
+      renderSyllabusTree();
     });
 
-    document.querySelectorAll(".filter-tab").forEach((tab) => {
+    el.filterTabs.forEach((tab) => {
       tab.addEventListener("click", (e) => {
-        document.querySelectorAll(".filter-tab").forEach((t) => t.classList.remove("active"));
+        el.filterTabs.forEach((t) => t.classList.remove("active"));
         e.target.classList.add("active");
-        this.filterStatus = e.target.dataset.filter;
-        this.renderSyllabusTree();
+        state.sidebarFilter = e.target.dataset.filter;
+        renderSyllabusTree();
       });
     });
 
-    // Global Keybindings
     window.addEventListener("keydown", (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
         e.preventDefault();
-        this.runValidation();
+        runCurrentExercise();
       } else if (e.altKey && e.key === "ArrowRight") {
         e.preventDefault();
-        this.navigateNext();
+        navigateNext();
       } else if (e.altKey && e.key === "ArrowLeft") {
         e.preventDefault();
-        this.navigatePrev();
+        navigatePrev();
       } else if (e.key === "F11") {
         e.preventDefault();
-        this.toggleFullscreen();
+        toggleFullscreen();
       }
     });
   }
-}
 
-// Auto-initialize when page loads
-document.addEventListener("DOMContentLoaded", () => {
-  if (document.getElementById("terralings-app")) {
-    const app = new TerralingsUI();
-    app.init();
-    window.terralingsApp = app;
+  async function initPlayground() {
+    const container = document.getElementById("terralings-app");
+    if (!container) return;
+    state.container = container;
+
+    renderPlaygroundSkeleton(container);
+    bindElements(container);
+    attachEventHandlers();
+
+    try {
+      updateStatus("loading", "⚡ Loading 56-exercise curriculum bundle...");
+      const bundleUrl = resolveAssetUrl("playground-bundle.json");
+      const resp = await fetch(bundleUrl);
+      state.bundle = await resp.json();
+
+      TerralingsStorage.init(state.bundle);
+      const startExId =
+        TerralingsStorage.state.lastActiveExerciseId || "primitives01";
+      state.currentExerciseId = state.bundle.exercises[startExId]
+        ? startExId
+        : "primitives01";
+
+      updateGlobalProgress();
+      renderSyllabusTree();
+      selectExercise(state.currentExerciseId);
+
+      loadMonacoScript();
+      await initWorker();
+    } catch (err) {
+      updateStatus("error", "Initialization failed: " + err.message);
+      if (state.elements.terminalOutput) {
+        state.elements.terminalOutput.innerHTML = `<span class="term-fail">❌ Failed to initialize playground: ${escapeHtml(err.message)}</span>`;
+      }
+    }
   }
-});
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initPlayground);
+  } else {
+    initPlayground();
+  }
+
+  if (typeof window.document$ !== "undefined") {
+    window.document$.subscribe(initPlayground);
+  }
+})();
