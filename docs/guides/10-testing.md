@@ -2,87 +2,194 @@
 
 <div class="grid cards" markdown>
 
--   :material-school: **Topic Focus** &bull; Native Testing Framework, `run` Blocks, Mock Providers, Assertions, and Negative Testing
--   :material-play-circle: **Interactive Challenges** &bull; 4 Hands-on Exercises
--   :material-rocket-launch: [**Launch Playground in Wasm →**](../playground/index.html){ .md-button .md-button--primary }
+-   :material-school: **Topic Focus** &bull; Native `.tftest.hcl` Test Suites, `run` Blocks, Assertions, Mocking, and Failure Tests
+-   :material-api: **Primary Primitives** &bull; `run`, `assert`, `mock_provider`, `expect_failures`, `override_resource`
+-   :material-rocket-launch: [**Launch Playground in Wasm →**](../playground/index.html?chapter=10){ .md-button .md-button--primary }
 
 </div>
 
 ---
 
-## 1. Architectural Overview & Test Runner Mechanics
+## 1. Architectural Overview & Test Framework Mechanics
 
-Terraform &ge; 1.6.0 and OpenTofu feature a native, declarative testing framework (`tofu test` / `terraform test`). Tests are written in `.tftest.hcl` files, executing sequential `run` blocks against isolated ephemeral states with assertions and provider mocking.
+In modern Terraform and OpenTofu, **Native Testing** executes via `.tftest.hcl` files. The testing framework provisions isolated ephemeral environments, mocks external cloud providers without credentials, runs assertion rules against planned or applied states, and verifies defensive failure paths.
 
 ```text
-    ┌──────────────────────────────┐
-    │     main.tf & variables.tf   │ (Module Under Test)
-    └──────────────┬───────────────┘
-                   │
-                   ▼ (tofu test / terraform test)
-    ┌──────────────────────────────┐
-    │  Test Suite (tests/*.tftest) │
-    │  • run "unit_validation"     │ (command = plan)
-    │  • run "e2e_integration"     │ (command = apply)
-    └──────────────┬───────────────┘
-                   │
-                   ▼ (Assertion Engine)
-    ┌──────────────────────────────┐
-    │  assert { condition = ... }  │ ──► [ Pass / Fail Report ]
-    └──────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                 Native `.tftest.hcl` Test Engine            │
+│                                                             │
+│   Ephemeral Test Harness                                    │
+│   ┌───────────────────────────────────────────────────────┐ │
+│   │ `run "unit_plan"` {                                   │ │
+│   │   command = plan                                      │ │
+│   │   variables = { env = "prod" }                        │ │
+│   │   assert {                                            │ │
+│   │     condition     = terraform_data.db.input.tier != ""│ │
+│   │     error_message = "Tier must not be empty"          │ │
+│   │   }                                                   │ │
+│   │ }                                                     │ │
+│   └──────────────────────────┬────────────────────────────┘ │
+│                              │                              │
+│                              ▼                              │
+│   ┌───────────────────────────────────────────────────────┐ │
+│   │ Mock Provider Subsystem (Zero Cloud Credentials)      │ │
+│   │ ├── `mock_provider "aws"`                             │ │
+│   │ └── `override_resource`                               │ │
+│   └──────────────────────────┬────────────────────────────┘ │
+│                              │                              │
+│                              ▼                              │
+│   ┌───────────────────────────────────────────────────────┐ │
+│   │ Negative Testing Guard                                │ │
+│   │ └── `expect_failures = [var.invalid_param]`           │ │
+│   └───────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
 ```
+
+Testing Modes:
+1. **`command = plan` (Unit Testing)**: Validates variable validations, locals, and planned resource values in memory without issuing cloud API calls.
+2. **`command = apply` (Integration Testing)**: Provisions real or mocked resources to test computed output contracts.
+3. **`mock_provider`**: Intercepts provider API calls and returns synthetic mock attributes for fast, deterministic unit test execution.
+4. **`expect_failures`**: Asserts that invalid input configurations fail validation as expected.
 
 ---
 
-## 2. Annotated HCL Anatomy & Schema Reference
+## 2. Annotated Production HCL Anatomy & Field Reference
+
+Below is a production-grade `.tftest.hcl` specification demonstrating plan-time assertions, provider mocking, and negative test verification:
 
 ```hcl
-# tests/validation.tftest.hcl
+# tests/cluster_validation.tftest.hcl
 
-# Mock provider data/resources for fast unit tests without cloud credentials
-mock_provider "local" {}
+# 1. Mock external cloud provider for isolated unit tests
+mock_provider "aws" {}
 
-run "verify_port_assignment" {
+# 2. Plan-time unit test block
+run "validate_production_sizing" {
   command = plan
 
-  variables {
-    environment = "staging"
+  variables = {
+    environment = "production"
+    cluster_size = 5
   }
 
   assert {
-    condition     = local_file.app_config.file_permission == "0644"
-    error_message = "File permissions must be set to 0644."
+    condition     = terraform_data.cluster.input.desired_nodes == 5
+    error_message = "Production cluster must initialize with exactly 5 nodes."
+  }
+
+  assert {
+    condition     = terraform_data.cluster.input.tier == "enterprise"
+    error_message = "Production cluster must use enterprise tier."
   }
 }
 
-run "expect_invalid_environment_failure" {
+# 3. Negative test asserting that invalid inputs are blocked
+run "reject_invalid_cluster_size" {
   command = plan
 
-  variables {
-    environment = "invalid-tier"
+  variables = {
+    environment  = "production"
+    cluster_size = 999  # Exceeds allowed limit
   }
 
+  # Expect variable validation condition to trigger failure
   expect_failures = [
-    var.environment
+    var.cluster_size
   ]
 }
 ```
 
+### Key Test Schema Reference Table
+
+| Field / Block | Type | Description |
+| :--- | :--- | :--- |
+| `run "<name>"` | `Block` | Declares a single test step executed sequentially within the test suite. |
+| `run.command` | `String` | Test execution mode: `plan` (fast unit test) or `apply` (provisions resources). |
+| `run.variables` | `Map` | Variables passed specifically to this test step. |
+| `run.assert` | `Block` | Custom assertion condition that must evaluate to `true`. |
+| `assert.condition` | `Boolean Expression` | Test assertion expression checking resource attributes or outputs. |
+| `assert.error_message` | `String` | Explanation output if the assertion condition fails. |
+| `mock_provider "<name>"` | `Block` | Mocks a provider plugin without requiring real cloud API credentials. |
+| `expect_failures` | `List(References)` | Asserts that specific variables or resource checks fail validation. |
+
 ---
 
-## 3. Production Best Practices
+## 3. Real-World Architectural Patterns
 
-1. **Test Plans Before Applies**: Run fast `command = plan` unit tests for syntax, variable validations, and output calculations before running slow infrastructure provisioning tests.
-2. **Negative Testing with `expect_failures`**: Explicitly verify that invalid inputs correctly trigger expected validation errors.
-3. **Use Mock Providers**: Isolate module logic from external cloud APIs using `mock_provider` for fast, reproducible CI/CD execution.
+### Pattern 1: Multi-Step Sequential Integration Test
+
+```hcl
+# Step 1: Create network foundation
+run "setup_network" {
+  command = apply
+  variables = {
+    enable_vpc = true
+  }
+}
+
+# Step 2: Test dependent application deployment
+run "deploy_application" {
+  command = apply
+  variables = {
+    vpc_id = run.setup_network.vpc_id
+  }
+
+  assert {
+    condition     = length(terraform_data.app_nodes) > 0
+    error_message = "Application nodes failed to deploy into VPC."
+  }
+}
+```
+
+### Pattern 2: Mocking Computed Resource Attributes
+
+```hcl
+mock_provider "aws" {
+  mock_data "aws_ami" {
+    defaults = {
+      id   = "ami-0123456789mock"
+      name = "ubuntu-22.04-mocked"
+    }
+  }
+}
+```
 
 ---
 
-## 4. Hands-on Exercises in this Chapter
+## 4. Production Hardening & Operational Governance
 
-| Exercise ID | Name | Mode | Key Learning Objective |
-|---|---|:---:|---|
-| `testing01` | First Native Unit Test | `test` | Author a basic `.tftest.hcl` test suite with `run` blocks and assertions. |
-| `testing02` | Plan Mode Assertions | `test` | Validate plan-time attribute values and output calculations without applying. |
-| `testing03` | Mock Providers & Stubs | `test` | Mock provider interactions for instant offline test execution. |
-| `testing04` | Negative Testing with `expect_failures` | `test` | Verify that constraint violations trigger intended custom error conditions. |
+- **Require Tests in CI**: Run `tofu test` or `terraform test` on every pull request to catch configuration regressions before merging.
+- **Prefer `command = plan` for Unit Suites**: Fast plan-time tests execute in milliseconds and cover 90% of validation logic without incurring cloud costs.
+- **Always Test Failure Scenarios**: Use `expect_failures` to ensure that custom `validation`, `precondition`, and `postcondition` blocks actually reject invalid input.
+
+---
+
+## 5. Failure Modes & Diagnostic Triage Tree
+
+??? failure "Error: Test assertion failed (`assert { condition = ... }`)"
+    **Root Cause:** The evaluated condition expression in an `assert` block returned `false`.
+
+    **Diagnostic Triage Sequence:**
+    1. Check the `error_message` printed by `tofu test`.
+    2. Inspect the resource attributes evaluated during the test run.
+    3. Verify variable inputs provided in the `run` block.
+
+??? failure "Error: Expected failure was not observed (`expect_failures`)"
+    **Root Cause:** A test step configured with `expect_failures` passed without triggering the expected validation error.
+
+    **Diagnostic Triage Sequence:**
+    1. Verify that the variable or resource listed in `expect_failures` actually has a `validation` block.
+    2. Check that the input value passed in `variables` actually violates the validation condition.
+
+---
+
+## 6. Interactive Practice Matrix
+
+Practice concepts from this chapter directly in the interactive WebAssembly sandbox:
+
+| Exercise ID | Challenge Description | Direct Link | Action |
+| :--- | :--- | :--- | :--- |
+| **`test01`** | Basic Test Assertions with Run Blocks | [`../playground/index.html?exercise=test01`](../playground/index.html?exercise=test01) | [**⚡ Solve in Playground →**](../playground/index.html?exercise=test01){ .md-button .md-button--primary } |
+| **`test02`** | Validating Applied Resources in Tests | [`../playground/index.html?exercise=test02`](../playground/index.html?exercise=test02) | [**⚡ Solve in Playground →**](../playground/index.html?exercise=test02){ .md-button .md-button--primary } |
+| **`test03`** | Mocking Providers and Resources | [`../playground/index.html?exercise=test03`](../playground/index.html?exercise=test03) | [**⚡ Solve in Playground →**](../playground/index.html?exercise=test03){ .md-button .md-button--primary } |
+| **`test04`** | Testing Failure Cases with Expect Failures | [`../playground/index.html?exercise=test04`](../playground/index.html?exercise=test04) | [**⚡ Solve in Playground →**](../playground/index.html?exercise=test04){ .md-button .md-button--primary } |

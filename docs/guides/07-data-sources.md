@@ -2,52 +2,153 @@
 
 <div class="grid cards" markdown>
 
--   :material-school: **Topic Focus** &bull; Read-Only Data Sources, Filesystem Queries, External Providers, and Pre/Postconditions
--   :material-play-circle: **Interactive Challenges** &bull; 4 Hands-on Exercises
--   :material-rocket-launch: [**Launch Playground in Wasm →**](../playground/index.html){ .md-button .md-button--primary }
+-   :material-school: **Topic Focus** &bull; Read-Only State, External Queries, Archive Generation, and Pre/Postconditions
+-   :material-api: **Primary Primitives** &bull; `data`, `precondition`, `postcondition`, `lifecycle`
+-   :material-rocket-launch: [**Launch Playground in Wasm →**](../playground/index.html?chapter=7){ .md-button .md-button--primary }
 
 </div>
 
 ---
 
-## 1. Architectural Overview & Read-Only Queries
+## 1. Architectural Overview & Read-Only Query Lifecycle
 
-Data sources allow configurations to fetch information defined outside of the immediate Terraform workspace (e.g. existing subnets, AMIs, local files, or remote state). Unlike `resource` blocks, data sources are read-only and never create, mutate, or destroy remote infrastructure.
+In Terraform and OpenTofu, **Data Sources** allow configurations to query information defined outside of the current management scope. Data sources are strictly read-only; they fetch data during the refresh/plan phase and make it available to resources, locals, and outputs.
 
 ```text
-    ┌──────────────────────────────┐
-    │     Data Source Block        │ (Filter / Search Query)
-    └──────────────┬───────────────┘
-                   │
-                   ▼ (Provider Read API)
-    ┌──────────────────────────────┐
-    │  External System / Cloud API │
-    └──────────────┬───────────────┘
-                   │
-                   ▼ (Data Export)
-    ┌──────────────────────────────┐
-    │  data.local_file.spec.content│ ──► [ Consumed by Downstream Resources ]
-    └──────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                   Data Source Query Lifecycle               │
+│                                                             │
+│   External Reality (Cloud APIs, Filesystem, Remote State)   │
+│                              │                              │
+│                              ▼ (Read & Fetch)               │
+│   ┌───────────────────────────────────────────────────────┐ │
+│   │ `data "<type>" "<name>"` Block Execution              │ │
+│   │ - Refreshed during `plan` (or deferred if dependent)  │ │
+│   └──────────────────────────┬────────────────────────────┘ │
+│                              │                              │
+│                              ▼                              │
+│   ┌───────────────────────────────────────────────────────┐ │
+│   │ Lifecycle Contracts (Defensive Invariants)            │ │
+│   │ ├── `precondition`  - Evaluate before data read/apply │ │
+│   │ └── `postcondition` - Verify queried data invariants  │ │
+│   └──────────────────────────┬────────────────────────────┘ │
+│                              │                              │
+│                              ▼                              │
+│   Downstream Managed Resources (`resource "..." "..."`)     │
+└─────────────────────────────────────────────────────────────┘
 ```
+
+Query Phases:
+1. **Static Data Sources**: Queries with known inputs execute immediately during the plan phase.
+2. **Dynamic Data Sources**: Queries that depend on computed resource attributes are deferred to the apply phase.
+3. **Contract Enforcement**: `precondition` and `postcondition` blocks guarantee that external assumptions remain valid before and after queries execute.
 
 ---
 
-## 2. Annotated HCL Anatomy & Schema Reference
+## 2. Annotated Production HCL Anatomy & Field Reference
+
+Below is a production-grade configuration demonstrating data source queries, filesystem archive creation, and defensive precondition contracts:
 
 ```hcl
-# Read existing local file data
-data "local_file" "schema" {
-  filename = "${path.module}/schema.json"
+variable "min_security_compliance_level" {
+  type    = number
+  default = 3
 }
 
-# Resource enforcing preconditions on data source output
-resource "terraform_data" "validator" {
-  input = data.local_file.schema.content
+# Local file data source query
+data "local_file" "release_manifest" {
+  filename = "${path.module}/release.json"
+}
+
+# External JSON script query with defensive contract
+data "external" "cluster_telemetry" {
+  program = ["bash", "-c", "echo '{\"active_nodes\":\"5\", \"compliance_level\":\"4\"}'"]
+
+  lifecycle {
+    # Contract evaluated before query execution
+    precondition {
+      condition     = var.min_security_compliance_level >= 1
+      error_message = "Minimum security compliance level must be at least 1."
+    }
+
+    # Invariant checked against queried data
+    postcondition {
+      condition     = tonumber(self.result.compliance_level) >= var.min_security_compliance_level
+      error_message = "External cluster fails required compliance level."
+    }
+  }
+}
+
+# Archive generation data source
+data "archive_file" "lambda_payload" {
+  type        = "zip"
+  output_path = "${path.module}/dist/payload.zip"
+  source {
+    content  = data.local_file.release_manifest.content
+    filename = "manifest.json"
+  }
+}
+
+resource "terraform_data" "deployment" {
+  input = {
+    archive_hash = data.archive_file.lambda_payload.output_base64sha256
+    node_count   = tonumber(data.external.cluster_telemetry.result.active_nodes)
+  }
+}
+```
+
+### Key Field Schema Reference
+
+| Field / Block | Type | Description |
+| :--- | :--- | :--- |
+| `data "<type>" "<name>"` | `Block` | Declares a read-only data query managed by a provider plugin. |
+| `data.*.result` | `Map(String)` | Standard return map for `data "external"` queries. |
+| `lifecycle.precondition` | `Block` | Invariant condition evaluated BEFORE resource/data query is planned or executed. |
+| `lifecycle.postcondition` | `Block` | Invariant condition evaluated AFTER resource/data query is executed. References `self`. |
+| `self.<attr>` | `Reference` | Self-referencing keyword inside `postcondition` blocks to inspect evaluated attributes. |
+
+---
+
+## 3. Real-World Architectural Patterns
+
+### Pattern 1: Lambda Archive Packaging with Hash-Driven Triggers
+
+```hcl
+data "archive_file" "service_bundle" {
+  type        = "zip"
+  source_dir  = "${path.module}/src"
+  output_path = "${path.module}/build/bundle.zip"
+}
+
+resource "terraform_data" "function_deployment" {
+  input = {
+    bundle_hash = data.archive_file.service_bundle.output_base64sha256
+  }
+
+  lifecycle {
+    # Force replacement whenever source code bundle hash changes
+    triggers_replace = [
+      data.archive_file.service_bundle.output_base64sha256
+    ]
+  }
+}
+```
+
+### Pattern 2: Precondition Guard on VPC Subnet Availability
+
+```hcl
+variable "target_cidr" {
+  type    = string
+  default = "10.0.0.0/16"
+}
+
+resource "terraform_data" "network_allocation" {
+  input = { cidr = var.target_cidr }
 
   lifecycle {
     precondition {
-      condition     = length(data.local_file.schema.content) > 0
-      error_message = "The schema file must not be empty."
+      condition     = can(cidrnetmask(var.target_cidr))
+      error_message = "Invalid CIDR mask format provided."
     }
   }
 }
@@ -55,18 +156,41 @@ resource "terraform_data" "validator" {
 
 ---
 
-## 3. Production Best Practices
+## 4. Production Hardening & Operational Governance
 
-1. **Use Preconditions and Postconditions**: Guard data lookups with `lifecycle.precondition` and `lifecycle.postcondition` blocks to catch external API drift or empty search query results early.
-2. **Avoid Non-Deterministic Data Sources in Plan**: Be cautious with data sources that evaluate during the apply phase (when arguments depend on uncreated resources), as this defers validation to apply time.
+- **Avoid Deferred Data Sources When Possible**: Passing unknown computed attributes to data sources forces their execution into the apply phase, preventing complete plan visibility.
+- **Enforce Invariants with `postcondition`**: Use `postcondition` to verify external system contracts (e.g. confirming that an queried VPC has DNS support enabled).
+- **Treat `data "external"` as a Last Resort**: External script data sources introduce non-deterministic dependencies on host shell environments and external runtimes.
 
 ---
 
-## 4. Hands-on Exercises in this Chapter
+## 5. Failure Modes & Diagnostic Triage Tree
 
-| Exercise ID | Name | Mode | Key Learning Objective |
-|---|---|:---:|---|
-| `datasources01` | Local File Data Sources | `plan` | Query and consume local filesystem contents via `data "local_file"`. |
-| `datasources02` | Archive Zip Data Generation | `plan` | Dynamically package directories into zip payloads for deployment. |
-| `datasources03` | External Script Data Integration | `plan` | Query structured JSON data from external shell scripts. |
-| `datasources04` | Data Preconditions & Postconditions | `plan` | Enforce assertions on fetched data before plan execution. |
+??? failure "Error: Resource Precondition / Postcondition Failed"
+    **Root Cause:** The condition expression inside a `precondition` or `postcondition` evaluated to `false`.
+
+    **Diagnostic Triage Sequence:**
+    1. Read the custom `error_message` returned in the plan output.
+    2. Inspect the queried values or inputs to determine why the invariant was violated.
+    3. Update external infrastructure or adjust input parameters to meet the contract.
+
+??? failure "Error: `data.external` program returned invalid JSON or non-zero exit code"
+    **Root Cause:** The external script failed, printed non-JSON text to stdout, or returned non-string dictionary values.
+
+    **Diagnostic Triage Sequence:**
+    1. Run the external script manually in your terminal with identical arguments.
+    2. Ensure the script prints strictly valid single-level JSON key-value pairs of strings (e.g. `{"key":"val"}`).
+    3. Ensure stderr output is redirected if the CLI binary emits debug logs.
+
+---
+
+## 6. Interactive Practice Matrix
+
+Practice concepts from this chapter directly in the interactive WebAssembly sandbox:
+
+| Exercise ID | Challenge Description | Direct Link | Action |
+| :--- | :--- | :--- | :--- |
+| **`data01`** | Local Filesystem Data Sources | [`../playground/index.html?exercise=data01`](../playground/index.html?exercise=data01) | [**⚡ Solve in Playground →**](../playground/index.html?exercise=data01){ .md-button .md-button--primary } |
+| **`data02`** | Archive File Data Sources | [`../playground/index.html?exercise=data02`](../playground/index.html?exercise=data02) | [**⚡ Solve in Playground →**](../playground/index.html?exercise=data02){ .md-button .md-button--primary } |
+| **`data03`** | External Data Source Queries | [`../playground/index.html?exercise=data03`](../playground/index.html?exercise=data03) | [**⚡ Solve in Playground →**](../playground/index.html?exercise=data03){ .md-button .md-button--primary } |
+| **`data04`** | Custom Preconditions and Postconditions | [`../playground/index.html?exercise=data04`](../playground/index.html?exercise=data04) | [**⚡ Solve in Playground →**](../playground/index.html?exercise=data04){ .md-button .md-button--primary } |
